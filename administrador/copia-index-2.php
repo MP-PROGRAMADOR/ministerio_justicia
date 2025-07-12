@@ -1130,53 +1130,53 @@
                     </script>
 
 
-<script>
-  // Ejecutar al cargar la página
-  document.addEventListener('DOMContentLoaded', () => {
-    console.log('🔄 Cargando filtros dinámicos...');
+                    <script>
+                        // Ejecutar al cargar la página
+                        document.addEventListener('DOMContentLoaded', () => {
+                            console.log('🔄 Cargando filtros dinámicos...');
 
-    fetch('../api/cargar_filtros.php')
-      .then(res => res.json())
-      .then(data => {
-        if (!data.success) {
-          console.error('❌ Error en la carga de filtros:', data.message);
-          return;
-        }
+                            fetch('../api/cargar_filtros.php')
+                                .then(res => res.json())
+                                .then(data => {
+                                    if (!data.success) {
+                                        console.error('❌ Error en la carga de filtros:', data.message);
+                                        return;
+                                    }
 
-        // Insertar departamentos
-        const departamentoSelect = document.querySelector('select[name="id_departamento"]');
-        data.departamentos.forEach(dep => {
-          const option = document.createElement('option');
-          option.value = dep.ID_Departamento;
-          option.textContent = dep.Nombre_Departamento;
-          departamentoSelect.appendChild(option);
-        });
+                                    // Insertar departamentos
+                                    const departamentoSelect = document.querySelector('select[name="id_departamento"]');
+                                    data.departamentos.forEach(dep => {
+                                        const option = document.createElement('option');
+                                        option.value = dep.ID_Departamento;
+                                        option.textContent = dep.Nombre_Departamento;
+                                        departamentoSelect.appendChild(option);
+                                    });
 
-        // Insertar cargos
-        const cargoSelect = document.querySelector('select[name="id_cargo"]');
-        data.cargos.forEach(cargo => {
-          const option = document.createElement('option');
-          option.value = cargo.ID_Cargo;
-          option.textContent = cargo.Nombre_Cargo;
-          cargoSelect.appendChild(option);
-        });
+                                    // Insertar cargos
+                                    const cargoSelect = document.querySelector('select[name="id_cargo"]');
+                                    data.cargos.forEach(cargo => {
+                                        const option = document.createElement('option');
+                                        option.value = cargo.ID_Cargo;
+                                        option.textContent = cargo.Nombre_Cargo;
+                                        cargoSelect.appendChild(option);
+                                    });
 
-        // Insertar destinos
-        const destinoSelect = document.querySelector('select[name="id_destino"]');
-        data.destinos.forEach(dest => {
-          const option = document.createElement('option');
-          option.value = dest.ID_Destino;
-          option.textContent = dest.Nombre_Destino;
-          destinoSelect.appendChild(option);
-        });
+                                    // Insertar destinos
+                                    const destinoSelect = document.querySelector('select[name="id_destino"]');
+                                    data.destinos.forEach(dest => {
+                                        const option = document.createElement('option');
+                                        option.value = dest.ID_Destino;
+                                        option.textContent = dest.Nombre_Destino;
+                                        destinoSelect.appendChild(option);
+                                    });
 
-        console.log('✅ Filtros cargados correctamente.');
-      })
-      .catch(error => {
-        console.error('❌ Error al cargar filtros dinámicos:', error);
-      });
-  });
-</script>
+                                    console.log('✅ Filtros cargados correctamente.');
+                                })
+                                .catch(error => {
+                                    console.error('❌ Error al cargar filtros dinámicos:', error);
+                                });
+                        });
+                    </script>
 
 
 
