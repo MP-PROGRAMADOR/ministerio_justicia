@@ -71,7 +71,7 @@ if (!isset($_SESSION['ID_Usuario']) || $_SESSION['Rol_Usuario'] !== 'Administrad
                      <a class="nav-link" href="usuarios.php">
                         <i class="bi bi-award me-3"></i> Usuarios
                     </a>
-                    <a class="nav-link" href="#reportes">
+                    <a class="nav-link" href="reportes.php">
                         <i class="bi bi-file-earmark-text me-3"></i> Reportes
                     </a>
                     <a class="nav-link" href="#auditoria">
