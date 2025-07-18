@@ -8,7 +8,7 @@ if (!isset($_SESSION['ID_Usuario'])) {
   $id_usuario=$_SESSION['ID_Usuario'];
     $nombre_usuario=$_SESSION['Nombre_Usuario'];
     $rol_usuario=$_SESSION['Rol_Usuario'] ;
-include_once '../includes/conexion.php';
+include_once 'conexion.php';
 
 
 
@@ -21,32 +21,32 @@ include_once '../includes/conexion.php';
 
         // --- 1. Obtener estadísticas de tarjetas (Statistics Cards) ---
         // Total Funcionarios
-        $stmt = $pdo->query("SELECT COUNT(*) AS total FROM tbl_Funcionarios");
+        $stmt = $pdo->query("SELECT COUNT(*) AS total FROM tbl_funcionarios");
         $dashboardData['totalFuncionarios'] = $stmt->fetchColumn();
 
         // Funcionarios Activos
-        $stmt = $pdo->query("SELECT COUNT(*) AS activos FROM tbl_Funcionarios WHERE Estado_Laboral = 'Activo'");
+        $stmt = $pdo->query("SELECT COUNT(*) AS activos FROM tbl_funcionarios WHERE Estado_Laboral = 'Activo'");
         $dashboardData['funcionariosActivos'] = $stmt->fetchColumn();
 
         // Permisos Este Mes (contando los solicitados en el mes actual)
-        $stmt = $pdo->query("SELECT COUNT(*) AS permisos_mes FROM tbl_Permisos WHERE Fecha_Solicitud >= CURDATE() - INTERVAL (DAY(CURDATE())-1) DAY");
+        $stmt = $pdo->query("SELECT COUNT(*) AS permisos_mes FROM tbl_permisos WHERE Fecha_Solicitud >= CURDATE() - INTERVAL (DAY(CURDATE())-1) DAY");
         $dashboardData['permisosEsteMes'] = $stmt->fetchColumn();
 
         // Permisos Pendientes (para la notificación)
-        $stmt = $pdo->query("SELECT COUNT(*) AS pendientes FROM tbl_Permisos WHERE Estado_Permiso = 'Pendiente'");
+        $stmt = $pdo->query("SELECT COUNT(*) AS pendientes FROM tbl_permisos WHERE Estado_Permiso = 'Pendiente'");
         $dashboardData['permisosPendientes'] = $stmt->fetchColumn();
 
         // Total Destinos Activos
-        $stmt = $pdo->query("SELECT COUNT(*) AS totalDestinos FROM tbl_Destinos");
+        $stmt = $pdo->query("SELECT COUNT(*) AS totalDestinos FROM tbl_destinos");
         $dashboardData['destinosActivos'] = $stmt->fetchColumn();
 
         // Nuevos Funcionarios este mes (ejemplo)
-        $stmt = $pdo->query("SELECT COUNT(*) FROM tbl_Funcionarios WHERE Fecha_Ingreso >= CURDATE() - INTERVAL (DAY(CURDATE())-1) DAY");
+        $stmt = $pdo->query("SELECT COUNT(*) FROM tbl_funcionarios WHERE Fecha_Ingreso >= CURDATE() - INTERVAL (DAY(CURDATE())-1) DAY");
         $dashboardData['newFuncionariosThisMonth'] = $stmt->fetchColumn();
 
 
         // --- 2. Distribución de Funcionarios por Estado (Doughnut Chart) ---
-        $stmt = $pdo->query("SELECT Estado_Laboral, COUNT(*) AS count FROM tbl_Funcionarios GROUP BY Estado_Laboral");
+        $stmt = $pdo->query("SELECT Estado_Laboral, COUNT(*) AS count FROM tbl_funcionarios GROUP BY Estado_Laboral");
         $estadoData = $stmt->fetchAll();
 
         $labels = [];
@@ -63,8 +63,8 @@ include_once '../includes/conexion.php';
         // --- 3. Departamentos con Mayor Personal (Progress Bars) ---
         $stmt = $pdo->query("
             SELECT d.Nombre_Departamento, COUNT(a.ID_Funcionario) AS num_funcionarios
-            FROM tbl_Asignaciones a
-            JOIN tbl_Departamentos d ON a.ID_Departamento = d.ID_Departamento
+            FROM tbl_asignaciones a
+            JOIN tbl_departamentos d ON a.ID_Departamento = d.ID_Departamento
             GROUP BY d.Nombre_Departamento
             ORDER BY num_funcionarios DESC
             LIMIT 4
@@ -72,14 +72,14 @@ include_once '../includes/conexion.php';
         $dashboardData['departmentStaff'] = $stmt->fetchAll();
 
         // --- 4. Tipos de Destinos (Small Cards) ---
-        $stmt = $pdo->query("SELECT Tipo_Destino, COUNT(*) AS count FROM tbl_Destinos GROUP BY Tipo_Destino");
+        $stmt = $pdo->query("SELECT Tipo_Destino, COUNT(*) AS count FROM tbl_destinos GROUP BY Tipo_Destino");
         $dashboardData['destinationTypes'] = $stmt->fetchAll();
 
         // --- 5. Actividad Reciente (Recent Activity) ---
         // Últimos funcionarios añadidos
         $stmt = $pdo->query("
             SELECT 'Nuevo Funcionario' as type, Nombres, Apellidos, Fecha_Creacion_Registro as timestamp
-            FROM tbl_Funcionarios
+            FROM tbl_funcionarios
             ORDER BY Fecha_Creacion_Registro DESC LIMIT 3
         ");
         $recentActivity = $stmt->fetchAll();
@@ -87,8 +87,8 @@ include_once '../includes/conexion.php';
         // Últimos permisos solicitados/aprobados
         $stmt = $pdo->query("
             SELECT 'Permiso' as type, f.Nombres, f.Apellidos, p.Tipo_Permiso, p.Estado_Permiso, p.Fecha_Creacion_Registro as timestamp
-            FROM tbl_Permisos p
-            JOIN tbl_Funcionarios f ON p.ID_Funcionario = f.ID_Funcionario
+            FROM tbl_permisos p
+            JOIN tbl_funcionarios f ON p.ID_Funcionario = f.ID_Funcionario
             ORDER BY p.Fecha_Creacion_Registro DESC LIMIT 3
         ");
         $recentActivity = array_merge($recentActivity, $stmt->fetchAll());
@@ -104,7 +104,7 @@ include_once '../includes/conexion.php';
         $notifications = [];
 
         // Próximos permisos pendientes
-        $stmt = $pdo->query("SELECT COUNT(*) FROM tbl_Permisos WHERE Estado_Permiso = 'Pendiente'");
+        $stmt = $pdo->query("SELECT COUNT(*) FROM tbl_permisos WHERE Estado_Permiso = 'Pendiente'");
         $pendingPermitsCount = $stmt->fetchColumn();
         if ($pendingPermitsCount > 0) {
             $notifications[] = [

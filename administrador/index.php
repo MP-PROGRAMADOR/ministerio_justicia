@@ -1,6 +1,7 @@
 <?php
- include_once '../includes/header.php';
+include_once '../includes/header.php';
 ?>
+
 <body>
 
 
@@ -10,19 +11,19 @@
     <div class="container-fluid p-0">
         <div class="row g-0">
             <!-- Sidebar -->
-            
-            
+
+
             <?php
-include_once '../includes/silebar_admin.php';
+            include_once '../includes/silebar_admin.php';
 
             ?>
 
             <!-- Main Content -->
             <div class="main-content" id="mainContent">
                 <!-- Top Navigation -->
+
                 <div class="top-navbar">
                     <div class="d-flex justify-content-between align-items-center">
-                        <!-- Botón para mostrar/ocultar sidebar en móviles -->
                         <button class="btn btn-outline-secondary d-md-none me-2 menu-toggle" id="sidebarToggle">
                             <i class="bi bi-list"></i>
                         </button>
@@ -39,30 +40,38 @@ include_once '../includes/silebar_admin.php';
                                 <span class="input-group-text bg-light border-end-0">
                                     <i class="bi bi-search text-muted"></i>
                                 </span>
-                                <input type="text" class="form-control border-start-0" placeholder="Buscar funcionario...">
+                                <input type="text" class="form-control border-start-0"
+                                    placeholder="Buscar funcionario...">
                             </div>
                             <button class="btn btn-outline-primary btn-refresh" onclick="refreshData()">
                                 <i class="bi bi-arrow-clockwise me-1"></i> Actualizar
                             </button>
                             <div class="dropdown">
-                                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                    <i class="bi bi-person-circle me-1"></i> Juan Doe
+                                <button class="btn btn-outline-secondary dropdown-toggle" type="button"
+                                    data-bs-toggle="dropdown">
+                                    <i class="bi bi-person-circle me-1"></i> <?= $nombre_usuario; ?>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Mi Perfil</a></li>
-                                    <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>Configuración</a></li>
+                                    <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Mi Perfil</a>
+                                    </li>
+                                    <li><a class="dropdown-item" href="#"><i
+                                                class="bi bi-gear me-2"></i>Configuración</a></li>
                                     <li>
                                         <hr class="dropdown-divider">
                                     </li>
-                                    <li><a type="button" class="dropdown-item text-danger" href="#"><i class="bi bi-box-arrow-right me-2" data-bs-toggle="modal" data-bs-target="#logoutModal"></i>Cerrar Sesión</a></li>
+                                   
+                                    <li>
+                                        <button class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#logoutModal">
+                                            <i class="bi bi-box-arrow-right me-1"></i> Cerrar Sesión
+                                        </button>
 
-                                    
+
+                                    </li>
                                 </ul>
                             </div>
                         </div>
                     </div>
                 </div>
-
 
 
                 <!-- Header Section -->
@@ -238,14 +247,14 @@ include_once '../includes/silebar_admin.php';
                                 <div id="departmentProgressBars">
                                     <?php if (!empty($dashboardData['departmentStaff'])): ?>
                                         <?php
-                                        $totalStaffDepartments = array_reduce($dashboardData['departmentStaff'], function($sum, $dept) {
+                                        $totalStaffDepartments = array_reduce($dashboardData['departmentStaff'], function ($sum, $dept) {
                                             return $sum + ($dept['num_funcionarios'] ?? 0);
                                         }, 0);
                                         $progressColors = ['bg-primary', 'bg-success', 'bg-info', 'bg-warning', 'bg-danger', 'bg-secondary'];
                                         foreach ($dashboardData['departmentStaff'] as $index => $dept):
                                             $percentage = $totalStaffDepartments > 0 ? number_format((($dept['num_funcionarios'] ?? 0) / $totalStaffDepartments) * 100, 1) : 0;
                                             $colorClass = $progressColors[$index % count($progressColors)];
-                                            ?>
+                                        ?>
                                             <div class="mb-3">
                                                 <div class="d-flex justify-content-between mb-2">
                                                     <span class="fw-medium">
@@ -292,7 +301,7 @@ include_once '../includes/silebar_admin.php';
                                         foreach ($dashboardData['destinationTypes'] as $dest):
                                             $iconClass = $iconMap[$dest['Tipo_Destino']] ?? 'bi-question-circle';
                                             $colorClass = $colorMap[$dest['Tipo_Destino']] ?? 'secondary';
-                                            ?>
+                                        ?>
                                             <div class="col-4 mb-3">
                                                 <div class="stat-icon bg-<?php echo $colorClass; ?> bg-opacity-10 text-<?php echo $colorClass; ?> mx-auto mb-2"
                                                     style="width: 48px; height: 48px; font-size: 1.1rem;">
@@ -420,7 +429,7 @@ include_once '../includes/silebar_admin.php';
                                                     $description = htmlspecialchars($activity['description'] ?? '');
                                                     $title = htmlspecialchars($activity['type'] ?? 'Actividad');
                                             }
-                                            ?>
+                                        ?>
                                             <div class="activity-item <?php echo $activityClass; ?>">
                                                 <div class="d-flex justify-content-between align-items-center">
                                                     <p class="mb-0 fw-medium">
@@ -454,7 +463,7 @@ include_once '../includes/silebar_admin.php';
                                             } else {
                                                 $badgeHtml = '<i class="bi bi-chevron-right text-muted"></i>';
                                             }
-                                            ?>
+                                        ?>
                                             <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
                                                 <div>
                                                     <div class="fw-bold text-<?php echo htmlspecialchars($notification['type']); ?>">

@@ -45,7 +45,11 @@
                                     <li>
                                         <hr class="dropdown-divider">
                                     </li>
-                                    <li><a class="dropdown-item text-danger" href="../api/logout.php"><i class="bi bi-box-arrow-right me-2"></i>Cerrar Sesión</a></li>
+                                    <li>
+                                        <button class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#logoutModal">
+                                            <i class="bi bi-box-arrow-right me-1"></i> Cerrar Sesión
+                                        </button>
+                                    </li>
                                 </ul>
                             </div>
                         </div>

@@ -572,9 +572,9 @@ include_once '../includes/header.php';
 
                         <!-- Footer con botones -->
                         <div class="mt-4 d-flex justify-content-end gap-3">
-                            <button type="button" class="btn btn-outline-secondary" id="cancelBtn">
+                            <!-- <button type="button" class="btn btn-outline-secondary" id="cancelBtn">
                                 <i class="bi bi-x-circle me-1"></i> Cancelar
-                            </button>
+                            </button> -->
                             <button type="submit" class="btn btn-success">
                                 <i class="bi bi-person-plus-fill me-1"></i> Registrar Funcionario
                             </button>
