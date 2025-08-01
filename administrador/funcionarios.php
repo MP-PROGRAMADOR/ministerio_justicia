@@ -228,7 +228,9 @@ include_once '../includes/header.php';
 
 
 
-                                                    <button type="button" class="btn btn-sm btn-info shadow-sm" data-bs-toggle="modal" data-bs-target="#employeeDetailModal" data-funcionario-id="<?= $f['ID_Funcionario'] ?>">
+                                                    <button type="button" class="btn btn-sm btn-info shadow-sm"
+                                                        data-bs-toggle="modal" data-bs-target="#employeeDetailModal"
+                                                        data-funcionario-id="<?= $f['ID_Funcionario'] ?>">
                                                         <i class="bi bi-person-fill me-2"></i>
                                                     </button>
 
@@ -240,9 +242,10 @@ include_once '../includes/header.php';
 
 
 
-
-                                                    <button class="btn btn-sm btn-info" title="Detalles"><i
-                                                            class="bi bi-info-circle"></i></button>
+                                                    <button class="btn btn-sm btn-success" title="Descargar PDF"
+                                                        onclick="downloadFile(<?= (int) $f['ID_Funcionario'] ?>)">
+                                                        <i class="bi bi-filetype-pdf"></i>
+                                                    </button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -280,21 +283,42 @@ include_once '../includes/header.php';
 
 
 
+    <!-- script para la funcion de PDF imprimible para los funcionarios -->
+    <script> 
+        function downloadFile(id_funcionario) {
+            console.log(id_funcionario)
+            const url = '../fpdf/cv_funcionario.php?id_funcionario='+id_funcionario;
+            window.open(url, '_blank');
+        }
+         
+    </script>
+
+
+
+
+
+
+
+
+
+
+
+
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Sidebar toggle for mobile
             const sidebarToggle = document.getElementById('sidebarToggle');
             const sidebar = document.getElementById('sidebar');
             const sidebarOverlay = document.getElementById('sidebarOverlay');
             const mainContent = document.getElementById('mainContent');
 
-            sidebarToggle.addEventListener('click', function() {
+            sidebarToggle.addEventListener('click', function () {
                 sidebar.classList.toggle('show');
                 sidebarOverlay.classList.toggle('show');
             });
 
-            sidebarOverlay.addEventListener('click', function() {
+            sidebarOverlay.addEventListener('click', function () {
                 sidebar.classList.remove('show');
                 sidebarOverlay.classList.remove('show');
             });
@@ -304,7 +328,7 @@ include_once '../includes/header.php';
             const liveSearchInput = document.getElementById('liveSearchInput');
             const funcionariosTableBody = document.getElementById('funcionariosTableBody');
 
-            liveSearchInput.addEventListener('keyup', function() {
+            liveSearchInput.addEventListener('keyup', function () {
                 const searchTerm = liveSearchInput.value.toLowerCase();
                 const rows = funcionariosTableBody.getElementsByTagName('tr');
 
@@ -319,7 +343,7 @@ include_once '../includes/header.php';
             });
 
             // Function for refreshing data (example)
-            window.refreshData = function() {
+            window.refreshData = function () {
                 const refreshBtn = document.querySelector('.btn-refresh');
                 refreshBtn.classList.add('refreshing');
                 // Simulate data fetching
@@ -366,7 +390,7 @@ include_once '../includes/header.php';
                     const pageItem = document.createElement('li');
                     pageItem.classList.add('page-item');
                     pageItem.innerHTML = `<a class="page-link" href="#">${i}</a>`;
-                    pageItem.addEventListener('click', function(e) {
+                    pageItem.addEventListener('click', function (e) {
                         e.preventDefault();
                         displayPage(i);
                     });
@@ -406,7 +430,7 @@ include_once '../includes/header.php';
             setupPagination();
 
             // Event listeners for Previous and Next buttons
-            paginationControls.children[0].addEventListener('click', function(e) {
+            paginationControls.children[0].addEventListener('click', function (e) {
                 e.preventDefault();
                 const currentPage = parseInt(paginationControls.querySelector('.page-item.active .page-link').textContent);
                 if (currentPage > 1) {
@@ -414,7 +438,7 @@ include_once '../includes/header.php';
                 }
             });
 
-            paginationControls.children[paginationControls.children.length - 1].addEventListener('click', function(e) {
+            paginationControls.children[paginationControls.children.length - 1].addEventListener('click', function (e) {
                 e.preventDefault();
                 const currentPage = parseInt(paginationControls.querySelector('.page-item.active .page-link').textContent);
                 if (currentPage < totalPages) {
@@ -598,7 +622,8 @@ include_once '../includes/header.php';
 
     <!-- Modal de Detalles del Funcionario -->
     <!-- Modal de Detalles del Funcionario -->
-    <div class="modal fade" id="employeeDetailModal" tabindex="-1" aria-labelledby="employeeDetailModalLabel" aria-hidden="true">
+    <div class="modal fade" id="employeeDetailModal" tabindex="-1" aria-labelledby="employeeDetailModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content rounded-5 shadow-lg position-relative">
                 <!-- Spinner de carga -->
@@ -610,7 +635,8 @@ include_once '../includes/header.php';
 
                 <!-- Cabecera del modal -->
                 <div class="modal-header px-4 pt-4 pb-2 border-0">
-                    <h2 class="modal-title fs-3 fw-bold text-dark d-flex align-items-center" id="employeeDetailModalLabel">
+                    <h2 class="modal-title fs-3 fw-bold text-dark d-flex align-items-center"
+                        id="employeeDetailModalLabel">
                         <i class="bi bi-person-badge-fill text-primary me-3 fs-2"></i>
                         Detalles del Funcionario
                     </h2>
@@ -642,7 +668,9 @@ include_once '../includes/header.php';
     </div>
 
     <!-- Bootstrap 5.3 JavaScript Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
     <script>
         // Función para formatear fecha
         function formatDate(dateString) {
@@ -835,7 +863,7 @@ include_once '../includes/header.php';
         const employeeDetailModalElement = document.getElementById('employeeDetailModal');
         const myModal = new bootstrap.Modal(employeeDetailModalElement);
 
-        employeeDetailModalElement.addEventListener('show.bs.modal', function(event) {
+        employeeDetailModalElement.addEventListener('show.bs.modal', function (event) {
             const button = event.relatedTarget;
             const funcionarioId = button.getAttribute('data-funcionario-id');
             if (funcionarioId) {
@@ -892,7 +920,8 @@ include_once '../includes/header.php';
                                 <label for="editCodigoFuncionario" class="form-label fw-semibold">
                                     <i class="bi bi-hash text-primary me-2"></i>Código Funcionario
                                 </label>
-                                <input type="text" class="form-control" id="editCodigoFuncionario" name="Codigo_Funcionario" required readonly>
+                                <input type="text" class="form-control" id="editCodigoFuncionario"
+                                    name="Codigo_Funcionario" required readonly>
                             </div>
 
                             <!-- Nombres -->
@@ -924,7 +953,8 @@ include_once '../includes/header.php';
                                 <label for="editFechaNacimiento" class="form-label fw-semibold">
                                     <i class="bi bi-calendar-date text-primary me-2"></i>Fecha de Nacimiento
                                 </label>
-                                <input type="date" class="form-control" id="editFechaNacimiento" name="Fecha_Nacimiento">
+                                <input type="date" class="form-control" id="editFechaNacimiento"
+                                    name="Fecha_Nacimiento">
                             </div>
 
                             <!-- Género -->
@@ -977,7 +1007,8 @@ include_once '../includes/header.php';
                                 <label for="editFechaIngreso" class="form-label fw-semibold">
                                     <i class="bi bi-calendar-check text-primary me-2"></i>Fecha de Ingreso
                                 </label>
-                                <input type="date" class="form-control" id="editFechaIngreso" name="Fecha_Ingreso" required>
+                                <input type="date" class="form-control" id="editFechaIngreso" name="Fecha_Ingreso"
+                                    required>
                             </div>
 
                             <!-- Estado Laboral -->
@@ -1004,7 +1035,8 @@ include_once '../includes/header.php';
                                     <img id="previewEditFoto" src="" alt="Foto actual"
                                         style="width: 60px; height: 60px; object-fit: cover; border-radius: 6px;">
                                 </div>
-                                <input type="file" class="form-control" id="editFoto" name="Fotografia" accept="image/*">
+                                <input type="file" class="form-control" id="editFoto" name="Fotografia"
+                                    accept="image/*">
                             </div>
                         </div>
 
@@ -1032,18 +1064,18 @@ include_once '../includes/header.php';
 
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // ... (Tu código JavaScript existente aquí) ...
 
             // Previsualización de la imagen
             const fotoInput = document.getElementById('foto');
             const previewFoto = document.getElementById('previewFoto');
 
-            fotoInput.addEventListener('change', function(event) {
+            fotoInput.addEventListener('change', function (event) {
                 if (event.target.files && event.target.files[0]) {
                     const reader = new FileReader(); // Crea un nuevo objeto FileReader
 
-                    reader.onload = function(e) {
+                    reader.onload = function (e) {
                         // Cuando el archivo se ha leído, actualiza el src de la imagen y la muestra
                         previewFoto.src = e.target.result;
                         previewFoto.style.display = 'block'; // Muestra la imagen
@@ -1061,7 +1093,7 @@ include_once '../includes/header.php';
             // Añadir funcionalidad al botón Cancelar para limpiar la previsualización
             const cancelBtn = document.getElementById('cancelBtn');
             if (cancelBtn) {
-                cancelBtn.addEventListener('click', function() {
+                cancelBtn.addEventListener('click', function () {
                     // Limpia el input de archivo
                     fotoInput.value = '';
                     // Oculta la previsualización
@@ -1079,9 +1111,9 @@ include_once '../includes/header.php';
 
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             document.querySelectorAll('.btn-editar-funcionario').forEach(button => {
-                button.addEventListener('click', function() {
+                button.addEventListener('click', function () {
                     const datos = this.dataset;
 
                     // Llenar el formulario con los valores
