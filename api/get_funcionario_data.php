@@ -36,7 +36,7 @@ $host = $_SERVER['HTTP_HOST'];
 // Generar URL absoluta de la fotografía
 if (!empty($funcionario['Fotografia'])) {
     $fotoRuta = ltrim($funcionario['Fotografia'], '/'); // Eliminar barra inicial si la hay
-    $funcionario['Fotografia'] = $protocol . $host . '/ministerio/api/' . $fotoRuta;
+    $funcionario['Fotografia'] = $protocol . $host . '/ministerio_justicia/api/' . $fotoRuta;
 }
 
 
@@ -88,7 +88,7 @@ $host = $_SERVER['HTTP_HOST'];
 foreach ($capacitaciones as &$cap) {
     if (!empty($cap['Certificado_URL']) && !filter_var($cap['Certificado_URL'], FILTER_VALIDATE_URL)) {
         $certificadoRuta = ltrim($cap['Certificado_URL'], '/'); // Quita barra inicial si la hay
-        $cap['Certificado_URL'] = $protocol . $host . '/ministerio/certificados/' . basename($certificadoRuta);
+        $cap['Certificado_URL'] = $protocol . $host . '/ministerio_justicia/certificados/' . basename($certificadoRuta);
     }
 }
 unset($cap);
@@ -112,7 +112,7 @@ foreach ($permisos as &$perm) {
         // Solo el nombre del archivo, asegurando no tener rutas problemáticas
         $filename = basename($perm['Documento_Soporte_URL']);
         // Construir la URL pública accesible desde el navegador
-        $perm['Documento_Soporte_URL'] = $protocol . $host . '/ministerio/uploads/permisos/' . $filename;
+        $perm['Documento_Soporte_URL'] = $protocol . $host . '/ministerio_justicia/uploads/permisos/' . $filename;
     }
 }
 unset($perm);

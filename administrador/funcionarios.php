@@ -133,7 +133,7 @@ include_once '../includes/header.php';
                                         <th>Código</th>
                                         <th>Nombres</th>
                                         <th>Apellidos</th>
-                                        <th>DNI/Pasaporte</th>
+                                        <th>DIP/Pasaporte</th>
                                         <th>Fecha Nacimiento</th>
                                         <th>Género</th>
                                         <th>Nacionalidad</th>
@@ -178,8 +178,11 @@ include_once '../includes/header.php';
                                             // Ruta absoluta de la imagen
                                             $fotoURL = '';
                                             if (!empty($f['Fotografia'])) {
-                                                $fotoURL = $protocol . $host . '/ministerio/api/' . ltrim($f['Fotografia'], '/');
+                                                $fotoURL = $protocol . $host . '/ministerio_justicia/api/' . ltrim($f['Fotografia'], '/');
                                             }
+
+                                            // Debug en consola
+                                            echo "<script>console.log('Ruta de imagen: " . addslashes($fotoURL) . "');</script>";
                                             ?>
 
                                             <td>
@@ -471,7 +474,7 @@ include_once '../includes/header.php';
                             <!-- DNI / Pasaporte -->
                             <div class="col-md-6">
                                 <label for="dni" class="form-label fw-semibold">
-                                    <i class="bi bi-credit-card-2-front me-2 text-primary"></i>DNI / Pasaporte
+                                    <i class="bi bi-credit-card-2-front me-2 text-primary"></i>D.I.P / Pasaporte
                                 </label>
                                 <input type="text" class="form-control" id="dni" name="DNI_Pasaporte" required
                                     placeholder="Ej: 12345678A">
@@ -717,7 +720,7 @@ include_once '../includes/header.php';
                         <div class="info-card h-100 d-flex flex-column align-items-center text-center">
                             <img src="${funcionario.Fotografia || 'https://placehold.co/120x120/0d6efd/FFFFFF?text=Foto'}" alt="Fotografía del Funcionario" class="img-fluid rounded-circle object-fit-cover mb-4 profile-pic">
                             <h3 class="fs-4 fw-semibold text-dark mb-1">${funcionario.Nombres} ${funcionario.Apellidos}</h3>
-                            <p class="text-muted mb-4">DNI: ${funcionario.DNI_Pasaporte}</p>
+                            <p class="text-muted mb-4">D.I.P: ${funcionario.DNI_Pasaporte}</p>
 
                             <div class="w-100 text-start">
                                 <h4 class="section-title text-primary"><i class="bi bi-info-circle-fill me-2"></i> Información Personal</h4>
@@ -911,7 +914,7 @@ include_once '../includes/header.php';
                             <!-- DNI / Pasaporte -->
                             <div class="col-md-6">
                                 <label for="editDNI" class="form-label fw-semibold">
-                                    <i class="bi bi-credit-card-2-front text-primary me-2"></i>DNI / Pasaporte
+                                    <i class="bi bi-credit-card-2-front text-primary me-2"></i>D.I.P / Pasaporte
                                 </label>
                                 <input type="text" class="form-control" id="editDNI" name="DNI_Pasaporte" required>
                             </div>
