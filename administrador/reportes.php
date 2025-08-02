@@ -394,8 +394,7 @@ include_once '../includes/header.php';
                     <script>
                         // Ejecutar al cargar la página
                         document.addEventListener('DOMContentLoaded', () => {
-                            console.log('🔄 Cargando filtros dinámicos...');
-
+                           
                             fetch('../api/cargar_filtros.php')
                                 .then(res => res.json())
                                 .then(data => {
@@ -429,9 +428,7 @@ include_once '../includes/header.php';
                                         option.value = dest.ID_Destino;
                                         option.textContent = dest.Nombre_Destino;
                                         destinoSelect.appendChild(option);
-                                    });
-
-                                    console.log('✅ Filtros cargados correctamente.');
+                                    }); 
                                 })
                                 .catch(error => {
                                     console.error('❌ Error al cargar filtros dinámicos:', error);
@@ -736,7 +733,7 @@ include_once '../includes/header.php';
 
             } catch (error) {
                 console.error('Error fetching dashboard data:', error);
-                alert('Error al cargar los datos del dashboard. Verifique la consola para más detalles.'); // Usar un modal en lugar de alert
+              //  alert('Error al cargar los datos del dashboard. Verifique la consola para más detalles.'); // Usar un modal en lugar de alert
             } finally {
                 refreshButton.classList.remove('refreshing'); // Stop animation
             }
