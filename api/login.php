@@ -30,8 +30,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $pdo->prepare("UPDATE tbl_usuarios SET Ultimo_Acceso = NOW() WHERE ID_Usuario = :id")
                     ->execute(['id' => $usuarioData['ID_Usuario']]);
 
-                header("Location: ../administrador/");
-                exit();
+                    if(strtolower($usuarioData['Rol_Usuario']) == 'administrador'){
+                        header("Location: ../administrador/");
+                        exit();
+                        
+                    }
+                    if(strtolower($usuarioData['Rol_Usuario']) != 'administrador'){
+                        header("Location: ../usuario/");
+                        exit();
+
+                    }
             } else {
                 session_start();
                 $_SESSION['error'] = "Nombre de usuario o contraseña incorrectos.";
