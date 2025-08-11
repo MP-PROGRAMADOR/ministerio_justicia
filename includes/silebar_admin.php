@@ -1,11 +1,13 @@
 <?php
 
 // Verifica si el usuario ha iniciado sesión y es administrador
-if (!isset($_SESSION['ID_Usuario']) || $_SESSION['Rol_Usuario'] !== 'Administrador') {
+if (!isset($_SESSION['ID_Usuario']) || 
+    ($_SESSION['Rol_Usuario'] !== 'Administrador' && $_SESSION['Rol_Usuario'] !== 'Usuario')) {
     $_SESSION['error_login'] = "No tienes permiso para acceder a esta sección.";
     header("Location: ../index.php");
     exit;
 }
+
 ?>
 
 <div class="sidebar" id="sidebar">
@@ -23,22 +25,25 @@ if (!isset($_SESSION['ID_Usuario']) || $_SESSION['Rol_Usuario'] !== 'Administrad
             <div class="user-avatar">JD</div>
             <div class="flex-grow-1 text-start">
                 <div class="text-white fw-semibold"><?= $nombre_usuario; ?></div>
-                <small class="text-light opacity-75">Administrador</small>
+                <small class="text-light opacity-75">La Justicia</small>
             </div>
             <i class="bi bi-chevron-down text-light"></i>
         </div>
     </div>
 
-    <nav class="nav flex-column px-2">
-        <a class="nav-link active" href="index.php">
-            <i class="bi bi-speedometer2 me-3"></i> Dashboard
-        </a>
+   <nav class="nav flex-column px-2">
+    <a class="nav-link active" href="index.php">
+        <i class="bi bi-speedometer2 me-3"></i> Dashboard
+    </a>
+
+    <?php if ($_SESSION['Rol_Usuario'] === 'Administrador' || $_SESSION['Rol_Usuario'] === 'Usuario'): ?>
         <a class="nav-link" href="funcionarios.php">
             <i class="bi bi-people me-3"></i> Funcionarios
             <span class="badge bg-primary ms-auto" id="totalFuncionariosSidebar">
                 <?php echo $dashboardData['totalFuncionarios'] ?? 'N/A'; ?>
             </span>
         </a>
+
         <a class="nav-link position-relative" href="permisos.php">
             <i class="bi bi-calendar-check me-3"></i> Permisos
             <span class="notification-dot" id="permisosNotifDot"
@@ -47,6 +52,9 @@ if (!isset($_SESSION['ID_Usuario']) || $_SESSION['Rol_Usuario'] !== 'Administrad
                 <?php echo $dashboardData['permisosPendientes'] ?? 'N/A'; ?>
             </span>
         </a>
+    <?php endif; ?>
+
+    <?php if ($_SESSION['Rol_Usuario'] === 'Administrador'): ?>
         <a class="nav-link" href="asignaciones.php">
             <i class="bi bi-diagram-3 me-3"></i> Asignaciones
         </a>
@@ -72,8 +80,6 @@ if (!isset($_SESSION['ID_Usuario']) || $_SESSION['Rol_Usuario'] !== 'Administrad
             <i class="bi bi-award fs-5 text-primary me-2"></i>
             <span class="fw-semibold">Cursos del Ministerio</span>
         </a>
-       
-
         <a class="nav-link" href="usuarios.php">
             <i class="bi bi-award me-3"></i> Usuarios
         </a>
@@ -83,8 +89,9 @@ if (!isset($_SESSION['ID_Usuario']) || $_SESSION['Rol_Usuario'] !== 'Administrad
         <a class="nav-link" href="#auditoria">
             <i class="bi bi-shield-check me-3"></i> Auditoría
         </a>
-       
-    </nav>
+    <?php endif; ?>
+</nav>
+
 </div>
 
 

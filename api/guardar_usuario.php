@@ -1,7 +1,6 @@
 <?php
-
-
-include_once '../conexion/conexion.php';
+session_start();
+include_once '../includes/conexion.php';
 
 try {
     $pdo = new PDO($dsn, $user, $pass, $options);
@@ -47,7 +46,7 @@ if (empty($emailContacto)) {
     $errors[] = "El email no tiene un formato válido.";
 }
 
-$rolesValidos = ['Administrador', 'Recursos Humanos', 'Consulta', 'Auditor'];
+$rolesValidos = ['Administrador', 'Recursos Humanos', 'Consulta', 'Auditor','Usuario'];
 if (!in_array($rolUsuario, $rolesValidos, true)) {
     $errors[] = "El rol de usuario no es válido.";
 }
@@ -63,7 +62,7 @@ if ($errors) {
     ];
 
     // Cambia esta URL por la de tu formulario
-    header("Location: ../administrador/formulario_usuario.php");
+    header("Location: ../administrador/usuarios.php");
     exit;
 }
 
@@ -80,12 +79,14 @@ if ($existe > 0) {
         'Rol_Usuario' => $rolUsuario,
         'Activo' => $activo,
     ];
-    header("Location: ../administrador/formulario_usuario.php");
+    header("Location: ../administrador/usuarios.php");
     exit;
 }
 
 // Hashear contraseña
 $hashContrasena = password_hash($contrasena, PASSWORD_DEFAULT);
+
+
 
 // Insertar nuevo usuario
 $stmtInsert = $pdo->prepare("INSERT INTO tbl_Usuarios (Nombre_Usuario, Contrasena_Hash, Rol_Usuario, Email_Contacto, Activo) VALUES (:nombre, :contrasena, :rol, :email, :activo)");

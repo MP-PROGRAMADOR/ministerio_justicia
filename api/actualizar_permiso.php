@@ -21,7 +21,7 @@ $idPermiso = $_POST['ID_Permiso'];
 $tipoPermiso = $_POST['Tipo_Permiso'];
 $fechaInicio = $_POST['Fecha_Inicio_Permiso'];
 $fechaFin = $_POST['Fecha_Fin_Permiso'];
-$estadoPermiso = $_POST['Estado_Permiso'] ?? 'Pendiente';
+$estadoPermiso = $_POST['Estado_Permiso'];
 $motivo = $_POST['Motivo'] ?? null;
 $observaciones = $_POST['Observaciones'] ?? null;
 

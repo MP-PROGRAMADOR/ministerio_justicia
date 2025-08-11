@@ -125,19 +125,20 @@ include_once '../includes/header.php';
 
                             <table class="table table-hover align-middle mb-0" id="funcionariosTable">
                                 <thead class=" table-light">
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Funcionario</th>
-                                    <th>DNI</th>
-                                    <th>Tipo</th>
-                                    <th>Solicitud</th>
-                                    <th>Inicio</th>
-                                    <th>Fin</th>
-                                    <th>Estado</th>
-                                    <th>Motivo</th>
-                                    <th>Documento</th>
-                                    <th>Acciones</th>
-                                </tr>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Funcionario</th>
+                                        <th>DNI</th>
+                                        <th>Tipo</th>
+                                        <th>Solicitud</th>
+                                        <th>Inicio</th>
+                                        <th>Fin</th>
+                                        <th>Estado</th>
+                                        <th>Motivo</th>
+                                        <th>Procesado</th>
+                                        <th>Documento</th>
+                                        <th>Acciones</th>
+                                    </tr>
                                 </thead>
                                 <tbody id="funcionariosTableBody">
                                     <?php foreach ($permisos as $permiso): ?>
@@ -163,6 +164,17 @@ include_once '../includes/header.php';
                                                 <span class="badge <?= $clase ?>"><?= $estado ?></span>
                                             </td>
                                             <td><?= nl2br(htmlspecialchars($permiso['Motivo'])) ?></td>
+
+                                            <td>
+                                                <?php if ($permiso['token'] == 0): ?>
+                                                    <span class="badge bg-warning text-dark">No procesado</span>
+                                                <?php elseif ($permiso['token'] == 1): ?>
+                                                    <span class="badge bg-success">Procesado</span>
+                                                <?php else: ?>
+                                                    <span class="badge bg-secondary">Desconocido</span>
+                                                <?php endif; ?>
+                                            </td>
+
 
                                             <td>
                                                 <?php if (!empty($permiso['Documento_Soporte_URL'])): ?>
@@ -193,7 +205,11 @@ include_once '../includes/header.php';
 
 
 
-                                                    <button class="btn btn-sm btn-danger" title="Eliminar"><i class="bi bi-trash"></i></button>
+                                                    <?php if ($_SESSION['Rol_Usuario'] !== 'Usuario'): ?>
+                                                        <button class="btn btn-sm btn-danger" title="Eliminar"><i class="bi bi-trash"></i></button>
+                                                    <?php endif; ?>
+
+
                                                 </div>
                                             </td>
                                         </tr>
@@ -390,18 +406,34 @@ include_once '../includes/header.php';
                             </div>
 
                             <!-- Estado -->
+
+
+
                             <div class="col-md-6">
+
+
+
+
                                 <label class="form-label fw-semibold">
                                     <i class="bi bi-toggle-on me-2 text-primary"></i>Estado del Permiso
                                 </label>
-                                <select class="form-select" name="Estado_Permiso" id="edit_Estado_Permiso" required>
-                                    <option value="Pendiente">Pendiente</option>
-                                    <option value="Aprobado">Aprobado</option>
-                                    <option value="Denegado">Denegado</option>
-                                    <option value="Cancelado">Cancelado</option>
-                                    <option value="Disfrutado">Disfrutado</option>
-                                </select>
+                               <select class="form-select" name="Estado_Permiso" id="edit_Estado_Permiso" 
+    <?php if ($_SESSION['Rol_Usuario'] !== 'Administrador') echo 'disabled'; ?>>
+    <option value="Pendiente" <?= ($permiso['Estado_Permiso'] == 'Pendiente') ? 'selected' : '' ?>>Pendiente</option>
+    <option value="Aprobado" <?= ($permiso['Estado_Permiso'] == 'Aprobado') ? 'selected' : '' ?>>Aprobado</option>
+    <option value="Denegado" <?= ($permiso['Estado_Permiso'] == 'Denegado') ? 'selected' : '' ?>>Denegado</option>
+    <option value="Cancelado" <?= ($permiso['Estado_Permiso'] == 'Cancelado') ? 'selected' : '' ?>>Cancelado</option>
+    <option value="Disfrutado" <?= ($permiso['Estado_Permiso'] == 'Disfrutado') ? 'selected' : '' ?>>Disfrutado</option>
+</select>
+
+<?php if ($_SESSION['Rol_Usuario'] !== 'Administrador'): ?>
+    <input type="hidden" name="Estado_Permiso" value="<?= htmlspecialchars($permiso['Estado_Permiso']) ?>">
+<?php endif; ?>
+
                             </div>
+
+
+
 
                             <!-- Fechas -->
                             <div class="col-md-6">
@@ -435,10 +467,16 @@ include_once '../includes/header.php';
 
                             <!-- Documento -->
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold">
-                                    <i class="bi bi-upload me-2 text-primary"></i>Documento Soporte
+                               
+
+                                <?php if ($_SESSION['Rol_Usuario'] !== 'Usuario'): ?>
+                                     <label class="form-label fw-semibold">
+                                    <i class="bi bi-upload me-2 text-primary"></i>Documento De Respuesta del Permiso
                                 </label>
-                                <input type="file" name="Documento_Soporte_URL" class="form-control" accept=".pdf,.jpg,.png">
+                                    <input type="file" name="Documento_Soporte_URL" class="form-control" accept=".pdf,.jpg,.png" required>
+                                <?php endif; ?>
+
+                               
                             </div>
                         </div>
 

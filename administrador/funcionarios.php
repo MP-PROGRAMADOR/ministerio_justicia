@@ -221,8 +221,9 @@ include_once '../includes/header.php';
 
 
 
-                                                    <button class="btn btn-sm btn-danger" title="Eliminar"><i
-                                                            class="bi bi-trash"></i></button>
+                                                    <?php if ($_SESSION['Rol_Usuario'] !== 'Usuario'): ?>
+                                                        <button class="btn btn-sm btn-danger" title="Eliminar"><i class="bi bi-trash"></i></button>
+                                                    <?php endif; ?>
 
 
 

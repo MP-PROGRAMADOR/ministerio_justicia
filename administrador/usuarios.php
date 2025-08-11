@@ -1,14 +1,15 @@
 <?php
- include_once '../includes/header.php';
+include_once '../includes/header.php';
 ?>
+
 <body>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
     <div class="container-fluid p-0">
         <div class="row g-0">
-           
-<?php
- include_once '../includes/silebar_admin.php';
-?>
+
+            <?php
+            include_once '../includes/silebar_admin.php';
+            ?>
 
 
             <div class="main-content" id="mainContent">
@@ -100,12 +101,12 @@
                         </div>
                         <div class="table-responsive">
 
-                        <?php
+                            <?php
                             try {
-                            
-                            $pdo = new PDO($dsn, $user, $pass, $options);
+
+                                $pdo = new PDO($dsn, $user, $pass, $options);
                             } catch (PDOException $e) {
-                            die("Error de conexión: " . $e->getMessage());
+                                die("Error de conexión: " . $e->getMessage());
                             }
 
                             // Consulta para obtener usuarios
@@ -146,9 +147,14 @@
                                             <td>
                                                 <div class="d-flex gap-2">
                                                     <button class="btn btn-sm btn-primary" title="Editar"><i class="bi bi-pencil"></i></button>
-                                                    <button class="btn btn-sm btn-danger" title="Eliminar"><i class="bi bi-trash"></i></button>
+
+                                                    <?php if ($_SESSION['Rol_Usuario'] !== 'Usuario'): ?>
+                                                        <button class="btn btn-sm btn-danger" title="Eliminar"><i class="bi bi-trash"></i></button>
+                                                    <?php endif; ?>
+
                                                     <button class="btn btn-sm btn-info" title="Detalles"><i class="bi bi-info-circle"></i></button>
                                                 </div>
+
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -221,11 +227,10 @@
                                 <select class="form-select" id="rolUsuario" name="Rol_Usuario" required>
                                     <option value="" disabled selected>Selecciona un rol</option>
                                     <option value="Administrador">Administrador</option>
-                                     <option value="Secretaria">Secretaria</option>
+                                    <option value="Secretaria">Secretaria</option>
                                     <option value="Jefe Personal">Jefe Personal</option>
-                                    <!-- <option value="Consulta">Consulta</option>
-                                    <option value="Auditor">Auditor</option> -->
-                                </select>
+                                    <option value="Usuario">Usuario</option>
+                                    <!-- <option value="Auditor">Auditor</option> -->
                             </div>
 
                             <!-- Usuario Activo -->
@@ -254,5 +259,5 @@
 
 
     <?php
- include_once '../includes/footer.php';
-?>
+    include_once '../includes/footer.php';
+    ?>

@@ -35,8 +35,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         exit();
                         
                     }
-                    if(strtolower($usuarioData['Rol_Usuario']) != 'administrador'){
-                        header("Location: ../usuario/");
+                    if(strtolower($usuarioData['Rol_Usuario']) != 'Usuario'){
+                        header("Location: ../administrador/");
                         exit();
 
                     }
