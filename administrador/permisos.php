@@ -163,9 +163,10 @@ include_once '../includes/header.php';
                                                 <span class="badge <?= $clase ?>"><?= $estado ?></span>
                                             </td>
                                             <td><?= nl2br(htmlspecialchars($permiso['Motivo'])) ?></td>
+
                                             <td>
                                                 <?php if (!empty($permiso['Documento_Soporte_URL'])): ?>
-                                                    <a href="../<?= htmlspecialchars($permiso['Documento_Soporte_URL']) ?>" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                    <a href="../api/<?= htmlspecialchars($permiso['Documento_Soporte_URL']) ?>" target="_blank" class="btn btn-sm btn-outline-primary">
                                                         <i class="bi bi-file-earmark-text"></i> Ver
                                                     </a>
                                                 <?php else: ?>

@@ -25,7 +25,7 @@ try {
 
     $documentoURL = null;
     if (isset($_FILES['Documento_Soporte_URL']) && $_FILES['Documento_Soporte_URL']['error'] === UPLOAD_ERR_OK) {
-        $uploadDir = __DIR__ . '/../uploads/permisos/';
+        $uploadDir = __DIR__ . '../uploads/permisos/';
         if (!is_dir($uploadDir)) {
             mkdir($uploadDir, 0755, true);
         }

@@ -222,9 +222,9 @@
                                     <option value="" disabled selected>Selecciona un rol</option>
                                     <option value="Administrador">Administrador</option>
                                      <option value="Secretaria">Secretaria</option>
-                                    <option value="Recursos Humanos">Recursos Humanos</option>
-                                    <option value="Consulta">Consulta</option>
-                                    <option value="Auditor">Auditor</option>
+                                    <option value="Jefe Personal">Jefe Personal</option>
+                                    <!-- <option value="Consulta">Consulta</option>
+                                    <option value="Auditor">Auditor</option> -->
                                 </select>
                             </div>
 

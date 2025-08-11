@@ -31,7 +31,7 @@ try {
 
     // Obtener el documento actual (si lo hay)
     $stmt = $pdo->prepare("SELECT Documento_Soporte_URL FROM tbl_permisos WHERE ID_Permiso = ?");
-    $stmt->execute([$idPermiso]);
+    $stmt->execute([$idPermiso]); 
     $permisoActual = $stmt->fetch(PDO::FETCH_ASSOC);
     $documentoActual = $permisoActual['Documento_Soporte_URL'];
 
@@ -40,10 +40,10 @@ try {
 
     if (isset($_FILES['Documento_Soporte_URL']) && $_FILES['Documento_Soporte_URL']['error'] === UPLOAD_ERR_OK) {
         $nombreArchivo = 'perm_' . uniqid() . '_' . basename($_FILES['Documento_Soporte_URL']['name']);
-        $rutaDestino = '../api/soportes/' . $nombreArchivo;
+        $rutaDestino = '../api/uploads/permisos/' . $nombreArchivo;
 
         if (move_uploaded_file($_FILES['Documento_Soporte_URL']['tmp_name'], $rutaDestino)) {
-            $documentoFinal = 'soportes/' . $nombreArchivo;
+            $documentoFinal = 'uploads/permisos/' . $nombreArchivo;
         } else {
             $_SESSION['error'] = "Error al subir el documento.";
             header("Location: ../administrador/permisos.php");
