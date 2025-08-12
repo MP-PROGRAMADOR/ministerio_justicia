@@ -40,6 +40,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         exit();
 
                     }
+                     
+                    if(strtolower($usuarioData['Rol_Usuario']) != 'Jefe Personal'){
+                        header("Location: ../administrador/");
+                        exit();
+
+                    }
             } else {
                 session_start();
                 $_SESSION['error'] = "Nombre de usuario o contraseña incorrectos.";

@@ -46,7 +46,7 @@ if (empty($emailContacto)) {
     $errors[] = "El email no tiene un formato válido.";
 }
 
-$rolesValidos = ['Administrador', 'Recursos Humanos', 'Consulta', 'Auditor','Usuario'];
+$rolesValidos = ['Administrador', 'Recursos Humanos','Jefe Personal', 'Auditor','Usuario'];
 if (!in_array($rolUsuario, $rolesValidos, true)) {
     $errors[] = "El rol de usuario no es válido.";
 }

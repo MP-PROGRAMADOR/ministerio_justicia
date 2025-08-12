@@ -2,7 +2,7 @@
 
 // Verifica si el usuario ha iniciado sesión y es administrador
 if (!isset($_SESSION['ID_Usuario']) || 
-    ($_SESSION['Rol_Usuario'] !== 'Administrador' && $_SESSION['Rol_Usuario'] !== 'Usuario')) {
+    ($_SESSION['Rol_Usuario'] !== 'Administrador' && $_SESSION['Rol_Usuario'] !== 'Usuario' && $_SESSION['Rol_Usuario'] !== 'Jefe Personal')) {
     $_SESSION['error_login'] = "No tienes permiso para acceder a esta sección.";
     header("Location: ../index.php");
     exit;
@@ -36,7 +36,7 @@ if (!isset($_SESSION['ID_Usuario']) ||
         <i class="bi bi-speedometer2 me-3"></i> Dashboard
     </a>
 
-    <?php if ($_SESSION['Rol_Usuario'] === 'Administrador' || $_SESSION['Rol_Usuario'] === 'Usuario'): ?>
+    <?php if ($_SESSION['Rol_Usuario'] === 'Administrador' || $_SESSION['Rol_Usuario'] === 'Usuario'  || $_SESSION['Rol_Usuario'] === 'Jefe Personal'):?>
         <a class="nav-link" href="funcionarios.php">
             <i class="bi bi-people me-3"></i> Funcionarios
             <span class="badge bg-primary ms-auto" id="totalFuncionariosSidebar">
@@ -54,7 +54,7 @@ if (!isset($_SESSION['ID_Usuario']) ||
         </a>
     <?php endif; ?>
 
-    <?php if ($_SESSION['Rol_Usuario'] === 'Administrador'): ?>
+    <?php if ($_SESSION['Rol_Usuario'] === 'Administrador' || $_SESSION['Rol_Usuario'] === 'Jefe Personal'): ?>
         <a class="nav-link" href="asignaciones.php">
             <i class="bi bi-diagram-3 me-3"></i> Asignaciones
         </a>
@@ -65,7 +65,7 @@ if (!isset($_SESSION['ID_Usuario']) ||
             </span>
         </a>
         <a class="nav-link" href="departamentos.php">
-            <i class="bi bi-building me-3"></i> Departamentos
+            <i class="bi bi-building me-3"></i> Departamentos 
         </a>
         <a class="nav-link" href="cargo.php">
             <i class="bi bi-briefcase me-3"></i> Cargos
@@ -74,19 +74,26 @@ if (!isset($_SESSION['ID_Usuario']) ||
             <i class="bi bi-mortarboard me-3"></i> Formación
         </a>
         <a class="nav-link" href="capacitaciones.php">
-            <i class="bi bi-award me-3"></i> Capacitaciones
+            <i class="bi bi-award me-3"></i> Capacitaciones Externas
         </a>
-        <a class="nav-link d-flex align-items-center" href="capacitaciones.php">
+        <a class="nav-link d-flex align-items-center" href="cursos_ministerio.php">
             <i class="bi bi-award fs-5 text-primary me-2"></i>
             <span class="fw-semibold">Cursos del Ministerio</span>
         </a>
-        <a class="nav-link" href="usuarios.php">
-            <i class="bi bi-award me-3"></i> Usuarios
-        </a>
+       
         <a class="nav-link" href="reportes.php">
             <i class="bi bi-file-earmark-text me-3"></i> Reportes
         </a>
-        <a class="nav-link" href="#auditoria">
+      
+    <?php endif; ?>
+
+
+     <?php if ($_SESSION['Rol_Usuario'] === 'Administrador'):?>
+         <a class="nav-link" href="usuarios.php">
+            <i class="bi bi-award me-3"></i> Usuarios
+        </a>
+
+         <a class="nav-link" href="#auditoria">
             <i class="bi bi-shield-check me-3"></i> Auditoría
         </a>
     <?php endif; ?>

@@ -107,6 +107,7 @@ include_once '../includes/header.php';
                             <h5 class="mb-0 fw-semibold">Listado de Funcionarios</h5>
                         </div>
                         <div class="table-responsive">
+
                             <?php
                             try {
                                 $pdo = new PDO($dsn, $user, $pass, $options);
@@ -114,14 +115,26 @@ include_once '../includes/header.php';
                                 die("Error de conexión: " . $e->getMessage());
                             }
 
-                            // Consulta para obtener permisos con datos del funcionario
-                            $sql = "SELECT p.*, f.Nombres, f.Apellidos, f.DNI_Pasaporte 
+                            // Asumiendo que tienes el rol en una variable de sesión
+                            $rol = $_SESSION['Rol_Usuario'] ?? ''; // Por ejemplo: "Administrador"
+
+                            // Consulta base
+                            $sql = "SELECT p.*, f.Nombres, f.Apellidos, f.DNI_Pasaporte, f.Fotografia 
         FROM tbl_permisos p
-        JOIN tbl_funcionarios f ON p.ID_Funcionario = f.ID_Funcionario
-        ORDER BY p.ID_Permiso DESC";
+        JOIN tbl_funcionarios f ON p.ID_Funcionario = f.ID_Funcionario";
+
+                            // Si el rol es Administrador, filtra por token=1
+                            if ($rol === 'Administrador') {
+                                $sql .= " WHERE p.token = 1";
+                            }
+
+                            // Orden final
+                            $sql .= " ORDER BY p.ID_Permiso DESC";
+
                             $stmt = $pdo->query($sql);
                             $permisos = $stmt->fetchAll();
                             ?>
+
 
                             <table class="table table-hover align-middle mb-0" id="funcionariosTable">
                                 <thead class=" table-light">
@@ -186,28 +199,80 @@ include_once '../includes/header.php';
                                                 <?php endif; ?>
                                             </td>
                                             <td>
+
                                                 <div class="d-flex gap-2">
 
 
 
-                                                    <button class="btn btn-sm btn-warning btn-editar-permiso"
-                                                        data-id="<?= $permiso['ID_Permiso'] ?>"
-                                                        data-funcionario="<?= htmlspecialchars($permiso['Nombres'] . ' ' . $permiso['Apellidos']) ?>"
-                                                        data-tipo="<?= $permiso['Tipo_Permiso'] ?>"
-                                                        data-estado="<?= $permiso['Estado_Permiso'] ?>"
-                                                        data-inicio="<?= $permiso['Fecha_Inicio_Permiso'] ?>"
-                                                        data-fin="<?= $permiso['Fecha_Fin_Permiso'] ?>"
-                                                        data-motivo="<?= htmlspecialchars($permiso['Motivo']) ?>"
-                                                        data-observaciones="<?= htmlspecialchars($permiso['Observaciones']) ?>"
-                                                        title="Editar Permiso">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
+
 
 
 
                                                     <?php if ($_SESSION['Rol_Usuario'] !== 'Usuario'): ?>
-                                                        <button class="btn btn-sm btn-danger" title="Eliminar"><i class="bi bi-trash"></i></button>
+
+                                                        <?php if (
+                                                            $_SESSION['Rol_Usuario'] === 'Administrador' ||
+                                                            ($_SESSION['Rol_Usuario'] === 'Jefe Personal' && $permiso['Estado_Permiso'] === 'Pendiente')
+                                                        ): ?>
+                                                            <button class="btn btn-sm btn-warning btn-editar-permiso"
+                                                                data-id="<?= $permiso['ID_Permiso'] ?>"
+                                                                data-funcionario="<?= htmlspecialchars($permiso['Nombres'] . ' ' . $permiso['Apellidos']) ?>"
+                                                                data-tipo="<?= $permiso['Tipo_Permiso'] ?>"
+                                                                data-estado="<?= $permiso['Estado_Permiso'] ?>"
+                                                                data-inicio="<?= $permiso['Fecha_Inicio_Permiso'] ?>"
+                                                                data-fin="<?= $permiso['Fecha_Fin_Permiso'] ?>"
+                                                                data-motivo="<?= htmlspecialchars($permiso['Motivo']) ?>"
+                                                                data-observaciones="<?= htmlspecialchars($permiso['Observaciones']) ?>"
+                                                                title="Editar Permiso">
+                                                                <i class="bi bi-pencil-square"></i>
+                                                            </button>
+                                                        <?php endif; ?>
+
+
+
+                                                        <?php if ($_SESSION['Rol_Usuario'] === 'Jefe Personal' && $permiso['token'] == 0): ?>
+                                                            <button class="btn btn-sm btn-success btn-token"
+                                                                data-id="<?= $permiso['ID_Permiso'] ?>"
+                                                                data-funcionario="<?= htmlspecialchars($permiso['Nombres'] . ' ' . $permiso['Apellidos']) ?>"
+                                                                title="Enviar Documentos">
+                                                                <i class="bi bi-send"></i>
+                                                            </button>
+                                                        <?php endif; ?>
+
+
+
+                                                       
+
+
+
+
+                                                        <?php if ($_SESSION['Rol_Usuario'] !== 'Jefe Personal'): ?>
+
+                                                            <button class="btn btn-sm btn-danger" title="Eliminar"><i class="bi bi-trash"></i></button>
+
+                                                        <?php endif; ?>
+
                                                     <?php endif; ?>
+
+
+                                                     <button class="btn btn-sm btn-info btn-detalles-permiso"
+                                                            data-id="<?= $permiso['ID_Permiso'] ?>"
+                                                            data-funcionario="<?= htmlspecialchars($permiso['Nombres'] . ' ' . $permiso['Apellidos']) ?>"
+                                                            data-dni="<?= htmlspecialchars($permiso['DNI_Pasaporte']) ?>"
+                                                            data-tipo="<?= htmlspecialchars($permiso['Tipo_Permiso']) ?>"
+                                                            data-fechasolicitud="<?= htmlspecialchars($permiso['Fecha_Solicitud']) ?>"
+                                                            data-fechainicio="<?= htmlspecialchars($permiso['Fecha_Inicio_Permiso']) ?>"
+                                                            data-fechafin="<?= htmlspecialchars($permiso['Fecha_Fin_Permiso']) ?>"
+                                                            data-estado="<?= htmlspecialchars($permiso['Estado_Permiso']) ?>"
+                                                            data-token="<?= htmlspecialchars($permiso['token']) ?>"
+                                                            data-motivo="<?= htmlspecialchars($permiso['Motivo']) ?>"
+                                                            data-observaciones="<?= htmlspecialchars($permiso['Observaciones']) ?>"
+                                                            data-docsoporte="<?= htmlspecialchars($permiso['Documento_Soporte_URL']) ?>"
+                                                            data-docrespuesta="<?= htmlspecialchars($permiso['documento_permiso']) ?>"
+                                                            data-fotografia="<?= htmlspecialchars('../api/' . $permiso['Fotografia']) ?>"
+                                                            title="Ver Detalles">
+                                                            <i class="bi bi-eye"></i>
+                                                        </button>
 
 
                                                 </div>
@@ -340,9 +405,9 @@ include_once '../includes/header.php';
                             <!-- Documento Soporte -->
                             <div class="col-md-6">
                                 <label for="documento" class="form-label fw-semibold">
-                                    <i class="bi bi-upload text-primary me-2"></i>Documento Soporte (opcional)
+                                    <i class="bi bi-upload text-primary me-2"></i>Documento Soporte (Obligatorio)
                                 </label>
-                                <input type="file" name="Documento_Soporte_URL" class="form-control" id="documento" accept=".pdf,.jpg,.png,.doc,.docx">
+                                <input type="file" name="Documento_Soporte_URL" class="form-control" id="documento" accept=".pdf,.jpg,.png,.doc,.docx" required>
                             </div>
                         </div>
 
@@ -417,18 +482,18 @@ include_once '../includes/header.php';
                                 <label class="form-label fw-semibold">
                                     <i class="bi bi-toggle-on me-2 text-primary"></i>Estado del Permiso
                                 </label>
-                               <select class="form-select" name="Estado_Permiso" id="edit_Estado_Permiso" 
-    <?php if ($_SESSION['Rol_Usuario'] !== 'Administrador') echo 'disabled'; ?>>
-    <option value="Pendiente" <?= ($permiso['Estado_Permiso'] == 'Pendiente') ? 'selected' : '' ?>>Pendiente</option>
-    <option value="Aprobado" <?= ($permiso['Estado_Permiso'] == 'Aprobado') ? 'selected' : '' ?>>Aprobado</option>
-    <option value="Denegado" <?= ($permiso['Estado_Permiso'] == 'Denegado') ? 'selected' : '' ?>>Denegado</option>
-    <option value="Cancelado" <?= ($permiso['Estado_Permiso'] == 'Cancelado') ? 'selected' : '' ?>>Cancelado</option>
-    <option value="Disfrutado" <?= ($permiso['Estado_Permiso'] == 'Disfrutado') ? 'selected' : '' ?>>Disfrutado</option>
-</select>
+                                <select class="form-select" name="Estado_Permiso" id="edit_Estado_Permiso"
+                                    <?php if ($_SESSION['Rol_Usuario'] !== 'Administrador') echo 'disabled'; ?>>
+                                    <option value="Pendiente" <?= ($permiso['Estado_Permiso'] == 'Pendiente') ? 'selected' : '' ?>>Pendiente</option>
+                                    <option value="Aprobado" <?= ($permiso['Estado_Permiso'] == 'Aprobado') ? 'selected' : '' ?>>Aprobado</option>
+                                    <option value="Denegado" <?= ($permiso['Estado_Permiso'] == 'Denegado') ? 'selected' : '' ?>>Denegado</option>
+                                    <option value="Cancelado" <?= ($permiso['Estado_Permiso'] == 'Cancelado') ? 'selected' : '' ?>>Cancelado</option>
+                                    <option value="Disfrutado" <?= ($permiso['Estado_Permiso'] == 'Disfrutado') ? 'selected' : '' ?>>Disfrutado</option>
+                                </select>
 
-<?php if ($_SESSION['Rol_Usuario'] !== 'Administrador'): ?>
-    <input type="hidden" name="Estado_Permiso" value="<?= htmlspecialchars($permiso['Estado_Permiso']) ?>">
-<?php endif; ?>
+                                <?php if ($_SESSION['Rol_Usuario'] !== 'Administrador'): ?>
+                                    <input type="hidden" name="Estado_Permiso" value="<?= htmlspecialchars($permiso['Estado_Permiso']) ?>">
+                                <?php endif; ?>
 
                             </div>
 
@@ -465,18 +530,29 @@ include_once '../includes/header.php';
                                 <textarea name="Observaciones" id="edit_Observaciones" rows="2" class="form-control"></textarea>
                             </div>
 
+
+                            <?php if ($_SESSION['Rol_Usuario'] === 'Jefe Personal'): ?>
+                                <!-- Documento Soporte -->
+                                <div class="col-md-12">
+                                    <label for="documento" class="form-label fw-semibold">
+                                        <i class="bi bi-upload text-primary me-2"></i>Puedes subir un documento para Sustituir al Anterior (Opcional)
+                                    </label>
+                                    <input type="file" name="Documento_Soporte_URL" class="form-control" id="documento" accept=".pdf,.jpg,.png,.doc,.docx">
+                                </div>
+                            <?php endif; ?>
+
                             <!-- Documento -->
                             <div class="col-md-6">
-                               
 
-                                <?php if ($_SESSION['Rol_Usuario'] !== 'Usuario'): ?>
-                                     <label class="form-label fw-semibold">
-                                    <i class="bi bi-upload me-2 text-primary"></i>Documento De Respuesta del Permiso
-                                </label>
-                                    <input type="file" name="Documento_Soporte_URL" class="form-control" accept=".pdf,.jpg,.png" required>
+
+                                <?php if ($_SESSION['Rol_Usuario'] === 'Administrador'): ?>
+                                    <label class="form-label fw-semibold">
+                                        <i class="bi bi-upload me-2 text-primary"></i>Documento De Respuesta del Permiso
+                                    </label>
+                                    <input type="file" name="documento_permiso" class="form-control" accept=".pdf,.jpg,.png" required>
                                 <?php endif; ?>
 
-                               
+
                             </div>
                         </div>
 
@@ -496,7 +572,193 @@ include_once '../includes/header.php';
 
 
 
+    <!-- Modal Confirmar Envío de Documentos -->
+    <div class="modal fade" id="confirmTokenModal" tabindex="-1" aria-labelledby="confirmTokenModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <form id="formConfirmToken" method="POST" action="../api/ruta_actualizar_token.php" class="modal-content border-primary shadow-sm">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="confirmTokenModalLabel">
+                        <i class="bi bi-send-check-fill me-2"></i>Confirmar envío
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body fs-6">
+                    ¿Seguro que quieres enviar los documentos de <strong id="modalNombreFuncionario"></strong>?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-1 "></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <i class="bi bi-check-circle me-1 "></i> Aceptar
+                    </button>
+                </div>
+                <input type="hidden" name="ID_Permiso" id="modalIDPermiso" />
+            </form>
+        </div>
+    </div>
 
+
+
+
+
+
+    <div class="modal fade" id="detallesPermisoModal" tabindex="-1" aria-labelledby="detallesPermisoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
+            <div class="modal-content border-primary shadow">
+                <div class="modal-header bg-primary text-white d-flex align-items-center">
+                    <img src="" alt="Foto Funcionario" id="modalFotoPerfil" class="rounded-circle me-3" style="width:50px; height:50px; object-fit:cover; border: 2px solid white;">
+                    <h5 class="modal-title flex-grow-1" id="detallesPermisoModalLabel">
+                        <i class="bi bi-person-badge me-2"></i> Detalles del Permiso
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <dl class="row gy-3">
+                        <dt class="col-sm-4"><i class="bi bi-person me-1 text-primary"></i> Funcionario</dt>
+                        <dd class="col-sm-8 fw-semibold" id="modalFuncionario"></dd>
+
+                        <dt class="col-sm-4"><i class="bi bi-credit-card me-1 text-primary"></i> DNI / Pasaporte</dt>
+                        <dd class="col-sm-8" id="modalDNI"></dd>
+
+                        <dt class="col-sm-4"><i class="bi bi-file-earmark-text me-1 text-primary"></i> Tipo de Permiso</dt>
+                        <dd class="col-sm-8" id="modalTipo"></dd>
+
+                        <dt class="col-sm-4"><i class="bi bi-calendar-event me-1 text-primary"></i> Fecha de Solicitud</dt>
+                        <dd class="col-sm-8" id="modalFechaSolicitud"></dd>
+
+                        <dt class="col-sm-4"><i class="bi bi-calendar-check me-1 text-primary"></i> Fecha Inicio</dt>
+                        <dd class="col-sm-8" id="modalFechaInicio"></dd>
+
+                        <dt class="col-sm-4"><i class="bi bi-calendar-x me-1 text-primary"></i> Fecha Fin</dt>
+                        <dd class="col-sm-8" id="modalFechaFin"></dd>
+
+                        <dt class="col-sm-4"><i class="bi bi-info-circle me-1 text-primary"></i> Estado</dt>
+                        <dd class="col-sm-8">
+                            <span id="modalEstado" class="badge fs-6"></span>
+                        </dd>
+
+                        <dt class="col-sm-4"><i class="bi bi-check2-circle me-1 text-primary"></i> Estancia actual</dt>
+                        <dd class="col-sm-8">
+                            <span id="modalToken" class="badge fs-6"></span>
+                        </dd>
+
+                        <dt class="col-sm-4"><i class="bi bi-chat-text me-1 text-primary"></i> Motivo de solicitud</dt>
+                        <dd class="col-sm-8" id="modalMotivo"></dd>
+
+                        <dt class="col-sm-4"><i class="bi bi-pencil-square me-1 text-primary"></i> Observaciones</dt>
+                        <dd class="col-sm-8" id="modalObservaciones"></dd>
+
+                        <dt class="col-sm-4"><i class="bi bi-file-earmark-arrow-down me-1 text-primary"></i>Antecedentes</dt>
+                        <dd class="col-sm-8" id="modalDocSoporteContainer"></dd>
+
+                        <dt class="col-sm-4"><i class="bi bi-file-earmark-arrow-down me-1 text-primary"></i> Decreto-Secretario</dt>
+                        <dd class="col-sm-8" id="modalDocRespuestaContainer"></dd>
+                    </dl>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-primary fw-semibold" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-1"></i> Cerrar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+
+    <script>
+        // cogiendo los datos del modal para lo del token
+        document.querySelectorAll('.btn-token').forEach(button => {
+            button.addEventListener('click', () => {
+                const idPermiso = button.getAttribute('data-id');
+                const nombreFuncionario = button.getAttribute('data-funcionario');
+
+                document.getElementById('modalIDPermiso').value = idPermiso;
+                document.getElementById('modalNombreFuncionario').textContent = nombreFuncionario;
+
+                // Abrir modal con Bootstrap 5
+                const modal = new bootstrap.Modal(document.getElementById('confirmTokenModal'));
+                modal.show();
+            });
+        });
+    </script>
+
+
+
+    <script>
+        // datos del modal de seguimiento
+       document.querySelectorAll('.btn-detalles-permiso').forEach(button => {
+  button.addEventListener('click', () => {
+    const modal = new bootstrap.Modal(document.getElementById('detallesPermisoModal'));
+
+    document.getElementById('modalFuncionario').textContent = button.dataset.funcionario;
+    document.getElementById('modalDNI').textContent = button.dataset.dni;
+    document.getElementById('modalTipo').textContent = button.dataset.tipo;
+    document.getElementById('modalFechaSolicitud').textContent = button.dataset.fechasolicitud;
+    document.getElementById('modalFechaInicio').textContent = button.dataset.fechainicio;
+    document.getElementById('modalFechaFin').textContent = button.dataset.fechafin;
+
+    // Estado con color
+    const estado = button.dataset.estado;
+    const estadoSpan = document.getElementById('modalEstado');
+    estadoSpan.textContent = estado;
+    estadoSpan.className = 'badge fs-6 ' + ({
+      'Aprobado': 'bg-success',
+      'Denegado': 'bg-danger',
+      'Cancelado': 'bg-secondary',
+      'Disfrutado': 'bg-info',
+      'Pendiente': 'bg-warning'
+    }[estado] || 'bg-secondary');
+
+    // Token con color
+    const token = button.dataset.token;
+    const tokenSpan = document.getElementById('modalToken');
+    if (token === '0') {
+      tokenSpan.textContent = 'No procesado';
+      tokenSpan.className = 'badge bg-warning text-dark fs-6';
+    } else if (token === '1') {
+      tokenSpan.textContent = 'Procesado';
+      tokenSpan.className = 'badge bg-success fs-6';
+    } else {
+      tokenSpan.textContent = 'Desconocido';
+      tokenSpan.className = 'badge bg-secondary fs-6';
+    }
+
+    document.getElementById('modalMotivo').textContent = button.dataset.motivo || '-';
+    document.getElementById('modalObservaciones').textContent = button.dataset.observaciones || '-';
+
+    // Foto perfil
+    const fotoPerfil = button.dataset.fotografia || 'https://via.placeholder.com/50?text=No+Foto';
+    document.getElementById('modalFotoPerfil').src = fotoPerfil;
+
+    // Documento Soporte
+    const docSoporteUrl = button.dataset.docsoporte;
+    const docSoporteContainer = document.getElementById('modalDocSoporteContainer');
+    if (docSoporteUrl) {
+      docSoporteContainer.innerHTML = `<a href="../api/${docSoporteUrl}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="bi bi-file-earmark-text me-1"></i> Descargar Documento Soporte</a>`;
+    } else {
+      docSoporteContainer.textContent = 'Ninguno';
+    }
+
+    // Documento Respuesta
+    const docRespuestaUrl = button.dataset.docrespuesta;
+    const docRespuestaContainer = document.getElementById('modalDocRespuestaContainer');
+    if (docRespuestaUrl) {
+      docRespuestaContainer.innerHTML = `<a href="../api/${docRespuestaUrl}" target="_blank" class="btn btn-sm btn-outline-success"><i class="bi bi-file-earmark-arrow-down me-1"></i> Descargar Documento Respuesta</a>`;
+    } else {
+      docRespuestaContainer.textContent = 'Ninguno';
+    }
+
+    modal.show();
+  });
+});
+
+    </script>
 
     <!-- Script para buscar y seleccionar funcionario -->
     <!-- Agrega este script justo antes de </body> -->
