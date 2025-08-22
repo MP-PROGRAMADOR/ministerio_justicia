@@ -115,74 +115,124 @@ include_once '../includes/header.php';
                                 die("Error de conexión: " . $e->getMessage());
                             }
 
-                            // Consulta para obtener capacitaciones con datos del funcionario
-                            $sql = "SELECT c.ID_Capacitacion, c.Nombre_Curso, c.Institucion_Organizadora, c.Fecha_Inicio_Curso, c.Fecha_Fin_Curso, c.Certificado_URL,
-               f.Nombres, f.Apellidos, f.DNI_Pasaporte
-        FROM tbl_capacitaciones c
-        JOIN tbl_funcionarios f ON c.ID_Funcionario = f.ID_Funcionario
-        ORDER BY c.ID_Capacitacion DESC";
+                            // Consulta para obtener cursos
+                            $sql = "SELECT ID_Curso, Nombre_Curso, Descripcion, Fecha_Inicio, Fecha_Fin, Cupo
+        FROM tbl_cursos
+        ORDER BY ID_Curso DESC";
                             $stmt = $pdo->query($sql);
-                            $capacitaciones = $stmt->fetchAll();
+                            $cursos = $stmt->fetchAll();
                             ?>
 
                             <table class="table table-hover align-middle mb-0" id="funcionariosTable">
                                 <thead class="table-light">
                                     <tr>
                                         <th>ID</th>
-                                        <th>Funcionario</th>
-                                        <th>DNI</th>
-                                        <th>Curso</th>
-                                        <th>Institución</th>
+                                        <th>Nombre del Curso</th>
+                                        <th>Descripción</th>
                                         <th>Fecha Inicio</th>
                                         <th>Fecha Fin</th>
-                                        <th>Certificado</th>
+                                        <th>Cupo</th>
+                                        <th>Estado</th>
                                         <th>Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody id="funcionariosTableBody">
-                                    <?php foreach ($capacitaciones as $cap): ?>
+                                    <?php foreach ($cursos as $curso): ?>
+                                        <?php
+                                        $hoy = date("Y-m-d");
+
+                                        // Determinar estado
+                                        if ($curso['Fecha_Fin'] < $hoy) {
+                                            $estado = '<span class="badge bg-danger">Finalizado</span>';
+                                            $finalizado = true;
+                                        } elseif ($curso['Fecha_Inicio'] > $hoy) {
+                                            $estado = '<span class="badge bg-warning text-dark">Próximo</span>';
+                                            $finalizado = false;
+                                        } else {
+                                            $estado = '<span class="badge bg-success">En curso</span>';
+                                            $finalizado = false;
+                                        }
+
+                                        // Determinar cupo
+                                        $cupo = ($curso['Cupo'] > 0)
+                                            ? "<span class='badge bg-primary'>{$curso['Cupo']} plazas</span>"
+                                            : "<span class='badge bg-secondary'>Cupo completo</span>";
+                                        ?>
                                         <tr>
-                                            <td><?= htmlspecialchars($cap['ID_Capacitacion']) ?></td>
-                                            <td><?= htmlspecialchars($cap['Nombres'] . ' ' . $cap['Apellidos']) ?></td>
-                                            <td><?= htmlspecialchars($cap['DNI_Pasaporte']) ?></td>
-                                            <td><?= htmlspecialchars($cap['Nombre_Curso']) ?></td>
-                                            <td><?= htmlspecialchars($cap['Institucion_Organizadora']) ?></td>
-                                            <td><?= htmlspecialchars($cap['Fecha_Inicio_Curso']) ?></td>
-                                            <td><?= htmlspecialchars($cap['Fecha_Fin_Curso']) ?></td>
+                                            <td><?= htmlspecialchars($curso['ID_Curso']) ?></td>
+                                            <td><?= htmlspecialchars($curso['Nombre_Curso']) ?></td>
+                                            <td><?= htmlspecialchars(mb_strimwidth($curso['Descripcion'], 0, 20, '...')) ?></td>
+                                            <td><?= htmlspecialchars($curso['Fecha_Inicio']) ?></td>
+                                            <td><?= htmlspecialchars($curso['Fecha_Fin']) ?></td>
+                                            <td><?= $cupo ?></td>
+                                            <td><?= $estado ?></td>
                                             <td>
-                                                <?php if (!empty($cap['Certificado_URL'])): ?>
-                                                    <a href="../<?= htmlspecialchars($cap['Certificado_URL']) ?>" target="_blank" class="btn btn-sm btn-outline-primary">
-                                                        <i class="bi bi-file-earmark-text"></i> Ver
-                                                    </a>
+                                                <?php if (!$finalizado): ?>
+                                                    <!-- Botón Inscribir -->
+                                                    <button class="btn btn-sm btn-success btn-inscribir"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#inscribirModal"
+                                                        onclick="abrirModalInscripcion(<?= $curso['ID_Curso'] ?>)">
+                                                        <i class="bi bi-person-plus me-1"></i> Inscribir Funcionarios
+                                                    </button>
+
+                                                    <!-- Botón Editar -->
+                                                    <button class="btn btn-sm btn-warning btn-editar-curso"
+                                                        data-id="<?= $curso['ID_Curso'] ?>"
+                                                        data-nombre="<?= htmlspecialchars($curso['Nombre_Curso']) ?>"
+                                                        data-descripcion="<?= htmlspecialchars($curso['Descripcion']) ?>"
+                                                        data-inicio="<?= $curso['Fecha_Inicio'] ?>"
+                                                        data-fin="<?= $curso['Fecha_Fin'] ?>"
+                                                        data-cupo="<?= $curso['Cupo'] ?>"
+                                                        title="Editar Curso">
+                                                        <i class="bi bi-pencil-square me-1"></i>Editar
+                                                    </button>
                                                 <?php else: ?>
-                                                    <span class="text-muted">Ninguno</span>
+                                                    <!-- Botón Inscribir desactivado -->
+                                                    <button class="btn btn-sm btn-secondary" disabled
+                                                        data-bs-toggle="tooltip" data-bs-placement="top"
+                                                        title="Curso finalizado — no se puede inscribir">
+                                                        <i class="bi bi-person-plus me-1"></i> Inscribir Funcionarios
+                                                    </button>
+
+                                                    <!-- Botón Editar desactivado -->
+                                                    <button class="btn btn-sm btn-secondary" disabled
+                                                        data-bs-toggle="tooltip" data-bs-placement="top"
+                                                        title="Curso finalizado — no se puede editar">
+                                                        <i class="bi bi-pencil-square me-1"></i>Editar
+                                                    </button>
                                                 <?php endif; ?>
-                                            </td>
-                                            <td>
-                                                <!-- Aquí podrías poner botones para editar o eliminar -->
-                                                <button class="btn btn-sm btn-warning btn-editar-capacitacion"
-                                                    data-id="<?= $cap['ID_Capacitacion'] ?>"
-                                                    data-funcionario="<?= htmlspecialchars($cap['Nombres'] . ' ' . $cap['Apellidos']) ?>"
-                                                    data-curso="<?= htmlspecialchars($cap['Nombre_Curso']) ?>"
-                                                    data-institucion="<?= htmlspecialchars($cap['Institucion_Organizadora']) ?>"
-                                                    data-inicio="<?= $cap['Fecha_Inicio_Curso'] ?>"
-                                                    data-fin="<?= $cap['Fecha_Fin_Curso'] ?>"
-                                                    data-certificado="<?= htmlspecialchars($cap['Certificado_URL']) ?>"
-                                                    title="Editar Capacitacion">
-                                                    <i class="bi bi-pencil-square"></i>
+
+
+
+
+                                                <button class="btn btn-sm btn-info btn-ver-inscritos"
+                                                    data-id="<?= $curso['ID_Curso'] ?>"
+                                                    data-nombre="<?= htmlspecialchars($curso['Nombre_Curso']) ?>"
+                                                    data-inicio="<?= $curso['Fecha_Inicio'] ?>"
+                                                    data-fin="<?= $curso['Fecha_Fin'] ?>"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#modalInscritos">
+                                                    <i class="bi bi-people-fill me-1"></i> Ver Inscritos
                                                 </button>
 
-                                                <button class="btn btn-sm btn-danger" title="Eliminar">
+
+
+                                                <!-- Botón Eliminar siempre disponible -->
+                                                <button class="btn btn-sm btn-danger btn-eliminar-curso"
+                                                    data-id="<?= $curso['ID_Curso'] ?>"
+                                                    title="Eliminar Curso">
                                                     <i class="bi bi-trash"></i>
                                                 </button>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
                                 </tbody>
+
+
                             </table>
-
-
                         </div>
+
                         <nav aria-label="Page navigation example" class="mt-3">
                             <ul class="pagination justify-content-center" id="paginationControls">
                                 <li class="page-item disabled"><a class="page-link" href="#" tabindex="-1"
@@ -217,41 +267,15 @@ include_once '../includes/header.php';
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title" id="addCapacitacionModalLabel">
-                        <i class="bi bi-journal-text me-2"></i>Registrar Capacitación
+                    <h5 class="modal-title" id="addCursoModalLabel">
+                        <i class="bi bi-journal-text me-2"></i>Registrar Curso
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body">
 
-                    <!-- Buscador -->
-                    <div class="mb-4">
-                        <label for="searchFuncionario" class="form-label fw-semibold">
-                            <i class="bi bi-search me-2 text-primary"></i>Buscar Funcionario
-                        </label>
-                        <input type="text" id="searchFuncionario" class="form-control" placeholder="Escriba un nombre...">
-                    </div>
-
-                    <!-- Lista de funcionarios -->
-                    <div class="list-group mb-3" id="listaFuncionarios"></div>
-
-                    <!-- Funcionario seleccionado -->
-                    <div id="funcionarioSeleccionado" class="mb-4 d-none">
-                        <div class="alert alert-info d-flex justify-content-between align-items-center">
-                            <div>
-                                <i class="bi bi-person-check-fill me-2"></i>
-                                <span id="nombreFuncionario"></span>
-                            </div>
-                            <button type="button" class="btn btn-sm btn-outline-danger" id="quitarSeleccion">
-                                <i class="bi bi-x-circle"></i> Quitar
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Formulario de capacitación -->
-                    <form method="POST" action="../api/guardar_capacitacion.php" enctype="multipart/form-data">
-                        <input type="hidden" name="ID_Funcionario" id="ID_Funcionario">
-
+                    <!-- Formulario de curso -->
+                    <form method="POST" action="../api/guardar_curso.php" enctype="multipart/form-data">
                         <div class="row g-3">
 
                             <!-- Nombre del Curso -->
@@ -262,35 +286,36 @@ include_once '../includes/header.php';
                                 <input type="text" name="Nombre_Curso" class="form-control" required>
                             </div>
 
-                            <!-- Institución Organizadora -->
+                            <!-- Descripción -->
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold">
-                                    <i class="bi bi-building text-primary me-2"></i>Institución Organizadora
+                                    <i class="bi bi-card-text text-primary me-2"></i>Descripción
                                 </label>
-                                <input type="text" name="Institucion_Organizadora" class="form-control" required>
+                                <input type="text" name="Descripcion" class="form-control" required>
                             </div>
 
-                            <!-- Fechas -->
+                            <!-- Fecha Inicio -->
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold">
                                     <i class="bi bi-calendar-event text-primary me-2"></i>Fecha Inicio
                                 </label>
-                                <input type="date" name="Fecha_Inicio_Curso" class="form-control">
+                                <input type="date" name="Fecha_Inicio" class="form-control" required>
                             </div>
 
+                            <!-- Fecha Fin -->
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold">
                                     <i class="bi bi-calendar-check text-primary me-2"></i>Fecha Fin
                                 </label>
-                                <input type="date" name="Fecha_Fin_Curso" class="form-control">
+                                <input type="date" name="Fecha_Fin" class="form-control" required>
                             </div>
 
-                            <!-- Certificado -->
+                            <!-- Cupo -->
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold">
-                                    <i class="bi bi-upload text-primary me-2"></i>Certificado (opcional)
+                                    <i class="bi bi-people text-primary me-2"></i>Cupo
                                 </label>
-                                <input type="file" name="Certificado_URL" class="form-control" accept=".pdf,.jpg,.png,.doc,.docx">
+                                <input type="number" name="Cupo" class="form-control" min="1" required>
                             </div>
 
                         </div>
@@ -298,12 +323,97 @@ include_once '../includes/header.php';
                         <!-- Botón enviar -->
                         <div class="mt-4 d-flex justify-content-end">
                             <button type="submit" class="btn btn-success">
-                                <i class="bi bi-save me-2"></i>Registrar Capacitación
+                                <i class="bi bi-save me-2"></i>Registrar Curso
                             </button>
                         </div>
                     </form>
 
                 </div>
+            </div>
+        </div>
+
+    </div>
+
+
+
+
+
+
+
+
+
+    <!-- Modal para Editar Capacitación -->
+    <!-- Modal Editar Curso -->
+    <div class="modal fade" id="modalEditarCurso" tabindex="-1" aria-labelledby="modalEditarCursoLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content shadow-lg border-0 rounded-4">
+
+                <!-- Encabezado -->
+                <div class="modal-header bg-primary text-white rounded-top-4">
+                    <h5 class="modal-title fw-bold" id="modalEditarCursoLabel">
+                        <i class="bi bi-pencil-square me-2"></i>Editar Curso
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+
+                <!-- Formulario -->
+                <form method="POST" action="../api/editar_curso.php">
+                    <div class="modal-body">
+                        <input type="hidden" name="ID_Curso" id="edit_id_curso">
+
+                        <div class="row g-3">
+                            <!-- Nombre del Curso -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-book text-primary me-2"></i>Nombre del Curso
+                                </label>
+                                <input type="text" name="Nombre_Curso" id="edit_nombre_curso" class="form-control" required>
+                            </div>
+
+                            <!-- Descripción -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-card-text text-primary me-2"></i>Descripción
+                                </label>
+                                <input type="text" name="Descripcion" id="edit_descripcion" class="form-control" required maxlength="200">
+                            </div>
+
+                            <!-- Fecha Inicio -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-calendar-event text-primary me-2"></i>Fecha Inicio
+                                </label>
+                                <input type="date" name="Fecha_Inicio" id="edit_fecha_inicio" class="form-control" required>
+                            </div>
+
+                            <!-- Fecha Fin -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-calendar-check text-primary me-2"></i>Fecha Fin
+                                </label>
+                                <input type="date" name="Fecha_Fin" id="edit_fecha_fin" class="form-control" required>
+                            </div>
+
+                            <!-- Cupo -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-people text-primary me-2"></i>Cupo
+                                </label>
+                                <input type="number" name="Cupo" id="edit_cupo" class="form-control" min="1" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botón Guardar -->
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="bi bi-x-circle me-1"></i>Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save me-1"></i>Guardar Cambios
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -316,99 +426,373 @@ include_once '../includes/header.php';
 
 
 
-    <!-- Modal para Editar Capacitación -->
-<div class="modal fade" id="editCapacitacionModal" tabindex="-1" aria-labelledby="editCapacitacionModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-xl">
-    <div class="modal-content">
-      <div class="modal-header bg-primary text-white">
-        <h5 class="modal-title" id="editCapacitacionModalLabel">
-          <i class="bi bi-pencil-square me-2"></i>Editar Capacitación
-        </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-      </div>
-      <div class="modal-body">
-        <form method="POST" action="../api/actualizar_capacitacion.php" enctype="multipart/form-data">
-          <input type="hidden" name="ID_Capacitacion" id="editID_Capacitacion">
-          <input type="hidden" name="ID_Funcionario" id="editID_Funcionario">
+    <!-- modal para matricula -->
 
-          <div class="mb-3">
-            <label for="editNombreCurso" class="form-label fw-semibold">Nombre del Curso</label>
-            <input type="text" name="Nombre_Curso" id="editNombreCurso" class="form-control" required maxlength="200">
-          </div>
 
-          <div class="mb-3">
-            <label for="editInstitucion" class="form-label fw-semibold">Institución Organizadora</label>
-            <input type="text" name="Institucion_Organizadora" id="editInstitucion" class="form-control" required maxlength="200">
-          </div>
 
-          <div class="row g-3 mb-3">
-            <div class="col-md-6">
-              <label for="editFechaInicio" class="form-label fw-semibold">Fecha Inicio</label>
-              <input type="date" name="Fecha_Inicio_Curso" id="editFechaInicio" class="form-control">
+
+
+
+
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="inscribirModal" tabindex="-1" aria-labelledby="inscribirModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="inscribirModalLabel">Inscribir Funcionarios</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+
+                    <!-- Campo oculto para el ID del curso -->
+                    <input type="hidden" id="idCursoActual" name="ID_Curso">
+
+                    <!-- Buscador -->
+                    <input type="text" id="buscarFuncionario" class="form-control mb-3" placeholder="Buscar funcionario...">
+
+                    <!-- Resultados -->
+                    <div id="listaFuncionarios" style="max-height:200px; overflow-y:auto;"></div>
+
+                    <hr>
+
+                    <!-- Lista seleccionada -->
+                    <h6>Funcionarios seleccionados:</h6>
+                    <ul id="listaSeleccionados" class="list-group"></ul>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" id="btnGuardarInscripcion" class="btn btn-success">Guardar</button>
+                </div>
             </div>
-            <div class="col-md-6">
-              <label for="editFechaFin" class="form-label fw-semibold">Fecha Fin</label>
-              <input type="date" name="Fecha_Fin_Curso" id="editFechaFin" class="form-control">
-            </div>
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label fw-semibold">Certificado Actual:</label>
-            <div id="certificadoActualContainer" class="mb-2">
-              <!-- Aquí se puede mostrar enlace o texto con el certificado actual -->
-            </div>
-            <label for="editCertificado" class="form-label fw-semibold">Subir nuevo certificado (opcional)</label>
-            <input type="file" name="Certificado_URL" id="editCertificado" class="form-control" accept=".pdf,.jpg,.png,.doc,.docx">
-          </div>
-
-          <div class="d-flex justify-content-end">
-            <button type="submit" class="btn btn-primary">
-              <i class="bi bi-save me-2"></i>Actualizar Capacitación
-            </button>
-          </div>
-        </form>
-      </div>
+        </div>
     </div>
-  </div>
-</div>
-
-<script>
-  // Función para abrir el modal y rellenar los datos (ejemplo con jQuery)
-document.querySelectorAll('.btn-editar-capacitacion').forEach(button => {
-  button.addEventListener('click', () => {
-    const id = button.dataset.id;
-    const funcionario = button.dataset.funcionario;
-    const curso = button.dataset.curso;
-    const institucion = button.dataset.institucion;
-    const inicio = button.dataset.inicio;
-    const fin = button.dataset.fin;
-    const certificado = button.dataset.certificado;
-
-    document.getElementById('editID_Capacitacion').value = id;
-    document.getElementById('editNombreCurso').value = curso;
-    document.getElementById('editInstitucion').value = institucion;
-    document.getElementById('editFechaInicio').value = inicio;
-    document.getElementById('editFechaFin').value = fin;
-
-    const certificadoContainer = document.getElementById('certificadoActualContainer');
-    if(certificado) {
-      certificadoContainer.innerHTML = `
-        <a href="../${certificado}" target="_blank" class="btn btn-sm btn-outline-primary">
-          <i class="bi bi-file-earmark-text"></i> Ver certificado actual
-        </a>`;
-    } else {
-      certificadoContainer.innerHTML = '<span class="text-muted">Ninguno</span>';
-    }
-
-    // Mostrar el modal con Bootstrap 5
-    const modal = new bootstrap.Modal(document.getElementById('editCapacitacionModal'));
-    modal.show();
-  });
-});
 
 
-</script>
 
+
+
+
+    <div class="modal fade" id="modalInscritos" tabindex="-1" aria-labelledby="modalInscritosLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalInscritosLabel">Funcionarios Inscritos</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-2">
+                        <input type="text" id="buscadorInscritos" class="form-control" placeholder="Buscar funcionario...">
+                    </div>
+                    <table class="table table-striped" id="tablaInscritos">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Apellidos</th>
+                                <th>Codigo del Funcionario</th>
+                                <th>D.I.P/Pasaporte</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Se llenará dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button id="btnImprimirInscritos" class="btn btn-primary"><i class="bi bi-printer"></i> Imprimir</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+    <!-- Incluye SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        // Para que los tooltips funcionen debes inicializarlos en tu JavaScript principal:
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            tooltipTriggerList.map(function(tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            });
+        });
+    </script>
+
+
+
+
+
+    <script>
+        //  JavaScript para cargar los funcionarios y buscador
+        document.querySelectorAll('.btn-ver-inscritos').forEach(button => {
+            button.addEventListener('click', function() {
+                const idCurso = this.dataset.id;
+                const nombreCurso = this.dataset.nombre;
+                const fechaInicio = this.dataset.inicio; // Asegúrate de pasarlo como data-inicio
+                const fechaFin = this.dataset.fin; // Asegúrate de pasarlo como data-fin
+
+                // Cambiar título del modal
+                document.getElementById('modalInscritosLabel').textContent = `Funcionarios inscritos en: ${nombreCurso}`;
+
+                // Limpiar tabla
+                const tbody = document.querySelector('#tablaInscritos tbody');
+                tbody.innerHTML = '';
+
+                // Guardar info para imprimir
+                document.getElementById('btnImprimirInscritos').dataset.nombreCurso = nombreCurso;
+                document.getElementById('btnImprimirInscritos').dataset.fechaInicio = fechaInicio;
+                document.getElementById('btnImprimirInscritos').dataset.fechaFin = fechaFin;
+
+                // Fetch a tu API para obtener los funcionarios inscritos
+                fetch(`../api/funcionarios_inscritos.php?ID_Curso=${idCurso}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        data.forEach(func => {
+                            const tr = document.createElement('tr');
+                            tr.innerHTML = `<td>${func.ID_Funcionario}</td>
+                                    <td>${func.Nombres}</td>
+                                    <td>${func.Apellidos}</td>
+                                    <td>${func.Codigo_Funcionario}</td>
+                                    <td>${func.DNI_Pasaporte}</td>`;
+                            tbody.appendChild(tr);
+                        });
+                    });
+            });
+        });
+
+
+
+
+
+        // Buscador dinámico
+        document.getElementById('buscadorInscritos').addEventListener('input', function() {
+            const filter = this.value.toLowerCase();
+            document.querySelectorAll('#tablaInscritos tbody tr').forEach(row => {
+                const nombre = row.cells[1].textContent.toLowerCase();
+                const apellidos = row.cells[2].textContent.toLowerCase();
+                row.style.display = (nombre.includes(filter) || apellidos.includes(filter)) ? '' : 'none';
+            });
+        });
+
+
+
+        // document.getElementById('btnImprimirInscritos').addEventListener('click', function() {
+        //     const nombreCurso = this.dataset.nombreCurso;
+        //     const fechaInicio = this.dataset.fechaInicio;
+        //     const fechaFin = this.dataset.fechaFin;
+
+        //     const tabla = document.getElementById('tablaInscritos').cloneNode(true); // clonamos para no alterar el DOM
+        //     // Quitamos el buscador de la impresión
+        //     tabla.removeAttribute('id');
+
+        //     const ventana = window.open('', '', 'height=700,width=900');
+        //     ventana.document.write('<html><head><title>Funcionarios Inscritos</title>');
+        //     ventana.document.write('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">');
+        //     ventana.document.write('<style>table{border-collapse: collapse;} th, td{border:1px solid #000 !important;}</style>');
+        //     ventana.document.write('</head><body>');
+        //     ventana.document.write(`<div class="mb-3"><h3>Curso: ${nombreCurso}</h3>`);
+        //     ventana.document.write(`<p>Fecha de inicio: ${fechaInicio} | Fecha de fin: ${fechaFin}</p></div>`);
+        //     ventana.document.write(tabla.outerHTML);
+        //     ventana.document.write('</body></html>');
+        //     ventana.document.close();
+        //     ventana.print();
+        // });
+
+
+        // Botón imprimir con información del curso
+        document.getElementById('btnImprimirInscritos').addEventListener('click', function() {
+            const tabla = document.getElementById('tablaInscritos').outerHTML;
+            const nombreCurso = this.dataset.nombreCurso;
+            const fechaInicio = this.dataset.fechaInicio;
+            const fechaFin = this.dataset.fechaFin;
+
+            const ventana = window.open('', '', 'height=600,width=800');
+            ventana.document.write('<html><head><title>Funcionarios Inscritos</title>');
+            ventana.document.write('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">');
+            ventana.document.write('</head><body>');
+            ventana.document.write(`<h3>Curso: ${nombreCurso}</h3>`);
+            ventana.document.write(`<p>Fecha de inicio: ${fechaInicio} | Fecha de fin: ${fechaFin}</p>`);
+            ventana.document.write(tabla);
+            ventana.document.write('</body></html>');
+            ventana.document.close();
+            ventana.print();
+        });
+    </script>
+
+    <script>
+        let seleccionados = [];
+
+        // Abrir modal y asignar ID del curso
+        function abrirModalInscripcion(idCurso) {
+            document.getElementById('idCursoActual').value = idCurso;
+            seleccionados = []; // Limpiar lista
+            renderListaSeleccionados();
+            document.getElementById('buscarFuncionario').value = '';
+            document.getElementById('listaFuncionarios').innerHTML = '';
+        }
+
+        // Buscar funcionario en tiempo real
+        document.getElementById('buscarFuncionario').addEventListener('input', function() {
+            const query = this.value.trim();
+            const lista = document.getElementById('listaFuncionarios');
+
+            // Si no hay texto, limpiar y salir
+            if (!query) {
+                lista.innerHTML = '';
+                return;
+            }
+
+            fetch(`../api/buscar_funcionarios.php?q=${encodeURIComponent(query)}`)
+                .then(res => {
+                    if (!res.ok) throw new Error("Error en la solicitud");
+                    return res.json();
+                })
+                .then(data => {
+                    lista.innerHTML = '';
+
+                    if (data.length > 0) {
+                        data.forEach(func => {
+                            const div = document.createElement('div');
+                            div.className = 'list-group-item list-group-item-action';
+                            div.textContent = `${func.Nombres} ${func.Apellidos}`;
+                            div.style.cursor = 'pointer';
+                            div.addEventListener('click', () => agregarASeleccionados(func));
+                            lista.appendChild(div);
+                        });
+                    } else {
+                        lista.innerHTML = '<div class="text-muted p-2">No se encontraron resultados</div>';
+                    }
+                })
+                .catch(err => {
+                    console.error("Error al buscar funcionarios:", err);
+                    lista.innerHTML = '<div class="text-danger p-2">Error al buscar</div>';
+                });
+        });
+
+
+        // Agregar funcionario a la lista seleccionada
+        function agregarASeleccionados(func) {
+            if (!seleccionados.some(f => f.ID_Funcionario === func.ID_Funcionario)) {
+                seleccionados.push(func);
+                renderListaSeleccionados();
+            }
+        }
+
+        // Renderizar lista seleccionada
+        function renderListaSeleccionados() {
+            const listaSel = document.getElementById('listaSeleccionados');
+            listaSel.innerHTML = '';
+            seleccionados.forEach(func => {
+                const li = document.createElement('li');
+                li.className = 'list-group-item d-flex justify-content-between align-items-center';
+                li.textContent = `${func.Nombres} ${func.Apellidos}`;
+
+                const btn = document.createElement('button');
+                btn.className = 'btn btn-sm btn-danger';
+                btn.textContent = 'Eliminar';
+                btn.addEventListener('click', () => {
+                    seleccionados = seleccionados.filter(f => f.ID_Funcionario !== func.ID_Funcionario);
+                    renderListaSeleccionados();
+                });
+
+                li.appendChild(btn);
+                listaSel.appendChild(li);
+            });
+        }
+
+        // Guardar inscripción
+        document.getElementById('btnGuardarInscripcion').addEventListener('click', function() {
+            if (seleccionados.length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Atención',
+                    text: 'Debes seleccionar al menos un funcionario.'
+                });
+                return;
+            }
+
+            const idCurso = document.getElementById('idCursoActual').value;
+            const formData = new FormData();
+            formData.append('ID_Curso', idCurso);
+            formData.append('funcionarios', JSON.stringify(seleccionados.map(f => f.ID_Funcionario)));
+
+            fetch('../api/guardar_matricula.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(response => {
+                    if (response.success) {
+                        let htmlMsg = '';
+
+                        if (response.inscritos.length > 0) {
+                            htmlMsg += `<p><b>✅ Inscritos correctamente:</b><br>${response.inscritos.join('<br>')}</p>`;
+                        }
+                        if (response.noInscritos.length > 0) {
+                            htmlMsg += `<p><b>⚠ No se inscribieron:</b><br>`;
+                            response.noInscritos.forEach(f => {
+                                htmlMsg += `- ${f.nombre}: ${f.motivo}<br>`;
+                            });
+                            htmlMsg += `</p>`;
+                        }
+
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Resultado de la inscripción',
+                            html: htmlMsg
+                        }).then(() => {
+                            const modal = bootstrap.Modal.getInstance(document.getElementById('inscribirModal'));
+                            modal.hide();
+                        });
+
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.message
+                        });
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Error en la petición.'
+                    });
+                });
+        });
+    </script>
+
+
+
+
+
+    <!-- Script para llenar datos -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelectorAll(".btn-editar-curso").forEach(function(boton) {
+                boton.addEventListener("click", function() {
+                    document.getElementById("edit_id_curso").value = this.dataset.id;
+                    document.getElementById("edit_nombre_curso").value = this.dataset.nombre;
+                    document.getElementById("edit_descripcion").value = this.dataset.descripcion;
+                    document.getElementById("edit_fecha_inicio").value = this.dataset.inicio;
+                    document.getElementById("edit_fecha_fin").value = this.dataset.fin;
+                    document.getElementById("edit_cupo").value = this.dataset.cupo;
+                    new bootstrap.Modal(document.getElementById("modalEditarCurso")).show();
+                });
+            });
+        });
+    </script>
 
 
 

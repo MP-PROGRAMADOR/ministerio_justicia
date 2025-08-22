@@ -80,6 +80,10 @@ if (!isset($_SESSION['ID_Usuario']) ||
             <i class="bi bi-award fs-5 text-primary me-2"></i>
             <span class="fw-semibold">Cursos del Ministerio</span>
         </a>
+
+         <a class="nav-link" href="instrucciones_diarias.php">
+            <i class="bi bi-file-earmark-text me-3"></i> Instrucciones Diarias
+        </a>
        
         <a class="nav-link" href="reportes.php">
             <i class="bi bi-file-earmark-text me-3"></i> Reportes

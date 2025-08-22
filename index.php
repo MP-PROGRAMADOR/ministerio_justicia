@@ -4,7 +4,7 @@ session_start();
 <!DOCTYPE html>
 <html lang="es">
 
-<head>    
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ministerio de Justicia - Iniciar Sesión</title>
@@ -561,7 +561,15 @@ session_start();
                         <a href="#" id="forgotPasswordLink">¿Olvidaste tu contraseña?</a>
                     </div>
                 </form>
+
+                <!-- 🔗 Nuevo enlace al panel del funcionario -->
+                <div class="text-center mt-3">
+                    <a href="funcionario/index.php" class="text-decoration-none fw-bold text-primary">
+                        <i class="fas fa-briefcase me-1"></i> Accede al panel del funcionario
+                    </a>
+                </div>
             </div>
+
         </div>
     </div>
 
@@ -574,7 +582,11 @@ session_start();
         const ctx = canvas.getContext('2d');
         let particles = [];
         const numParticles = 60;
-        const mouse = { x: null, y: null, radius: 150 };
+        const mouse = {
+            x: null,
+            y: null,
+            radius: 150
+        };
 
         function resizeCanvas() {
             canvas.width = window.innerWidth;
@@ -699,7 +711,7 @@ session_start();
         window.addEventListener('resize', resizeCanvas);
 
         // Form Enhancement
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             const form = document.getElementById('loginForm');
             const togglePassword = document.getElementById('togglePassword');
             const passwordInput = document.getElementById('password');
@@ -707,7 +719,7 @@ session_start();
             const buttonText = document.getElementById('buttonText');
 
             // Password toggle
-            togglePassword.addEventListener('click', function () {
+            togglePassword.addEventListener('click', function() {
                 const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
                 passwordInput.setAttribute('type', type);
                 this.classList.toggle('fa-eye');
@@ -715,7 +727,7 @@ session_start();
             });
 
             // Form submission with loading state
-            form.addEventListener('submit', function (e) {
+            form.addEventListener('submit', function(e) {
                 const submitButton = this.querySelector('.btn-login');
                 submitButton.disabled = true;
                 loadingSpinner.style.display = 'inline-block';
