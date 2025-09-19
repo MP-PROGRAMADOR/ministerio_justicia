@@ -136,6 +136,7 @@ include_once '../includes/header.php';
                             ?>
 
 
+
                             <table class="table table-hover align-middle mb-0" id="funcionariosTable">
                                 <thead class=" table-light">
                                     <tr>

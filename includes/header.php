@@ -963,6 +963,37 @@ include_once 'conexion.php';
             z-index: 10;
             border-radius: 1.5rem; /* Match modal content border-radius */
         }
+
+
+
+
+
+        .sidebar {
+    height: 100vh;               /* altura de toda la ventana */
+    overflow-y: auto;            /* scroll vertical */
+    overflow-x: hidden;          /* evita scroll horizontal */
+    position: fixed;             /* sidebar fijo en el lateral */
+    top: 0;
+    left: 0;
+    width: 250px;                /* ajusta según tu diseño */
+    background-color: #212529;   /* color de fondo (opcional) */
+    z-index: 1000;
+}
+
+/* Personalizar el scroll (opcional) */
+.sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+.sidebar::-webkit-scrollbar-thumb {
+    background: #0d6efd;
+    border-radius: 10px;
+}
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background: #0b5ed7;
+}
+
+
+
     </style>
 
      
