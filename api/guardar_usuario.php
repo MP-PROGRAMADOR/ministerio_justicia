@@ -67,7 +67,7 @@ if ($errors) {
 }
 
 // Verificar que no exista usuario ni email duplicado
-$stmtCheck = $pdo->prepare("SELECT COUNT(*) FROM tbl_Usuarios WHERE Nombre_Usuario = :nombre OR Email_Contacto = :email");
+$stmtCheck = $pdo->prepare("SELECT COUNT(*) FROM tbl_usuarios WHERE Nombre_Usuario = :nombre OR Email_Contacto = :email");
 $stmtCheck->execute(['nombre' => $nombreUsuario, 'email' => $emailContacto]);
 $existe = $stmtCheck->fetchColumn();
 
@@ -89,7 +89,7 @@ $hashContrasena = password_hash($contrasena, PASSWORD_DEFAULT);
 
 
 // Insertar nuevo usuario
-$stmtInsert = $pdo->prepare("INSERT INTO tbl_Usuarios (Nombre_Usuario, Contrasena_Hash, Rol_Usuario, Email_Contacto, Activo) VALUES (:nombre, :contrasena, :rol, :email, :activo)");
+$stmtInsert = $pdo->prepare("INSERT INTO tbl_usuarios (Nombre_Usuario, Contrasena_Hash, Rol_Usuario, Email_Contacto, Activo) VALUES (:nombre, :contrasena, :rol, :email, :activo)");
 
 try {
     $stmtInsert->execute([

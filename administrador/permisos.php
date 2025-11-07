@@ -192,7 +192,7 @@ include_once '../includes/header.php';
 
                                             <td>
                                                 <?php if (!empty($permiso['Documento_Soporte_URL'])): ?>
-                                                    <a href="../api/<?= htmlspecialchars($permiso['Documento_Soporte_URL']) ?>" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                    <a href="../uploads/<?= htmlspecialchars($permiso['Documento_Soporte_URL']) ?>" target="_blank" class="btn btn-sm btn-outline-primary">
                                                         <i class="bi bi-file-earmark-text"></i> Ver
                                                     </a>
                                                 <?php else: ?>
@@ -741,7 +741,7 @@ include_once '../includes/header.php';
     const docSoporteUrl = button.dataset.docsoporte;
     const docSoporteContainer = document.getElementById('modalDocSoporteContainer');
     if (docSoporteUrl) {
-      docSoporteContainer.innerHTML = `<a href="../api/${docSoporteUrl}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="bi bi-file-earmark-text me-1"></i> Descargar Documento Soporte</a>`;
+      docSoporteContainer.innerHTML = `<a href="../${docSoporteUrl}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="bi bi-file-earmark-text me-1"></i> Descargar Documento Soporte</a>`;
     } else {
       docSoporteContainer.textContent = 'Ninguno';
     }
@@ -750,7 +750,7 @@ include_once '../includes/header.php';
     const docRespuestaUrl = button.dataset.docrespuesta;
     const docRespuestaContainer = document.getElementById('modalDocRespuestaContainer');
     if (docRespuestaUrl) {
-      docRespuestaContainer.innerHTML = `<a href="../api/${docRespuestaUrl}" target="_blank" class="btn btn-sm btn-outline-success"><i class="bi bi-file-earmark-arrow-down me-1"></i> Descargar Documento Respuesta</a>`;
+      docRespuestaContainer.innerHTML = `<a href="../${docRespuestaUrl}" target="_blank" class="btn btn-sm btn-outline-success"><i class="bi bi-file-earmark-arrow-down me-1"></i> Descargar Documento Respuesta</a>`;
     } else {
       docRespuestaContainer.textContent = 'Ninguno';
     }
