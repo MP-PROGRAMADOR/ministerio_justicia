@@ -175,6 +175,7 @@ INSERT INTO `tbl_cursos_funcionarios` (`ID`, `ID_Funcionario`, `ID_Curso`, `Fech
 CREATE TABLE `tbl_departamentos` (
   `ID_Departamento` int(11) NOT NULL,
   `Nombre_Departamento` varchar(100) NOT NULL,
+  `direccion` varchar(250) NOT NULL,
   `Ubicacion` varchar(200) DEFAULT NULL,
   `Telefono_Departamento` varchar(20) DEFAULT NULL,
   `ID_Usuario_Creador` int(11) NOT NULL,
@@ -183,7 +184,9 @@ CREATE TABLE `tbl_departamentos` (
   `Fecha_Ultima_Modificacion` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `Ciudad` varchar(250) NOT NULL,
   `Distrito` varchar(250) NOT NULL,
-  `Provincia` varchar(250) NOT NULL
+  `Provincia` varchar(250) NOT NULL,
+  `region` varchar(250) NOT NULL
+
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
@@ -272,6 +275,7 @@ CREATE TABLE `tbl_funcionarios` (
   `Telefono_Contacto` varchar(20) DEFAULT NULL,
   `Email_Oficial` varchar(100) DEFAULT NULL,
   `Fecha_Ingreso` date NOT NULL,
+  `categoria` char(2) not null,
   `Estado_Laboral` enum('Activo','Baja Temporal','Jubilado','Cesado','Permiso','Vacaciones') DEFAULT 'Activo',
   `Fotografia` varchar(255) DEFAULT NULL,
   `ID_Usuario_Creador` int(11) NOT NULL,
