@@ -27,6 +27,8 @@ SET time_zone = "+00:00";
 -- Estructura de tabla para la tabla `roles`
 --
 
+use Themis_MinisterioJusticia;
+
 CREATE TABLE `roles` (
   `id` int(11) NOT NULL,
   `nombre` varchar(50) NOT NULL,
@@ -713,6 +715,7 @@ ALTER TABLE `tbl_permisos`
 ALTER TABLE `tbl_quejas_sugerencias`
   ADD CONSTRAINT `tbl_quejas_sugerencias_ibfk_1` FOREIGN KEY (`ID_Funcionario`) REFERENCES `tbl_funcionarios` (`ID_Funcionario`) ON DELETE CASCADE;
 COMMIT;
+
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

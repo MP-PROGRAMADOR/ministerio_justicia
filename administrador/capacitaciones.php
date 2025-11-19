@@ -37,15 +37,27 @@ include_once '../includes/header.php';
                             <button class="btn btn-outline-primary btn-refresh" onclick="refreshData()">
                                 <i class="bi bi-arrow-clockwise me-1"></i> Actualizar
                             </button>
+                            <div class="d-flex align-items-center gap-3">
+                            <div class="input-group" style="width: 300px;">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="bi bi-search text-muted"></i>
+                                </span>
+                                <input type="text" class="form-control border-start-0"
+                                    placeholder="Buscar funcionario...">
+                            </div>
+                            <button class="btn btn-outline-primary btn-refresh" onclick="refreshData()">
+                                <i class="bi bi-arrow-clockwise me-1"></i> Actualizar
+                            </button>
                             <div class="dropdown">
                                 <button class="btn btn-outline-secondary dropdown-toggle" type="button"
                                     data-bs-toggle="dropdown">
                                     <i class="bi bi-person-circle me-1"></i> <?= $nombre_usuario; ?>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Mi Perfil</a>
+                                    <li><a class="dropdown-item" href="./perfil_admin.php">
+                                        <i class="bi bi-person me-2"></i>Mi Perfil</a>
                                     </li>
-                                    <li><a class="dropdown-item" href="#"><i
+                                    <li><a class="dropdown-item" href="./configuracion.php"><i
                                                 class="bi bi-gear me-2"></i>Configuración</a></li>
                                     <li>
                                         <hr class="dropdown-divider">
@@ -57,6 +69,7 @@ include_once '../includes/header.php';
                                     </li>
                                 </ul>
                             </div>
+                        </div>
                         </div>
                     </div>
                 </div>
@@ -96,7 +109,7 @@ include_once '../includes/header.php';
                 ?>
 
 
-
+                <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 
 
@@ -105,7 +118,7 @@ include_once '../includes/header.php';
                 <div class="container-fluid px-4">
                     <div class="table-custom mb-4 p-4">
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5 class="mb-0 fw-semibold">Listado de Funcionarios</h5>
+                            <h5 class="mb-0 fw-semibold">Listado de Capacitaciones Externas </h5>
                         </div>
                         <div class="table-responsive">
                             <?php
@@ -117,10 +130,10 @@ include_once '../includes/header.php';
 
                             // Consulta para obtener capacitaciones con datos del funcionario
                             $sql = "SELECT c.ID_Capacitacion, c.Nombre_Curso, c.Institucion_Organizadora, c.Fecha_Inicio_Curso, c.Fecha_Fin_Curso, c.Certificado_URL,
-               f.Nombres, f.Apellidos, f.DNI_Pasaporte
-        FROM tbl_capacitaciones c
-        JOIN tbl_funcionarios f ON c.ID_Funcionario = f.ID_Funcionario
-        ORDER BY c.ID_Capacitacion DESC";
+                                f.Nombres, f.Apellidos, f.DNI_Pasaporte
+                            FROM tbl_capacitaciones c
+                            JOIN tbl_funcionarios f ON c.ID_Funcionario = f.ID_Funcionario
+                            ORDER BY c.ID_Capacitacion DESC";
                             $stmt = $pdo->query($sql);
                             $capacitaciones = $stmt->fetchAll();
                             ?>
@@ -159,7 +172,7 @@ include_once '../includes/header.php';
                                                 <?php endif; ?>
                                             </td>
                                             <td>
-                                                <!-- Aquí podrías poner botones para editar o eliminar -->
+                                                <!-- boton de editar -->
                                                 <button class="btn btn-sm btn-warning btn-editar-capacitacion"
                                                     data-id="<?= $cap['ID_Capacitacion'] ?>"
                                                     data-funcionario="<?= htmlspecialchars($cap['Nombres'] . ' ' . $cap['Apellidos']) ?>"
@@ -171,8 +184,12 @@ include_once '../includes/header.php';
                                                     title="Editar Capacitacion">
                                                     <i class="bi bi-pencil-square"></i>
                                                 </button>
+                                                <!-- boton de eliminar -->
+                                                <button class="btn btn-sm btn-danger btn-eliminar-capacitacion"
 
-                                                <button class="btn btn-sm btn-danger" title="Eliminar">
+                                                    onclick="confirmarEliminacionCapacitacion(<?= $cap['ID_Capacitacion'] ?>,
+                                                    '<?= htmlspecialchars($cap['Nombre_Curso']) ?>' )"
+                                                    title="Eliminar Capacitacion">
                                                     <i class="bi bi-trash"></i>
                                                 </button>
                                             </td>
@@ -212,7 +229,7 @@ include_once '../includes/header.php';
 
 
 
-    <!-- Modal para Registrar Permiso -->
+    <!-- Modal para Registrar Capacitacion -->
     <div class="modal fade" id="addCapacitacionModal" tabindex="-1" aria-labelledby="addCapacitacionModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
@@ -225,7 +242,7 @@ include_once '../includes/header.php';
                 <div class="modal-body">
 
                     <!-- Buscador -->
-                    <div class="mb-4">
+                    <div class="mb-4 mt-3">
                         <label for="searchFuncionario" class="form-label fw-semibold">
                             <i class="bi bi-search me-2 text-primary"></i>Buscar Funcionario
                         </label>
@@ -296,7 +313,7 @@ include_once '../includes/header.php';
                         </div>
 
                         <!-- Botón enviar -->
-                        <div class="mt-4 d-flex justify-content-end">
+                        <div class="mt-4 d-flex justify-content-end mb-3">
                             <button type="submit" class="btn btn-success">
                                 <i class="bi bi-save me-2"></i>Registrar Capacitación
                             </button>
@@ -317,97 +334,95 @@ include_once '../includes/header.php';
 
 
     <!-- Modal para Editar Capacitación -->
-<div class="modal fade" id="editCapacitacionModal" tabindex="-1" aria-labelledby="editCapacitacionModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-xl">
-    <div class="modal-content">
-      <div class="modal-header bg-primary text-white">
-        <h5 class="modal-title" id="editCapacitacionModalLabel">
-          <i class="bi bi-pencil-square me-2"></i>Editar Capacitación
-        </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-      </div>
-      <div class="modal-body">
-        <form method="POST" action="../api/actualizar_capacitacion.php" enctype="multipart/form-data">
-          <input type="hidden" name="ID_Capacitacion" id="editID_Capacitacion">
-          <input type="hidden" name="ID_Funcionario" id="editID_Funcionario">
+    <div class="modal fade" id="editCapacitacionModal" tabindex="-1" aria-labelledby="editCapacitacionModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header bg-warning">
+                    <h5 class="modal-title" id="editCapacitacionModalLabel">
+                        <i class="bi bi-pencil-square me-2"></i>Editar Capacitación
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" action="../api/actualizar_capacitacion.php" enctype="multipart/form-data">
+                        <input type="hidden" name="ID_Capacitacion" id="editID_Capacitacion">
+                        <input type="hidden" name="ID_Funcionario" id="editID_Funcionario">
 
-          <div class="mb-3">
-            <label for="editNombreCurso" class="form-label fw-semibold">Nombre del Curso</label>
-            <input type="text" name="Nombre_Curso" id="editNombreCurso" class="form-control" required maxlength="200">
-          </div>
+                        <div class="mb-3">
+                            <label for="editNombreCurso" class="form-label fw-semibold">Nombre del Curso</label>
+                            <input type="text" name="Nombre_Curso" id="editNombreCurso" class="form-control" required maxlength="200">
+                        </div>
 
-          <div class="mb-3">
-            <label for="editInstitucion" class="form-label fw-semibold">Institución Organizadora</label>
-            <input type="text" name="Institucion_Organizadora" id="editInstitucion" class="form-control" required maxlength="200">
-          </div>
+                        <div class="mb-3">
+                            <label for="editInstitucion" class="form-label fw-semibold">Institución Organizadora</label>
+                            <input type="text" name="Institucion_Organizadora" id="editInstitucion" class="form-control" required maxlength="200">
+                        </div>
 
-          <div class="row g-3 mb-3">
-            <div class="col-md-6">
-              <label for="editFechaInicio" class="form-label fw-semibold">Fecha Inicio</label>
-              <input type="date" name="Fecha_Inicio_Curso" id="editFechaInicio" class="form-control">
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="editFechaInicio" class="form-label fw-semibold">Fecha Inicio</label>
+                                <input type="date" name="Fecha_Inicio_Curso" id="editFechaInicio" class="form-control">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editFechaFin" class="form-label fw-semibold">Fecha Fin</label>
+                                <input type="date" name="Fecha_Fin_Curso" id="editFechaFin" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Certificado Actual:</label>
+                            <div id="certificadoActualContainer" class="mb-2">
+                                <!-- Aquí se puede mostrar enlace o texto con el certificado actual -->
+                            </div>
+                            <label for="editCertificado" class="form-label fw-semibold">Subir nuevo certificado (opcional)</label>
+                            <input type="file" name="Certificado_URL" id="editCertificado" class="form-control" accept=".pdf,.jpg,.png,.doc,.docx">
+                        </div>
+
+                        <div class="d-flex justify-content-end mb-3">
+                            <button type="submit" class="btn btn-warning">
+                                <i class="bi bi-save me-2"></i>Actualizar Capacitación
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
-            <div class="col-md-6">
-              <label for="editFechaFin" class="form-label fw-semibold">Fecha Fin</label>
-              <input type="date" name="Fecha_Fin_Curso" id="editFechaFin" class="form-control">
-            </div>
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label fw-semibold">Certificado Actual:</label>
-            <div id="certificadoActualContainer" class="mb-2">
-              <!-- Aquí se puede mostrar enlace o texto con el certificado actual -->
-            </div>
-            <label for="editCertificado" class="form-label fw-semibold">Subir nuevo certificado (opcional)</label>
-            <input type="file" name="Certificado_URL" id="editCertificado" class="form-control" accept=".pdf,.jpg,.png,.doc,.docx">
-          </div>
-
-          <div class="d-flex justify-content-end">
-            <button type="submit" class="btn btn-primary">
-              <i class="bi bi-save me-2"></i>Actualizar Capacitación
-            </button>
-          </div>
-        </form>
-      </div>
+        </div>
     </div>
-  </div>
-</div>
 
-<script>
-  // Función para abrir el modal y rellenar los datos (ejemplo con jQuery)
-document.querySelectorAll('.btn-editar-capacitacion').forEach(button => {
-  button.addEventListener('click', () => {
-    const id = button.dataset.id;
-    const funcionario = button.dataset.funcionario;
-    const curso = button.dataset.curso;
-    const institucion = button.dataset.institucion;
-    const inicio = button.dataset.inicio;
-    const fin = button.dataset.fin;
-    const certificado = button.dataset.certificado;
+    <script>
+        // Función para abrir el modal y rellenar los datos (ejemplo con jQuery)
+        document.querySelectorAll('.btn-editar-capacitacion').forEach(button => {
+            button.addEventListener('click', () => {
+                const id = button.dataset.id;
+                const funcionario = button.dataset.funcionario;
+                const curso = button.dataset.curso;
+                const institucion = button.dataset.institucion;
+                const inicio = button.dataset.inicio;
+                const fin = button.dataset.fin;
+                const certificado = button.dataset.certificado;
 
-    document.getElementById('editID_Capacitacion').value = id;
-    document.getElementById('editNombreCurso').value = curso;
-    document.getElementById('editInstitucion').value = institucion;
-    document.getElementById('editFechaInicio').value = inicio;
-    document.getElementById('editFechaFin').value = fin;
+                document.getElementById('editID_Capacitacion').value = id;
+                document.getElementById('editNombreCurso').value = curso;
+                document.getElementById('editInstitucion').value = institucion;
+                document.getElementById('editFechaInicio').value = inicio;
+                document.getElementById('editFechaFin').value = fin;
 
-    const certificadoContainer = document.getElementById('certificadoActualContainer');
-    if(certificado) {
-      certificadoContainer.innerHTML = `
+                const certificadoContainer = document.getElementById('certificadoActualContainer');
+                if (certificado) {
+                    certificadoContainer.innerHTML = `
         <a href="../${certificado}" target="_blank" class="btn btn-sm btn-outline-primary">
           <i class="bi bi-file-earmark-text"></i> Ver certificado actual
         </a>`;
-    } else {
-      certificadoContainer.innerHTML = '<span class="text-muted">Ninguno</span>';
-    }
+                } else {
+                    certificadoContainer.innerHTML = '<span class="text-muted">Ninguno</span>';
+                }
 
-    // Mostrar el modal con Bootstrap 5
-    const modal = new bootstrap.Modal(document.getElementById('editCapacitacionModal'));
-    modal.show();
-  });
-});
-
-
-</script>
+                // Mostrar el modal con Bootstrap 5
+                const modal = new bootstrap.Modal(document.getElementById('editCapacitacionModal'));
+                modal.show();
+            });
+        });
+    </script>
 
 
 
@@ -416,7 +431,6 @@ document.querySelectorAll('.btn-editar-capacitacion').forEach(button => {
 
 
     <!-- Script para buscar y seleccionar funcionario -->
-    <!-- Agrega este script justo antes de </body> -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const searchInput = document.getElementById('searchFuncionario');
@@ -472,9 +486,6 @@ document.querySelectorAll('.btn-editar-capacitacion').forEach(button => {
             });
         });
     </script>
-
-
-
 
 
 
@@ -638,12 +649,6 @@ document.querySelectorAll('.btn-editar-capacitacion').forEach(button => {
 
 
 
-
-
-
-
-
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.btn-editar-funcionario').forEach(button => {
@@ -677,6 +682,65 @@ document.querySelectorAll('.btn-editar-capacitacion').forEach(button => {
         });
     </script>
 
+
+    <!-- Modal de confirmacion para eliminar capacitaciones externas -->
+    <script>
+        function confirmarEliminacionCapacitacion(idCapacitacion, nombreCurso) {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                html: `
+                    ¡Vas a eliminar el curso:
+                    <br>
+                    <strong style="color: #007bff; font-size: 1.2em;">${nombreCurso}</strong>
+                    <br><br>
+                    <span style="color: red;">
+                        Esta acción es irreversible.
+                    </span>`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#5a5d5fff',
+                confirmButtonText: '<i class="bi bi-trash"></i> Sí, Eliminar',
+                cancelButtonText: '<i class="bi bi-x-circle"></i> Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+
+                    // Crear y enviar el formulario dinámico al script de eliminación
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = '../api/eliminar_capacitacion.php';
+
+                    const idField = document.createElement('input');
+                    idField.type = 'hidden';
+                    idField.name = 'id_capacitacion';
+                    idField.value = idCapacitacion;
+
+                    form.appendChild(idField);
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+
+            const deleteButtons = document.querySelectorAll('.btn-eliminar-capacitacion');
+
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    // Obtener los tres atributos de datos
+                    const formacionId = this.getAttribute('data-id');
+                    const tituloNombre = this.getAttribute('data-curso');
+                    // Nuevo: Obtener el nombre del funcionario
+                    const funcionarioNombre = this.getAttribute('data-funcionario');
+
+                    // Llama a la función de confirmación con el nuevo parámetro
+                    confirmarEliminacionCapacitacion(idCapacitacion, nombreCurso);
+                });
+            });
+        });
+    </script>
 
     <?php
     include_once '../includes/footer.php';

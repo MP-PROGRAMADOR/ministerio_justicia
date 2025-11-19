@@ -43,9 +43,10 @@ include_once '../includes/header.php';
                                     <i class="bi bi-person-circle me-1"></i> <?= $nombre_usuario; ?>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Mi Perfil</a>
+                                    <li><a class="dropdown-item" href="./perfil_admin.php">
+                                        <i class="bi bi-person me-2"></i>Mi Perfil</a>
                                     </li>
-                                    <li><a class="dropdown-item" href="#"><i
+                                    <li><a class="dropdown-item" href="./configuracion.php"><i
                                                 class="bi bi-gear me-2"></i>Configuración</a></li>
                                     <li>
                                         <hr class="dropdown-divider">
@@ -95,7 +96,7 @@ include_once '../includes/header.php';
                 ?>
 
 
-
+                <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 
 
@@ -116,9 +117,9 @@ include_once '../includes/header.php';
 
                             // Obtener formación académica con datos del funcionario
                             $sql = "SELECT f.*, fu.Nombres, fu.Apellidos, fu.DNI_Pasaporte 
-        FROM tbl_formacion_academica f
-        JOIN tbl_funcionarios fu ON f.ID_Funcionario = fu.ID_Funcionario
-        ORDER BY f.ID_Formacion DESC";
+                            FROM tbl_formacion_academica f
+                            JOIN tbl_funcionarios fu ON f.ID_Funcionario = fu.ID_Funcionario
+                            ORDER BY f.ID_Formacion DESC";
                             $stmt = $pdo->query($sql);
                             $formaciones = $stmt->fetchAll();
                             ?>
@@ -147,7 +148,26 @@ include_once '../includes/header.php';
                                             <td><?= htmlspecialchars($f['Institucion_Educativa']) ?></td>
                                             <td><?= htmlspecialchars($f['Fecha_Graduacion']) ?></td>
                                             <td>
-                                                <span class="badge bg-secondary"><?= htmlspecialchars($f['Nivel_Educativo']) ?></span>
+                                                <?php
+
+                                                $nivel_colores = [
+                                                    'Bachiller' => 'bg-info',
+                                                    'Grado' => 'bg-primary',
+                                                    'Postgrado' => 'bg-secondary',
+                                                    'Maestria' => 'bg-success',
+                                                    'Doctorado' => 'bg-danger',
+                                                    'Otro' => 'bg-warning',
+                                                ];
+
+                                                $nivel = $f['Nivel_Educativo'];
+                                                $clase_bg = $nivel_colores[$nivel] ?? 'bg-dark';
+                                                $clase_texto = in_array($clase_bg, ['bg-primary', 'bg-secondary', 'bg-success', 'bg-danger', 'bg-dark'])
+                                                    ? 'text-white' : 'text-dark';
+                                                ?>
+
+                                                <span class="badge <?= $clase_bg ?> <?= $clase_texto ?>">
+                                                    <?= htmlspecialchars($nivel) ?>
+                                                </span>
                                             </td>
                                             <td>
                                                 <div class="d-flex gap-2">
@@ -161,7 +181,16 @@ include_once '../includes/header.php';
                                                         title="Editar Formación">
                                                         <i class="bi bi-pencil-square"></i>
                                                     </button>
-                                                    <button class="btn btn-sm btn-danger" title="Eliminar"><i class="bi bi-trash"></i></button>
+
+
+                                                    <button
+                                                        class="btn btn-sm btn-danger btn-eliminar-formacion"
+                                                        title="Eliminar Formación"
+                                                        data-id="<?= $f['ID_Formacion'] ?>"
+                                                        data-nombre="<?= htmlspecialchars($f['Titulo_Obtenido']) ?>"
+                                                        data-funcionario="<?= htmlspecialchars($f['Nombres'] . ' ' . $f['Apellidos']) ?>">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -215,7 +244,7 @@ include_once '../includes/header.php';
                 <div class="modal-body">
 
                     <!-- Buscador -->
-                    <div class="mb-4">
+                    <div class="mb-4 mt-2">
                         <label for="searchFuncionario" class="form-label fw-semibold">
                             <i class="bi bi-search me-2 text-primary"></i>Buscar Funcionario
                         </label>
@@ -285,7 +314,7 @@ include_once '../includes/header.php';
                         </div>
 
                         <!-- Botón enviar -->
-                        <div class="mt-4 d-flex justify-content-end">
+                        <div class="mt-4 d-flex justify-content-end mb-3">
                             <button type="submit" class="btn btn-success">
                                 <i class="bi bi-save me-2"></i>Registrar Formación
                             </button>
@@ -300,7 +329,7 @@ include_once '../includes/header.php';
 
 
 
-
+    <!-- Modal de editar formacion -->
     <div class="modal fade" id="editFormacionModal" tabindex="-1" aria-labelledby="editFormacionModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -316,7 +345,7 @@ include_once '../includes/header.php';
 
                         <div class="row g-3">
                             <!-- Título Obtenido -->
-                            <div class="col-md-6">
+                            <div class="col-md-6 mt-4">
                                 <label for="editTitulo" class="form-label fw-semibold">
                                     <i class="bi bi-bookmark-check text-primary me-2"></i>Título Obtenido
                                 </label>
@@ -324,7 +353,7 @@ include_once '../includes/header.php';
                             </div>
 
                             <!-- Institución Educativa -->
-                            <div class="col-md-6">
+                            <div class="col-md-6 mt-4">
                                 <label for="editInstitucion" class="form-label fw-semibold">
                                     <i class="bi bi-building text-primary me-2"></i>Institución Educativa
                                 </label>
@@ -378,7 +407,6 @@ include_once '../includes/header.php';
 
 
     <!-- Script para buscar y seleccionar funcionario -->
-    <!-- Agrega este script justo antes de </body> -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const searchInput = document.getElementById('searchFuncionario');
@@ -440,51 +468,33 @@ include_once '../includes/header.php';
 
 
 
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const botonesEditar = document.querySelectorAll('.btn-editar-formacion');
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const botonesEditar = document.querySelectorAll('.btn-editar-formacion');
 
-    botonesEditar.forEach(btn => {
-        btn.addEventListener('click', () => {
-            // Capturar los datos
-            const id = btn.dataset.id;
-            const titulo = btn.dataset.titulo;
-            const institucion = btn.dataset.institucion;
-            const fecha = btn.dataset.fecha;
-            const nivel = btn.dataset.nivel;
+            botonesEditar.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Capturar los datos
+                    const id = btn.dataset.id;
+                    const titulo = btn.dataset.titulo;
+                    const institucion = btn.dataset.institucion;
+                    const fecha = btn.dataset.fecha;
+                    const nivel = btn.dataset.nivel;
 
-            // Rellenar el formulario del modal
-            document.getElementById('editID_Formacion').value = id;
-            document.getElementById('editTitulo').value = titulo;
-            document.getElementById('editInstitucion').value = institucion;
-            document.getElementById('editFechaGraduacion').value = fecha;
-            document.getElementById('editNivel').value = nivel;
+                    // Rellenar el formulario del modal
+                    document.getElementById('editID_Formacion').value = id;
+                    document.getElementById('editTitulo').value = titulo;
+                    document.getElementById('editInstitucion').value = institucion;
+                    document.getElementById('editFechaGraduacion').value = fecha;
+                    document.getElementById('editNivel').value = nivel;
 
-            // Abrir el modal
-            const modal = new bootstrap.Modal(document.getElementById('editFormacionModal'));
-            modal.show();
+                    // Abrir el modal
+                    const modal = new bootstrap.Modal(document.getElementById('editFormacionModal'));
+                    modal.show();
+                });
+            });
         });
-    });
-});
-</script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    </script>
 
 
 
@@ -644,17 +654,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.btn-editar-funcionario').forEach(button => {
@@ -683,6 +682,69 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Mostrar el modal
                     const modal = new bootstrap.Modal(document.getElementById('editFuncionarioModal'));
                     modal.show();
+                });
+            });
+        });
+    </script>
+
+    <!-- Modal de confirmacion para eliminar la Formacion -->
+    <script>
+       
+        function confirmarEliminacionFormacion(idFormacion, tituloObtenido, nombreFuncionario) {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                
+                html: `
+                ¡Vas a eliminar la formación de:
+                <br>
+                 <strong style="color: #007bff; font-size: 1.1em; ">${nombreFuncionario}</strong> <br>
+                <strong style="color: #28a745; font-size: 1.1em;">${tituloObtenido}</strong>
+               
+                <br><br>
+                <span style="color: red;">
+                    Esta acción es irreversible
+                </span>`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33', 
+                cancelButtonColor: '#5a5d5fff', 
+               confirmButtonText: '<i class="bi bi-trash"></i> Sí, Eliminar',
+                    cancelButtonText: '<i class="bi bi-x-circle"></i> Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = '../api/eliminar_formacion.php';
+
+                    const idField = document.createElement('input');
+                    idField.type = 'hidden';
+                    idField.name = 'id_formacion';
+                    idField.value = idFormacion;
+
+                    form.appendChild(idField);
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Selecciona todos los botones con la clase **.btn-eliminar-formacion**
+            const deleteButtons = document.querySelectorAll('.btn-eliminar-formacion');
+
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    // Obtener los tres atributos de datos
+                    const formacionId = this.getAttribute('data-id');
+                    const tituloNombre = this.getAttribute('data-nombre');
+                    // Nuevo: Obtener el nombre del funcionario
+                    const funcionarioNombre = this.getAttribute('data-funcionario');
+
+                    // Llama a la función de confirmación con el nuevo parámetro
+                    confirmarEliminacionFormacion(formacionId, tituloNombre, funcionarioNombre);
                 });
             });
         });

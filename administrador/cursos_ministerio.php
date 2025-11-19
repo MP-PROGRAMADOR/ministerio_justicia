@@ -43,9 +43,10 @@ include_once '../includes/header.php';
                                     <i class="bi bi-person-circle me-1"></i> <?= $nombre_usuario; ?>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Mi Perfil</a>
+                                    <li><a class="dropdown-item" href="./perfil_admin.php">
+                                        <i class="bi bi-person me-2"></i>Mi Perfil</a>
                                     </li>
-                                    <li><a class="dropdown-item" href="#"><i
+                                    <li><a class="dropdown-item" href="./configuracion.php"><i
                                                 class="bi bi-gear me-2"></i>Configuración</a></li>
                                     <li>
                                         <hr class="dropdown-divider">
@@ -105,7 +106,7 @@ include_once '../includes/header.php';
                 <div class="container-fluid px-4">
                     <div class="table-custom mb-4 p-4">
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5 class="mb-0 fw-semibold">Listado de Funcionarios</h5>
+                            <h5 class="mb-0 fw-semibold">Listado de Cursos del Ministerio</h5>
                         </div>
                         <div class="table-responsive">
                             <?php
@@ -117,8 +118,8 @@ include_once '../includes/header.php';
 
                             // Consulta para obtener cursos
                             $sql = "SELECT ID_Curso, Nombre_Curso, Descripcion, Fecha_Inicio, Fecha_Fin, Cupo
-        FROM tbl_cursos
-        ORDER BY ID_Curso DESC";
+                            FROM tbl_cursos
+                            ORDER BY ID_Curso DESC";
                             $stmt = $pdo->query($sql);
                             $cursos = $stmt->fetchAll();
                             ?>
@@ -185,8 +186,15 @@ include_once '../includes/header.php';
                                                         data-fin="<?= $curso['Fecha_Fin'] ?>"
                                                         data-cupo="<?= $curso['Cupo'] ?>"
                                                         title="Editar Curso">
-                                                        <i class="bi bi-pencil-square me-1"></i>Editar
+                                                        <i class="bi bi-pencil-square me-1"></i>
                                                     </button>
+
+                                                    <button class="btn btn-sm btn-danger btn-eliminar-curso"
+                                                        onclick="confirmarEliminacionCurso(<?= $curso['ID_Curso'] ?>, '<?= htmlspecialchars($curso['Nombre_Curso']) ?>')"
+                                                        title="Eliminar Curso">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+
                                                 <?php else: ?>
                                                     <!-- Botón Inscribir desactivado -->
                                                     <button class="btn btn-sm btn-secondary" disabled
@@ -199,11 +207,18 @@ include_once '../includes/header.php';
                                                     <button class="btn btn-sm btn-secondary" disabled
                                                         data-bs-toggle="tooltip" data-bs-placement="top"
                                                         title="Curso finalizado — no se puede editar">
-                                                        <i class="bi bi-pencil-square me-1"></i>Editar
+                                                        <i class="bi bi-pencil-square me-1"></i>
                                                     </button>
+
+                                                    <!-- Botón Eliminar desactivado -->
+                                                    <button class="btn btn-sm btn-secondary" disabled
+                                                        data-bs-toggle="tooltip" data-bs-placement="top"
+                                                        title="Curso finalizado — no se puede eliminar">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+
+
                                                 <?php endif; ?>
-
-
 
 
                                                 <button class="btn btn-sm btn-info btn-ver-inscritos"
@@ -218,12 +233,7 @@ include_once '../includes/header.php';
 
 
 
-                                                <!-- Botón Eliminar siempre disponible -->
-                                                <button class="btn btn-sm btn-danger btn-eliminar-curso"
-                                                    data-id="<?= $curso['ID_Curso'] ?>"
-                                                    title="Eliminar Curso">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
+
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -262,7 +272,7 @@ include_once '../includes/header.php';
 
 
 
-    <!-- Modal para Registrar Permiso -->
+    <!-- Modal para Registrar Curso del minsterio -->
     <div class="modal fade" id="addCapacitacionModal" tabindex="-1" aria-labelledby="addCapacitacionModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
@@ -279,7 +289,7 @@ include_once '../includes/header.php';
                         <div class="row g-3">
 
                             <!-- Nombre del Curso -->
-                            <div class="col-md-6">
+                            <div class="col-md-6 mt-4">
                                 <label class="form-label fw-semibold">
                                     <i class="bi bi-book text-primary me-2"></i>Nombre del Curso
                                 </label>
@@ -287,7 +297,7 @@ include_once '../includes/header.php';
                             </div>
 
                             <!-- Descripción -->
-                            <div class="col-md-6">
+                            <div class="col-md-6 mt-4">
                                 <label class="form-label fw-semibold">
                                     <i class="bi bi-card-text text-primary me-2"></i>Descripción
                                 </label>
@@ -321,7 +331,7 @@ include_once '../includes/header.php';
                         </div>
 
                         <!-- Botón enviar -->
-                        <div class="mt-4 d-flex justify-content-end">
+                        <div class="mt-4 d-flex justify-content-end mb-3">
                             <button type="submit" class="btn btn-success">
                                 <i class="bi bi-save me-2"></i>Registrar Curso
                             </button>
@@ -340,20 +350,17 @@ include_once '../includes/header.php';
 
 
 
-
-
-    <!-- Modal para Editar Capacitación -->
     <!-- Modal Editar Curso -->
     <div class="modal fade" id="modalEditarCurso" tabindex="-1" aria-labelledby="modalEditarCursoLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content shadow-lg border-0 rounded-4">
 
                 <!-- Encabezado -->
-                <div class="modal-header bg-primary text-white rounded-top-4">
+                <div class="modal-header bg-warning text-dark rounded-top-4">
                     <h5 class="modal-title fw-bold" id="modalEditarCursoLabel">
                         <i class="bi bi-pencil-square me-2"></i>Editar Curso
                     </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
 
                 <!-- Formulario -->
@@ -363,7 +370,7 @@ include_once '../includes/header.php';
 
                         <div class="row g-3">
                             <!-- Nombre del Curso -->
-                            <div class="col-md-6">
+                            <div class="col-md-6 mt-4">
                                 <label class="form-label fw-semibold">
                                     <i class="bi bi-book text-primary me-2"></i>Nombre del Curso
                                 </label>
@@ -371,7 +378,7 @@ include_once '../includes/header.php';
                             </div>
 
                             <!-- Descripción -->
-                            <div class="col-md-6">
+                            <div class="col-md-6 mt-4">
                                 <label class="form-label fw-semibold">
                                     <i class="bi bi-card-text text-primary me-2"></i>Descripción
                                 </label>
@@ -405,11 +412,11 @@ include_once '../includes/header.php';
                     </div>
 
                     <!-- Botón Guardar -->
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <div class="modal-footer mb-3">
+                        <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                             <i class="bi bi-x-circle me-1"></i>Cancelar
-                        </button>
-                        <button type="submit" class="btn btn-primary">
+                        </button> -->
+                        <button type="submit" class="btn btn-warning">
                             <i class="bi bi-save me-1"></i>Guardar Cambios
                         </button>
                     </div>
@@ -425,18 +432,10 @@ include_once '../includes/header.php';
 
 
 
-
     <!-- modal para matricula -->
 
 
-
-
-
-
-
-
-
-    <!-- Modal -->
+    <!-- Modal de Inscribir Funcionarios a un curso -->
     <div class="modal fade" id="inscribirModal" tabindex="-1" aria-labelledby="inscribirModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -474,7 +473,7 @@ include_once '../includes/header.php';
 
 
 
-
+    <!-- Modal de Funcionarios Inscritos -->
     <div class="modal fade" id="modalInscritos" tabindex="-1" aria-labelledby="modalInscritosLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -800,7 +799,6 @@ include_once '../includes/header.php';
 
 
     <!-- Script para buscar y seleccionar funcionario -->
-    <!-- Agrega este script justo antes de </body> -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const searchInput = document.getElementById('searchFuncionario');
@@ -1020,14 +1018,6 @@ include_once '../includes/header.php';
 
 
 
-
-
-
-
-
-
-
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.btn-editar-funcionario').forEach(button => {
@@ -1061,6 +1051,49 @@ include_once '../includes/header.php';
         });
     </script>
 
+
+
+
+
+
+    <!-- Modal de confirmacion para eliminar cursos del ministerio -->
+    <script>
+        function confirmarEliminacionCurso(idCurso, nombreCurso) {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                html: `
+        ¡Vas a eliminar el curso:
+        <br>
+        <strong style="color: #007bff; font-size: 1.2em;">${nombreCurso}</strong>
+        <br><br>
+        <span style="color: red;">
+            Esta acción es irreversible.
+        </span>`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#5a5d5fff',
+                confirmButtonText: '<i class="bi bi-trash"></i> Sí, Eliminar',
+                cancelButtonText: '<i class="bi bi-x-circle"></i> Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Crear y enviar el formulario dinámico al script de eliminación
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = '../api/eliminar_curso.php'; // Asegúrate de que esta ruta sea correcta
+
+                    const idField = document.createElement('input');
+                    idField.type = 'hidden';
+                    idField.name = 'id_curso';
+                    idField.value = idCurso;
+
+                    form.appendChild(idField);
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
+        }
+    </script>
 
     <?php
     include_once '../includes/footer.php';

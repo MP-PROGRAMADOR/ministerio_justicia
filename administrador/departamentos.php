@@ -43,9 +43,10 @@ include_once '../includes/header.php';
                                     <i class="bi bi-person-circle me-1"></i> <?= $nombre_usuario; ?>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Mi Perfil</a>
+                                    <li><a class="dropdown-item" href="./perfil_admin.php">
+                                            <i class="bi bi-person me-2"></i>Mi Perfil</a>
                                     </li>
-                                    <li><a class="dropdown-item" href="#"><i
+                                    <li><a class="dropdown-item" href="./configuracion.php"><i
                                                 class="bi bi-gear me-2"></i>Configuración</a></li>
                                     <li>
                                         <hr class="dropdown-divider">
@@ -98,6 +99,7 @@ include_once '../includes/header.php';
 
 
 
+                <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 
 
@@ -105,7 +107,7 @@ include_once '../includes/header.php';
                 <div class="container-fluid px-4">
                     <div class="table-custom mb-4 p-4">
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5 class="mb-0 fw-semibold">Listado de Funcionarios</h5>
+                            <h5 class="mb-0 fw-semibold">Listado de Departamentos</h5>
                         </div>
                         <div class="table-responsive">
                             <?php
@@ -161,9 +163,15 @@ include_once '../includes/header.php';
                                                         <i class="bi bi-pencil-square"></i>
                                                     </button>
 
-                                                    <button class="btn btn-sm btn-danger btn-eliminar-departamento" title="Eliminar">
+
+                                                    <button
+                                                        class="btn btn-sm btn-danger btn-eliminar-departamento"
+                                                        title="Eliminar"
+                                                        data-id="<?= $dept['ID_Departamento'] ?>"
+                                                        data-nombre="<?= htmlspecialchars($dept['Nombre_Departamento']) ?>">
                                                         <i class="bi bi-trash"></i>
                                                     </button>
+
                                                 </div>
                                             </td>
                                         </tr>
@@ -202,7 +210,7 @@ include_once '../includes/header.php';
 
 
 
-    <!-- Modal para Registrar Permiso -->
+
     <!-- Modal para Registrar Departamento -->
     <div class="modal fade" id="addPermisoModal" tabindex="-1" aria-labelledby="addPermisoModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl">
@@ -219,7 +227,7 @@ include_once '../includes/header.php';
                         <div class="row g-3">
 
                             <!-- Nombre Departamento -->
-                            <div class="col-md-6">
+                            <div class="col-md-6 mt-4">
                                 <label for="nombreDepartamento" class="form-label fw-semibold">
                                     <i class="bi bi-building text-primary me-2"></i>Nombre Departamento <span class="text-danger">*</span>
                                 </label>
@@ -230,7 +238,7 @@ include_once '../includes/header.php';
                             </div>
 
                             <!-- Ubicación -->
-                            <div class="col-md-6">
+                            <div class="col-md-6 mt-4">
                                 <label for="ubicacion" class="form-label fw-semibold">
                                     <i class="bi bi-geo-alt text-primary me-2"></i>Ubicación
                                 </label>
@@ -292,7 +300,7 @@ include_once '../includes/header.php';
                         </div>
 
                         <!-- Botón enviar -->
-                        <div class="mt-4 d-flex justify-content-end">
+                        <div class="mt-4 d-flex justify-content-end mb-3">
                             <button type="submit" class="btn btn-success">
                                 <i class="bi bi-save me-2"></i> Registrar Departamento
                             </button>
@@ -326,7 +334,7 @@ include_once '../includes/header.php';
                         <div class="row g-3">
                             <!-- Nombre Departamento -->
                             <div class="col-md-6">
-                                <label for="editNombreDepartamento" class="form-label fw-semibold">
+                                <label for="editNombreDepartamento" class="form-label fw-semibold mt-2">
                                     <i class="bi bi-building text-primary me-2"></i>Nombre Departamento <span class="text-danger">*</span>
                                 </label>
                                 <input type="text" name="Nombre_Departamento" id="editNombreDepartamento" class="form-control" required>
@@ -335,7 +343,7 @@ include_once '../includes/header.php';
 
                             <!-- Ubicación -->
                             <div class="col-md-6">
-                                <label for="editUbicacion" class="form-label fw-semibold">
+                                <label for="editUbicacion" class="form-label fw-semibold mt-2">
                                     <i class="bi bi-geo-alt text-primary me-2"></i>Ubicación
                                 </label>
                                 <input type="text" name="Ubicacion" id="editUbicacion" class="form-control" placeholder="Ej: Edificio Central">
@@ -388,11 +396,11 @@ include_once '../includes/header.php';
                     </div>
 
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                             <i class="bi bi-x-circle me-1"></i>Cancelar
-                        </button>
-                        <button type="submit" class="btn btn-warning">
-                            <i class="bi bi-save me-1"></i>Actualizar Departamento
+                        </button> -->
+                        <button type="submit" class="btn btn-warning mt-3">
+                            <i class="bi bi-save me-1"></i>Guardar Cambios
                         </button>
                     </div>
                 </form>
@@ -405,111 +413,110 @@ include_once '../includes/header.php';
 
 
 
-<script>
-    //archivo para editar
-    document.addEventListener('DOMContentLoaded', () => {
-  const editModal = document.getElementById('editDepartamentoModal');
+    <script>
+        //archivo para editar
+        document.addEventListener('DOMContentLoaded', () => {
+            const editModal = document.getElementById('editDepartamentoModal');
 
-  // Mapas para distritos y ciudades según provincia
-  const distritosPorProvincia = {
-    "Región Continental": [
-      "Centro Sur", "Kié-Ntem", "Litoral", "Wele-Nzas", "C Ni Mv B"
-    ],
-    "Región Insular": [
-      "Bioko Norte", "Bioko Sur"
-    ]
-  };
+            // Mapas para distritos y ciudades según provincia
+            const distritosPorProvincia = {
+                "Región Continental": [
+                    "Centro Sur", "Kié-Ntem", "Litoral", "Wele-Nzas", "C Ni Mv B"
+                ],
+                "Región Insular": [
+                    "Bioko Norte", "Bioko Sur"
+                ]
+            };
 
-  const ciudadesPorDistrito = {
-    "Centro Sur": ["Evinayong", "Nsork"],
-    "Kié-Ntem": ["Ebebiyín", "Aconibe", "Añisok"],
-    "Litoral": ["Bata", "Mbini", "Kogo"],
-    "Wele-Nzas": ["Mongomo", "Acurenam", "Nsok", "Mikomeseng"],
-    "C Ni Mv B": ["Mongomoyen", "Miyobo", "Ngonamanga"],
-    "Bioko Norte": ["Malabo", "Sacriba"],
-    "Bioko Sur": ["Luba", "Riaba"]
-  };
+            const ciudadesPorDistrito = {
+                "Centro Sur": ["Evinayong", "Nsork"],
+                "Kié-Ntem": ["Ebebiyín", "Aconibe", "Añisok"],
+                "Litoral": ["Bata", "Mbini", "Kogo"],
+                "Wele-Nzas": ["Mongomo", "Acurenam", "Nsok", "Mikomeseng"],
+                "C Ni Mv B": ["Mongomoyen", "Miyobo", "Ngonamanga"],
+                "Bioko Norte": ["Malabo", "Sacriba"],
+                "Bioko Sur": ["Luba", "Riaba"]
+            };
 
-  // Referencias a selects del modal
-  const provinciaSelect = document.getElementById('editProvincia');
-  const distritoSelect = document.getElementById('editDistrito');
-  const ciudadSelect = document.getElementById('editCiudad');
+            // Referencias a selects del modal
+            const provinciaSelect = document.getElementById('editProvincia');
+            const distritoSelect = document.getElementById('editDistrito');
+            const ciudadSelect = document.getElementById('editCiudad');
 
-  // Función para llenar distritos según provincia
-  function llenarDistritos(provincia, distritoSeleccionado = null) {
-    distritoSelect.innerHTML = '<option value="" disabled selected>Selecciona distrito</option>';
-    ciudadSelect.innerHTML = '<option value="" disabled selected>Selecciona ciudad</option>';
-    ciudadSelect.disabled = true;
+            // Función para llenar distritos según provincia
+            function llenarDistritos(provincia, distritoSeleccionado = null) {
+                distritoSelect.innerHTML = '<option value="" disabled selected>Selecciona distrito</option>';
+                ciudadSelect.innerHTML = '<option value="" disabled selected>Selecciona ciudad</option>';
+                ciudadSelect.disabled = true;
 
-    if (!provincia || !distritosPorProvincia[provincia]) {
-      distritoSelect.disabled = true;
-      return;
-    }
+                if (!provincia || !distritosPorProvincia[provincia]) {
+                    distritoSelect.disabled = true;
+                    return;
+                }
 
-    distritoSelect.disabled = false;
-    distritosPorProvincia[provincia].forEach(distrito => {
-      const option = document.createElement('option');
-      option.value = distrito;
-      option.textContent = distrito;
-      if (distrito === distritoSeleccionado) option.selected = true;
-      distritoSelect.appendChild(option);
-    });
-  }
+                distritoSelect.disabled = false;
+                distritosPorProvincia[provincia].forEach(distrito => {
+                    const option = document.createElement('option');
+                    option.value = distrito;
+                    option.textContent = distrito;
+                    if (distrito === distritoSeleccionado) option.selected = true;
+                    distritoSelect.appendChild(option);
+                });
+            }
 
-  // Función para llenar ciudades según distrito
-  function llenarCiudades(distrito, ciudadSeleccionada = null) {
-    ciudadSelect.innerHTML = '<option value="" disabled selected>Selecciona ciudad</option>';
+            // Función para llenar ciudades según distrito
+            function llenarCiudades(distrito, ciudadSeleccionada = null) {
+                ciudadSelect.innerHTML = '<option value="" disabled selected>Selecciona ciudad</option>';
 
-    if (!distrito || !ciudadesPorDistrito[distrito]) {
-      ciudadSelect.disabled = true;
-      return;
-    }
+                if (!distrito || !ciudadesPorDistrito[distrito]) {
+                    ciudadSelect.disabled = true;
+                    return;
+                }
 
-    ciudadSelect.disabled = false;
-    ciudadesPorDistrito[distrito].forEach(ciudad => {
-      const option = document.createElement('option');
-      option.value = ciudad;
-      option.textContent = ciudad;
-      if (ciudad === ciudadSeleccionada) option.selected = true;
-      ciudadSelect.appendChild(option);
-    });
-  }
+                ciudadSelect.disabled = false;
+                ciudadesPorDistrito[distrito].forEach(ciudad => {
+                    const option = document.createElement('option');
+                    option.value = ciudad;
+                    option.textContent = ciudad;
+                    if (ciudad === ciudadSeleccionada) option.selected = true;
+                    ciudadSelect.appendChild(option);
+                });
+            }
 
-  // Evento para cuando cambie la provincia en el modal
-  provinciaSelect.addEventListener('change', () => {
-    llenarDistritos(provinciaSelect.value);
-  });
+            // Evento para cuando cambie la provincia en el modal
+            provinciaSelect.addEventListener('change', () => {
+                llenarDistritos(provinciaSelect.value);
+            });
 
-  // Evento para cuando cambie el distrito en el modal
-  distritoSelect.addEventListener('change', () => {
-    llenarCiudades(distritoSelect.value);
-  });
+            // Evento para cuando cambie el distrito en el modal
+            distritoSelect.addEventListener('change', () => {
+                llenarCiudades(distritoSelect.value);
+            });
 
-  // Listener para abrir modal y rellenar campos
-  editModal.addEventListener('show.bs.modal', event => {
-    const button = event.relatedTarget;
+            // Listener para abrir modal y rellenar campos
+            editModal.addEventListener('show.bs.modal', event => {
+                const button = event.relatedTarget;
 
-    const id = button.getAttribute('data-id');
-    const nombre = button.getAttribute('data-nombre');
-    const ubicacion = button.getAttribute('data-ubicacion');
-    const telefono = button.getAttribute('data-telefono');
-    const provincia = button.getAttribute('data-provincia');
-    const distrito = button.getAttribute('data-distrito');
-    const ciudad = button.getAttribute('data-ciudad');
+                const id = button.getAttribute('data-id');
+                const nombre = button.getAttribute('data-nombre');
+                const ubicacion = button.getAttribute('data-ubicacion');
+                const telefono = button.getAttribute('data-telefono');
+                const provincia = button.getAttribute('data-provincia');
+                const distrito = button.getAttribute('data-distrito');
+                const ciudad = button.getAttribute('data-ciudad');
 
-    // Asignar valores a inputs
-    document.getElementById('editID_Departamento').value = id;
-    document.getElementById('editNombreDepartamento').value = nombre;
-    document.getElementById('editUbicacion').value = ubicacion;
-    document.getElementById('editTelefonoDepartamento').value = telefono;
+                // Asignar valores a inputs
+                document.getElementById('editID_Departamento').value = id;
+                document.getElementById('editNombreDepartamento').value = nombre;
+                document.getElementById('editUbicacion').value = ubicacion;
+                document.getElementById('editTelefonoDepartamento').value = telefono;
 
-    provinciaSelect.value = provincia || "";
-    llenarDistritos(provincia, distrito);
-    llenarCiudades(distrito, ciudad);
-  });
-});
-
-</script>
+                provinciaSelect.value = provincia || "";
+                llenarDistritos(provincia, distrito);
+                llenarCiudades(distrito, ciudad);
+            });
+        });
+    </script>
 
 
 
@@ -612,18 +619,7 @@ include_once '../includes/header.php';
 
 
 
-
-    <!-- Modal Editar Permiso -->
-
-
-
-
-
-
-
-
     <!-- Script para buscar y seleccionar funcionario -->
-    <!-- Agrega este script justo antes de </body> -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const searchInput = document.getElementById('searchFuncionario');
@@ -709,23 +705,6 @@ include_once '../includes/header.php';
             });
         });
     </script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -884,18 +863,6 @@ include_once '../includes/header.php';
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.btn-editar-funcionario').forEach(button => {
@@ -924,6 +891,64 @@ include_once '../includes/header.php';
                     // Mostrar el modal
                     const modal = new bootstrap.Modal(document.getElementById('editFuncionarioModal'));
                     modal.show();
+                });
+            });
+        });
+    </script>
+
+
+    <!-- Modal de confirmacion para eliminar Departamento -->
+    <script>
+        function confirmarEliminacionDepartamento(idDepartamento, nombreDepartamento) {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                html: `¡Vas a eliminar al departamento de: </br>
+                <strong style="color: #007bff; font-size: 1.1em;">${nombreDepartamento}</strong>! 
+                <br><br>
+                <span style="color: red;">
+                    Esta acción es irreversible
+                </span>`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#5a5d5fff',
+                confirmButtonText: '<i class="bi bi-trash"></i> Sí, Eliminar',
+                cancelButtonText: '<i class="bi bi-x-circle"></i> Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Envío del formulario dinámico por POST
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    // RUTA CRÍTICA: Ajusta la acción al archivo PHP que elimina departamentos
+                    form.action = '../api/eliminar_departamento.php';
+
+                    const idField = document.createElement('input');
+                    idField.type = 'hidden';
+                    idField.name = 'id'; // La clave esperada por el PHP para el ID
+                    idField.value = idDepartamento;
+
+                    form.appendChild(idField);
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
+        }
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // Selecciona todos los botones con la clase **.btn-eliminar-departamento**
+            const deleteButtons = document.querySelectorAll('.btn-eliminar-departamento');
+
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    const departamentoId = this.getAttribute('data-id');
+                    const departamentoNombre = this.getAttribute('data-nombre');
+
+                    // Llama a la función de confirmación
+                    confirmarEliminacionDepartamento(departamentoId, departamentoNombre);
                 });
             });
         });

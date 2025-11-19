@@ -43,9 +43,10 @@ include_once '../includes/header.php';
                                     <i class="bi bi-person-circle me-1"></i> <?= $nombre_usuario; ?>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Mi Perfil</a>
+                                    <li><a class="dropdown-item" href="./perfil_admin.php">
+                                            <i class="bi bi-person me-2"></i>Mi Perfil</a>
                                     </li>
-                                    <li><a class="dropdown-item" href="#"><i
+                                    <li><a class="dropdown-item" href="./configuracion.php"><i
                                                 class="bi bi-gear me-2"></i>Configuración</a></li>
                                     <li>
                                         <hr class="dropdown-divider">
@@ -98,7 +99,7 @@ include_once '../includes/header.php';
 
 
 
-
+                <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 
 
@@ -106,7 +107,7 @@ include_once '../includes/header.php';
                 <div class="container-fluid px-4">
                     <div class="table-custom mb-4 p-4">
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5 class="mb-0 fw-semibold">Listado de Funcionarios</h5>
+                            <h5 class="mb-0 fw-semibold">Listado de Asignaciones</h5>
                         </div>
                         <div class="table-responsive">
                             <?php
@@ -118,25 +119,25 @@ include_once '../includes/header.php';
 
                             // Consulta para obtener asignaciones con datos asociados
                             $sql = "SELECT 
-    a.ID_Asignacion,
-    a.ID_Funcionario,
-    a.ID_Cargo,
-    a.ID_Departamento,
-    a.ID_Destino,
-    a.Fecha_Inicio_Asignacion,
-    a.Fecha_Fin_Asignacion,
-    f.Nombres,
-    f.Apellidos,
-    f.DNI_Pasaporte,
-    c.Nombre_Cargo,
-    d.Nombre_Departamento,
-    dest.Nombre_Destino
-FROM tbl_asignaciones a
-JOIN tbl_funcionarios f ON a.ID_Funcionario = f.ID_Funcionario
-JOIN tbl_cargos c ON a.ID_Cargo = c.ID_Cargo
-JOIN tbl_departamentos d ON a.ID_Departamento = d.ID_Departamento
-JOIN tbl_destinos dest ON a.ID_Destino = dest.ID_Destino
-ORDER BY a.ID_Asignacion DESC";
+                                a.ID_Asignacion,
+                                a.ID_Funcionario,
+                                a.ID_Cargo,
+                                a.ID_Departamento,
+                                a.ID_Destino,
+                                a.Fecha_Inicio_Asignacion,
+                                a.Fecha_Fin_Asignacion,
+                                f.Nombres,
+                                f.Apellidos,
+                                f.DNI_Pasaporte,
+                                c.Nombre_Cargo,
+                                d.Nombre_Departamento,
+                                dest.Nombre_Destino
+                            FROM tbl_asignaciones a
+                            JOIN tbl_funcionarios f ON a.ID_Funcionario = f.ID_Funcionario
+                            JOIN tbl_cargos c ON a.ID_Cargo = c.ID_Cargo
+                            JOIN tbl_departamentos d ON a.ID_Departamento = d.ID_Departamento
+                            JOIN tbl_destinos dest ON a.ID_Destino = dest.ID_Destino
+                            ORDER BY a.ID_Asignacion DESC";
 
                             $stmt = $pdo->query($sql);
                             $asignaciones = $stmt->fetchAll();
@@ -181,7 +182,24 @@ ORDER BY a.ID_Asignacion DESC";
                                                         <i class="bi bi-pencil-square"></i>
                                                     </button>
 
-                                                    <button class="btn btn-sm btn-danger" title="Eliminar"><i class="bi bi-trash"></i></button>
+
+                                                    <?php
+
+                                                    $nombre_completo = $asignacion['Nombres'] . ' ' . $asignacion['Apellidos'];
+                                                    ?>
+
+                                                    <button
+                                                        type="button"
+                                                        class="btn btn-sm btn-danger btn-eliminar-asignacion"
+                                                        data-id="<?= htmlspecialchars($asignacion['ID_Asignacion']) ?>"
+                                                        data-funcionario="<?= htmlspecialchars($nombre_completo) ?>"
+                                                        data-destino="<?= htmlspecialchars($asignacion['Nombre_Destino']) ?>">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+
+
+
+
                                                 </div>
                                             </td>
                                         </tr>
@@ -251,7 +269,7 @@ ORDER BY a.ID_Asignacion DESC";
 
 
                     <!-- Buscador -->
-                    <div class="mb-4">
+                    <div class="mb-4 mt-2">
                         <label for="searchFuncionario" class="form-label fw-semibold">
                             <i class="bi bi-search me-2 text-primary"></i>Buscar Funcionario
                         </label>
@@ -318,7 +336,7 @@ ORDER BY a.ID_Asignacion DESC";
                             </div>
                         </div>
 
-                        <div class="mt-4 d-flex justify-content-end">
+                        <div class="mt-4 d-flex justify-content-end mb-3">
                             <button type="submit" class="btn btn-success">
                                 <i class="bi bi-save me-2"></i>Guardar Asignación
                             </button>
@@ -362,139 +380,136 @@ ORDER BY a.ID_Asignacion DESC";
 
 
 
- <!-- Modal para Editar Asignación -->
-<?php
-// Cargar cargos
-try {
-    $pdo = new PDO($dsn, $user, $pass, $options);
-    $cargos = $pdo->query("SELECT ID_Cargo, Nombre_Cargo FROM tbl_cargos ORDER BY Nombre_Cargo ASC")->fetchAll();
-    $departamentos = $pdo->query("SELECT ID_Departamento, Nombre_Departamento FROM tbl_departamentos ORDER BY Nombre_Departamento ASC")->fetchAll();
-    $destinos = $pdo->query("SELECT ID_Destino, Nombre_Destino FROM tbl_destinos ORDER BY Nombre_Destino ASC")->fetchAll();
-} catch (PDOException $e) {
-    echo "Error de conexión: " . $e->getMessage();
-    exit;
-}
-?>
+    <!-- Modal para Editar Asignación -->
+    <?php
+    // Cargar cargos
+    try {
+        $pdo = new PDO($dsn, $user, $pass, $options);
+        $cargos = $pdo->query("SELECT ID_Cargo, Nombre_Cargo FROM tbl_cargos ORDER BY Nombre_Cargo ASC")->fetchAll();
+        $departamentos = $pdo->query("SELECT ID_Departamento, Nombre_Departamento FROM tbl_departamentos ORDER BY Nombre_Departamento ASC")->fetchAll();
+        $destinos = $pdo->query("SELECT ID_Destino, Nombre_Destino FROM tbl_destinos ORDER BY Nombre_Destino ASC")->fetchAll();
+    } catch (PDOException $e) {
+        echo "Error de conexión: " . $e->getMessage();
+        exit;
+    }
+    ?>
 
-<!-- Modal para Editar Asignación -->
-<div class="modal fade" id="editAsignacionModal" tabindex="-1" aria-labelledby="editAsignacionModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header bg-warning text-dark">
-        <h5 class="modal-title" id="editAsignacionModalLabel">
-          <i class="bi bi-pencil-square me-2"></i>Editar Asignación
-        </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-      </div>
-      <div class="modal-body">
-        <form method="POST" action="../api/actualizar_asignacion.php">
-          <input type="hidden" name="ID_Asignacion" id="edit_ID_Asignacion">
-          <input type="hidden" name="ID_Funcionario" id="edit_ID_Funcionario">
+    <!-- Modal para Editar Asignación -->
+    <div class="modal fade" id="editAsignacionModal" tabindex="-1" aria-labelledby="editAsignacionModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title" id="editAsignacionModalLabel">
+                        <i class="bi bi-pencil-square me-2"></i>Editar Asignación
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body mt-2">
+                    <form method="POST" action="../api/actualizar_asignacion.php">
+                        <input type="hidden" name="ID_Asignacion" id="edit_ID_Asignacion">
+                        <input type="hidden" name="ID_Funcionario" id="edit_ID_Funcionario">
 
-          <div class="row g-3">
-            <!-- Cargo -->
-            <div class="col-md-4">
-              <label class="form-label fw-semibold">
-                <i class="bi bi-award text-success me-2"></i>Cargo
-              </label>
-              <select class="form-select" name="ID_Cargo" id="edit_cargoAsignacion" required>
-                <option value="">Seleccione cargo</option>
-                <?php foreach ($cargos as $cargo): ?>
-                  <option value="<?= $cargo['ID_Cargo'] ?>"><?= htmlspecialchars($cargo['Nombre_Cargo']) ?></option>
-                <?php endforeach; ?>
-              </select>
+                        <div class="row g-3">
+                            <!-- Cargo -->
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-award text-success me-2"></i>Cargo
+                                </label>
+                                <select class="form-select" name="ID_Cargo" id="edit_cargoAsignacion" required>
+                                    <option value="">Seleccione cargo</option>
+                                    <?php foreach ($cargos as $cargo): ?>
+                                        <option value="<?= $cargo['ID_Cargo'] ?>"><?= htmlspecialchars($cargo['Nombre_Cargo']) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+
+                            <!-- Departamento -->
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-diagram-3 text-success me-2"></i>Departamento
+                                </label>
+                                <select class="form-select" name="ID_Departamento" id="edit_departamentoAsignacion" required>
+                                    <option value="">Seleccione departamento</option>
+                                    <?php foreach ($departamentos as $depto): ?>
+                                        <option value="<?= $depto['ID_Departamento'] ?>"><?= htmlspecialchars($depto['Nombre_Departamento']) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+
+                            <!-- Destino -->
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-geo-alt text-success me-2"></i>Destino
+                                </label>
+                                <select class="form-select" name="ID_Destino" id="edit_destinoAsignacion" required>
+                                    <option value="">Seleccione destino</option>
+                                    <?php foreach ($destinos as $dest): ?>
+                                        <option value="<?= $dest['ID_Destino'] ?>"><?= htmlspecialchars($dest['Nombre_Destino']) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+
+                            <!-- Fechas -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-calendar-event text-success me-2"></i>Fecha Inicio
+                                </label>
+                                <input type="date" name="Fecha_Inicio_Asignacion" class="form-control" id="edit_Fecha_Inicio" required>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-calendar-check text-success me-2"></i>Fecha Fin (opcional)
+                                </label>
+                                <input type="date" name="Fecha_Fin_Asignacion" class="form-control" id="edit_Fecha_Fin">
+                            </div>
+                        </div>
+
+                        <div class="mt-4 d-flex justify-content-end mb-3">
+                            <button type="submit" class="btn btn-warning">
+                                <i class="bi bi-save me-2"></i>Guardar Cambios
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
-
-            <!-- Departamento -->
-            <div class="col-md-4">
-              <label class="form-label fw-semibold">
-                <i class="bi bi-diagram-3 text-success me-2"></i>Departamento
-              </label>
-              <select class="form-select" name="ID_Departamento" id="edit_departamentoAsignacion" required>
-                <option value="">Seleccione departamento</option>
-                <?php foreach ($departamentos as $depto): ?>
-                  <option value="<?= $depto['ID_Departamento'] ?>"><?= htmlspecialchars($depto['Nombre_Departamento']) ?></option>
-                <?php endforeach; ?>
-              </select>
-            </div>
-
-            <!-- Destino -->
-            <div class="col-md-4">
-              <label class="form-label fw-semibold">
-                <i class="bi bi-geo-alt text-success me-2"></i>Destino
-              </label>
-              <select class="form-select" name="ID_Destino" id="edit_destinoAsignacion" required>
-                <option value="">Seleccione destino</option>
-                <?php foreach ($destinos as $dest): ?>
-                  <option value="<?= $dest['ID_Destino'] ?>"><?= htmlspecialchars($dest['Nombre_Destino']) ?></option>
-                <?php endforeach; ?>
-              </select>
-            </div>
-
-            <!-- Fechas -->
-            <div class="col-md-6">
-              <label class="form-label fw-semibold">
-                <i class="bi bi-calendar-event text-success me-2"></i>Fecha Inicio
-              </label>
-              <input type="date" name="Fecha_Inicio_Asignacion" class="form-control" id="edit_Fecha_Inicio" required>
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label fw-semibold">
-                <i class="bi bi-calendar-check text-success me-2"></i>Fecha Fin (opcional)
-              </label>
-              <input type="date" name="Fecha_Fin_Asignacion" class="form-control" id="edit_Fecha_Fin">
-            </div>
-          </div>
-
-          <div class="mt-4 d-flex justify-content-end">
-            <button type="submit" class="btn btn-primary">
-              <i class="bi bi-save me-2"></i>Guardar Cambios
-            </button>
-          </div>
-        </form>
-      </div>
+        </div>
     </div>
-  </div>
-</div>
 
 
 
- <script>
-document.addEventListener("DOMContentLoaded", function () {
-  // Captura todos los botones de edición
-  const botones = document.querySelectorAll(".btn-editar-asignacion");
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Captura todos los botones de edición
+            const botones = document.querySelectorAll(".btn-editar-asignacion");
 
-  botones.forEach(btn => {
-    btn.addEventListener("click", function () {
-      // Obtener los datos desde los atributos del botón
-      const idAsignacion = this.dataset.id;
-      const idFuncionario = this.dataset.funcionario;
-      const idCargo = this.dataset.cargo;
-      const idDepartamento = this.dataset.departamento;
-      const idDestino = this.dataset.destino;
-      const fechaInicio = this.dataset.fechainicio;
-      const fechaFin = this.dataset.fechafin;
+            botones.forEach(btn => {
+                btn.addEventListener("click", function() {
+                    // Obtener los datos desde los atributos del botón
+                    const idAsignacion = this.dataset.id;
+                    const idFuncionario = this.dataset.funcionario;
+                    const idCargo = this.dataset.cargo;
+                    const idDepartamento = this.dataset.departamento;
+                    const idDestino = this.dataset.destino;
+                    const fechaInicio = this.dataset.fechainicio;
+                    const fechaFin = this.dataset.fechafin;
 
-      // Asignar valores al formulario del modal
-      document.getElementById("edit_ID_Asignacion").value = idAsignacion;
-      document.getElementById("edit_ID_Funcionario").value = idFuncionario;
-      document.getElementById("edit_cargoAsignacion").value = idCargo;
-      document.getElementById("edit_departamentoAsignacion").value = idDepartamento;
-      document.getElementById("edit_destinoAsignacion").value = idDestino;
-      document.getElementById("edit_Fecha_Inicio").value = fechaInicio;
-      document.getElementById("edit_Fecha_Fin").value = fechaFin;
+                    // Asignar valores al formulario del modal
+                    document.getElementById("edit_ID_Asignacion").value = idAsignacion;
+                    document.getElementById("edit_ID_Funcionario").value = idFuncionario;
+                    document.getElementById("edit_cargoAsignacion").value = idCargo;
+                    document.getElementById("edit_departamentoAsignacion").value = idDepartamento;
+                    document.getElementById("edit_destinoAsignacion").value = idDestino;
+                    document.getElementById("edit_Fecha_Inicio").value = fechaInicio;
+                    document.getElementById("edit_Fecha_Fin").value = fechaFin;
 
-      // Mostrar el modal
-      const modal = new bootstrap.Modal(document.getElementById("editAsignacionModal"));
-      modal.show();
-    });
-  });
-});
-</script>
-
-
-
+                    // Mostrar el modal
+                    const modal = new bootstrap.Modal(document.getElementById("editAsignacionModal"));
+                    modal.show();
+                });
+            });
+        });
+    </script>
 
 
 
@@ -502,7 +517,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     <!-- Script para buscar y seleccionar funcionario -->
-    <!-- Agrega este script justo antes de </body> -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const searchInput = document.getElementById('searchFuncionario');
@@ -588,26 +602,6 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         });
     </script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -760,21 +754,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.btn-editar-funcionario').forEach(button => {
@@ -805,6 +784,103 @@ document.addEventListener("DOMContentLoaded", function () {
                     modal.show();
                 });
             });
+        });
+    </script>
+
+
+    <!-- Modal de confirmacion de eliminacion de asignacion -->
+    <script>
+        function confirmarEliminacion(idAsignacion, nombreFuncionario, destinoAsignacion) {
+
+
+            // Esto evita que la palabra "null" aparezca en la alerta si el atributo data-* no existe.
+            const funcionario = nombreFuncionario || "Desconocido";
+            const destino = destinoAsignacion || "Sin destino";
+
+            Swal.fire({
+                title: '¿Estás seguro? </br>',
+                html: `
+                ¡Vas a eliminar la asignación del: </br>
+                
+                <strong style="color: #007bff; display: block; margin-top: 10px;">
+                    Funcionario: ${funcionario}
+                </strong>
+                <strong style="color: #28a745; display: block; margin-bottom: 10px;">
+                    Destino: ${destino}
+                </strong> </br>
+                
+                <span style="color: red;">
+                    Esta acción es irreversible
+                </span>
+            `,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#5a5d5fff',
+                confirmButtonText: '<i class="bi bi-trash"></i> Sí, Eliminar',
+                cancelButtonText: '<i class="bi bi-x-circle"></i> Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Envío del formulario dinámico por POST
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = '../api/eliminar_asignacion.php';
+
+                    const idField = document.createElement('input');
+                    idField.type = 'hidden';
+                    idField.name = 'id';
+                    idField.value = idAsignacion;
+
+                    form.appendChild(idField);
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
+        }
+
+        // Listener para el botón
+        document.addEventListener('DOMContentLoaded', function() {
+            const deleteButtons = document.querySelectorAll('.btn-eliminar-asignacion');
+
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    // Obtiene los datos del botón
+                    const asignacionId = this.getAttribute('data-id');
+
+                    // 🌟 MEJORA: Usamos 'data-funcionario' y 'data-destino' como planeado
+                    // Si el atributo no existe, getAttribute devuelve null, que es manejado arriba.
+                    const funcionarioNombre = this.getAttribute('data-funcionario');
+                    const asignacionDestino = this.getAttribute('data-destino');
+
+                    // Llama a la función con los tres datos de la asignación
+                    confirmarEliminacion(asignacionId, funcionarioNombre, asignacionDestino);
+                });
+            });
+        });
+    </script>
+
+
+
+
+    <!-- Script para que se abra el modal de asignaciones desde el dashboard -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('action') === 'register') {
+                const modalElement = document.getElementById('addAsignacionModal');
+                if (modalElement && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                    new bootstrap.Modal(modalElement).show();
+                    // Limpiar URL
+                    if (history.replaceState) {
+                        const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+                        window.history.replaceState({
+                            path: cleanUrl
+                        }, '', cleanUrl);
+                    }
+                }
+            }
         });
     </script>
 

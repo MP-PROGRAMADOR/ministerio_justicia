@@ -1,13 +1,21 @@
 <?php
 
 // Verifica si el usuario ha iniciado sesión y es administrador
-if (!isset($_SESSION['ID_Usuario']) || 
-    ($_SESSION['Rol_Usuario'] !== 'Administrador' && $_SESSION['Rol_Usuario'] !== 'Usuario' && $_SESSION['Rol_Usuario'] !== 'Jefe Personal')) {
+if (
+    !isset($_SESSION['ID_Usuario']) ||
+    ($_SESSION['Rol_Usuario'] !== 'Administrador' && $_SESSION['Rol_Usuario'] !== 'Usuario' && $_SESSION['Rol_Usuario'] !== 'Jefe Personal')
+) {
     $_SESSION['error_login'] = "No tienes permiso para acceder a esta sección.";
     header("Location: ../index.php");
     exit;
 }
 
+?>
+
+<?php
+// 1. Obtener el nombre del archivo de la página actual (ej: 'index.php')
+$current_page = basename($_SERVER['PHP_SELF']);
+// Nota: $nombre_usuario; y $dashboardData[] deben estar definidos antes de este bloque.
 ?>
 
 <div class="sidebar" id="sidebar">
@@ -27,83 +35,207 @@ if (!isset($_SESSION['ID_Usuario']) ||
                 <div class="text-white fw-semibold"><?= $nombre_usuario; ?></div>
                 <small class="text-light opacity-75">La Justicia</small>
             </div>
-            <i class="bi bi-chevron-down text-light"></i>
         </div>
     </div>
 
-   <nav class="nav flex-column px-2">
-    <a class="nav-link active" href="index.php">
-        <i class="bi bi-speedometer2 me-3"></i> Dashboard
-    </a>
-
-    <?php if ($_SESSION['Rol_Usuario'] === 'Administrador' || $_SESSION['Rol_Usuario'] === 'Usuario'  || $_SESSION['Rol_Usuario'] === 'Jefe Personal'):?>
-        <a class="nav-link" href="funcionarios.php">
-            <i class="bi bi-people me-3"></i> Funcionarios
-            <span class="badge bg-primary ms-auto" id="totalFuncionariosSidebar">
-                <?php echo $dashboardData['totalFuncionarios'] ?? 'N/A'; ?>
-            </span>
+    <nav class="nav flex-column px-2">
+        <a class="nav-link <?php echo ($current_page === 'index.php') ? 'active' : ''; ?>" href="index.php">
+            <i class="bi bi-speedometer2 me-3"></i> Dashboard
         </a>
 
-        <a class="nav-link position-relative" href="permisos.php">
-            <i class="bi bi-calendar-check me-3"></i> Permisos
-            <span class="notification-dot" id="permisosNotifDot"
-                style="display: <?php echo ($dashboardData['permisosPendientes'] ?? 0) > 0 ? 'block' : 'none'; ?>;"></span>
-            <span class="badge bg-danger ms-auto" id="permisosPendientesSidebar">
-                <?php echo $dashboardData['permisosPendientes'] ?? 'N/A'; ?>
-            </span>
-        </a>
-    <?php endif; ?>
+        <?php if ($_SESSION['Rol_Usuario'] === 'Administrador' || $_SESSION['Rol_Usuario'] === 'Usuario' || $_SESSION['Rol_Usuario'] === 'Jefe Personal'): ?>
+            <a class="nav-link <?php echo ($current_page === 'funcionarios.php') ? 'active' : ''; ?>" href="funcionarios.php">
+                <i class="bi bi-people me-3"></i> Funcionarios
+                <span class="badge bg-primary ms-auto" id="totalFuncionariosSidebar">
+                    <?php echo $dashboardData['totalFuncionarios'] ?? 'N/A'; ?>
+                </span>
+            </a>
 
-    <?php if ($_SESSION['Rol_Usuario'] === 'Administrador' || $_SESSION['Rol_Usuario'] === 'Jefe Personal'): ?>
-        <a class="nav-link" href="asignaciones.php">
-            <i class="bi bi-diagram-3 me-3"></i> Asignaciones
-        </a>
-        <a class="nav-link" href="destinos.php">
-            <i class="bi bi-geo-alt me-3"></i> Destinos
-            <span class="badge bg-secondary ms-auto" id="totalDestinosSidebar">
-                <?php echo $dashboardData['destinosActivos'] ?? 'N/A'; ?>
-            </span>
-        </a>
-        <a class="nav-link" href="departamentos.php">
-            <i class="bi bi-building me-3"></i> Departamentos 
-        </a>
-        <a class="nav-link" href="cargo.php">
-            <i class="bi bi-briefcase me-3"></i> Cargos
-        </a>
-        <a class="nav-link" href="formacion_academica.php">
-            <i class="bi bi-mortarboard me-3"></i> Formación
-        </a>
-        <a class="nav-link" href="capacitaciones.php">
-            <i class="bi bi-award me-3"></i> Capacitaciones Externas
-        </a>
-        <a class="nav-link d-flex align-items-center" href="cursos_ministerio.php">
-            <i class="bi bi-award fs-5 text-primary me-2"></i>
-            <span class="fw-semibold">Cursos del Ministerio</span>
-        </a>
+            <a class="nav-link position-relative <?php echo ($current_page === 'permisos.php') ? 'active' : ''; ?>" href="permisos.php">
+                <i class="bi bi-calendar-check me-3"></i> Permisos
+                <span class="notification-dot" id="permisosNotifDot"
+                    style="display: <?php echo ($dashboardData['permisosPendientes'] ?? 0) > 0 ? 'block' : 'none'; ?>;"></span>
+                <span class="badge bg-danger ms-auto" id="permisosPendientesSidebar">
+                    <?php echo $dashboardData['permisosPendientes'] ?? 'N/A'; ?>
+                </span>
+            </a>
+        <?php endif; ?>
 
-         <a class="nav-link" href="instrucciones_diarias.php">
-            <i class="bi bi-file-earmark-text me-3"></i> Instrucciones Diarias
-        </a>
-       
-        <a class="nav-link" href="reportes.php">
-            <i class="bi bi-file-earmark-text me-3"></i> Reportes
-        </a>
-      
-    <?php endif; ?>
+        <?php if ($_SESSION['Rol_Usuario'] === 'Administrador' || $_SESSION['Rol_Usuario'] === 'Jefe Personal'): ?>
+            <a class="nav-link <?php echo ($current_page === 'asignaciones.php') ? 'active' : ''; ?>" href="asignaciones.php">
+                <i class="bi bi-diagram-3 me-3"></i> Asignaciones
+            </a>
+            <a class="nav-link <?php echo ($current_page === 'destinos.php') ? 'active' : ''; ?>" href="destinos.php">
+                <i class="bi bi-geo-alt me-3"></i> Destinos
+                <span class="badge bg-secondary ms-auto" id="totalDestinosSidebar">
+                    <?php echo $dashboardData['destinosActivos'] ?? 'N/A'; ?>
+                </span>
+            </a>
+            <a class="nav-link <?php echo ($current_page === 'departamentos.php') ? 'active' : ''; ?>" href="departamentos.php">
+                <i class="bi bi-building-fill me-3"></i> Departamentos
+            </a>
+            <a class="nav-link <?php echo ($current_page === 'cargo.php') ? 'active' : ''; ?>" href="cargo.php">
+                <i class="bi bi-briefcase me-3"></i> Cargos
+            </a>
+            <a class="nav-link <?php echo ($current_page === 'formacion_academica.php') ? 'active' : ''; ?>" href="formacion_academica.php">
+                <i class="bi bi-mortarboard me-3"></i> Formación
+            </a>
+            <a class="nav-link <?php echo ($current_page === 'capacitaciones.php') ? 'active' : ''; ?>" href="capacitaciones.php">
+                <i class="bi bi-award me-3"></i> Capacitaciones Externas
+            </a>
+            <a class="nav-link d-flex align-items-center <?php echo ($current_page === 'cursos_ministerio.php') ? 'active' : ''; ?>" href="cursos_ministerio.php">
+                <i class="bi bi-award fs-5 me-3"></i> Cursos del Ministerio
+            </a>
+
+            <a class="nav-link <?php echo ($current_page === 'instrucciones_diarias.php') ? 'active' : ''; ?>" href="instrucciones_diarias.php">
+                <i class="bi bi-file-earmark-text me-3"></i> Instrucciones Diarias
+            </a>
+
+            <a class="nav-link <?php echo ($current_page === 'reportes.php') ? 'active' : ''; ?>" href="reportes.php">
+                <i class="bi bi-file-earmark-text me-3"></i> Reportes
+            </a>
+        <?php endif; ?>
 
 
-     <?php if ($_SESSION['Rol_Usuario'] === 'Administrador'):?>
-         <a class="nav-link" href="usuarios.php">
-            <i class="bi bi-award me-3"></i> Usuarios
-        </a>
+        <?php if ($_SESSION['Rol_Usuario'] === 'Administrador'): ?>
+            <a class="nav-link <?php echo ($current_page === 'usuarios.php') ? 'active' : ''; ?>" href="usuarios.php">
+                <i class="bi bi-person me-3"></i> Usuarios
+            </a>
 
-         <a class="nav-link" href="#auditoria">
-            <i class="bi bi-shield-check me-3"></i> Auditoría
-        </a>
-    <?php endif; ?>
-</nav>
-
+            <a class="nav-link" href="#auditoria">
+                <i class="bi bi-shield-check me-3"></i> Auditoría
+            </a>
+        <?php endif; ?>
+    </nav>
 </div>
+
+
+
+<style>
+    .sidebar {
+        background-color: #212529;
+        color: #f8f9fa;
+        width: 280px;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1030;
+        transition: all 0.3s ease;
+        padding: 0;
+        box-shadow: 4px 0 10px rgba(0, 0, 0, 0.2);
+    }
+
+
+    .logo-section {
+        padding: 1.5rem 1rem 0.75rem 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .logo-section h5,
+    .logo-section small {
+        color: #f8f9fa !important;
+    }
+
+
+    .logo-section .fa-balance-scale {
+        color: #007bff !important;
+    }
+
+
+
+    .user-profile {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        margin-bottom: 1.5rem;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        border-radius: 0.5rem;
+    }
+
+    .user-profile:hover {
+        background-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+        border-radius: 50%;
+        background-color: #007bff;
+        color: white;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        border: 2px solid rgba(255, 255, 255, 0.5);
+    }
+
+
+    .sidebar .nav {
+        padding-top: 0.5rem;
+    }
+
+    .sidebar .nav-link {
+        color: #adb5bd;
+        padding: 0.75rem 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 0.25rem;
+        transition: background-color 0.2s, color 0.2s;
+        font-size: 0.95rem;
+    }
+
+
+    .sidebar .nav-link.active {
+        background-color: #007bff;
+        color: white;
+        font-weight: 600;
+        box-shadow: 0 2px 5px rgba(0, 123, 255, 0.3);
+
+    }
+
+    .sidebar .nav-link:not(.active):hover {
+        color: #f8f9fa;
+        background-color: rgba(255, 255, 255, 0.15);
+
+    }
+
+    /* Estilo para los iconos dentro de los enlaces */
+    .sidebar .nav-link i {
+        font-size: 1.2rem;
+        width: 20px;
+
+    }
+
+    /* Enlaces con formato especial (Cursos del Ministerio) */
+    .sidebar .nav-link .fw-semibold {
+        color: #f8f9fa;
+
+    }
+
+
+    .sidebar .nav-link .badge {
+        padding: 0.4em 0.6em;
+        font-size: 0.75em;
+        line-height: 1;
+        min-width: 25px;
+    }
+
+    /* Punto de Notificación (el círculo rojo para Permisos) */
+    .notification-dot {
+        position: absolute;
+        top: 10px;
+        right: 25px;
+        height: 10px;
+        width: 10px;
+        background-color: #dc3545;
+        border-radius: 50%;
+        border: 2px solid #212529;
+        z-index: 10;
+    }
+</style>
 
 
 
@@ -113,25 +245,149 @@ if (!isset($_SESSION['ID_Usuario']) ||
 <!-- Modal de Cierre de Sesión -->
 <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content shadow-lg border-0">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="logoutModalLabel">
-                    <i class="bi bi-box-arrow-right me-2"></i> Confirmar Cierre de Sesión
+        <div class="modal-content shadow-lg border-3 border-top border-primary rounded-3">
+
+            <div class="modal-header border-0 pb-0 pt-4 px-4">
+                <h5 class="modal-title fw-bolder text-dark" id="logoutModalLabel">
+                    <i class="bi bi-box-arrow-right me-2 text-primary"></i> Cierre de Sesión
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+
+            <div class="modal-body text-center pt-2 pb-4 px-5">
+
+                <i class="bi bi-person-check-fill display-5 text-primary mb-3"></i>
+
+                <h6 class="fw-semibold mb-2">¿Confirmas el cierre de tu sesión?</h6>
+                <p class="text-secondary small mb-3">
+                    Tu conexión actual será desconectada. Esta acción es irreversible.
+                </p>
+
+                <div class="bg-light p-2 rounded text-start session-details">
+                    <div class="d-flex align-items-center justify-content-center">
+                        <i class="bi bi-clock me-2 text-muted"></i>
+                        <small class="text-muted">Último Acceso: <span id="lastAccessTime">Cargando...</span></small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer justify-content-center border-top pt-3 pb-3">
+                <button type="button" class="btn btn-sm btn-outline-secondary px-4 me-2" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle"></i> Cancelar
+                </button>
+                <a href="../api/logout.php" class="btn btn-sm btn-danger px-4">
+                    <i class="bi bi-box-arrow-right me-1"></i> Cerrar Sesión
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- Para recoger la ultima hora de acceso -->
+<script>
+    function formatCurrentTime() {
+        const now = new Date();
+
+        // Opciones de formato (ejemplo: "jueves, 13 de noviembre a las 11:28 AM")
+        const options = {
+            weekday: 'long', // Muestra el día de la semana
+            day: 'numeric',
+            month: 'long',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true // Para AM/PM
+        };
+
+        // Usa 'es-ES' para español
+        const formattedTime = now.toLocaleDateString('es-ES', options);
+        return formattedTime.charAt(0).toUpperCase() + formattedTime.slice(1); // Capitaliza el primer carácter
+    }
+
+    // Esperar a que el modal se muestre para actualizar la hora
+    document.addEventListener('DOMContentLoaded', function() {
+        const logoutModal = document.getElementById('logoutModal');
+
+        // Evento de Bootstrap que se dispara cuando el modal es visible
+        logoutModal.addEventListener('shown.bs.modal', function() {
+            const timeSpan = document.getElementById('lastAccessTime');
+            if (timeSpan) {
+                // Actualiza el texto con la hora formateada
+                timeSpan.textContent = formatCurrentTime();
+            }
+        });
+    });
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="modal fade" id="userProfileModal" tabindex="-1" aria-labelledby="userProfileModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+
+            <div class="modal-header bg-primary text-white rounded-top-4 border-bottom-0 pt-4 pb-2">
+                <h5 class="modal-title fw-bold" id="userProfileModalLabel">
+                    <i class="bi bi-person-circle me-2"></i> Mi Perfil
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
-            <div class="modal-body text-center">
-                <i class="bi bi-person-circle display-4 text-primary mb-3"></i>
-                <p class="fs-5">¿Estás seguro de que deseas cerrar sesión?</p>
-                <p class="text-muted">Tu sesión actual se cerrará y volverás a la pantalla de inicio.</p>
+
+            <div class="modal-body text-center pt-4 pb-4">
+
+                <div class="user-avatar-lg mx-auto mb-3 bg-primary text-white d-flex align-items-center justify-content-center rounded-circle" style="width: 70px; height: 70px; font-size: 2rem; border: 3px solid rgba(255, 255, 255, 0.5);">
+                    JP
+                </div>
+
+                <h5 class="mb-0 fw-bold"><?= $nombre_usuario; ?></h5>
+                <p class="text-primary small mb-4">Administrador del Sistema</p>
+
+                <div class="card text-start border-0 bg-light p-3">
+                    <p class="mb-1 small">
+                        <i class="bi bi-envelope-fill me-2 text-primary"></i>
+                        <span class="fw-semibold">Correo:</span> juan.perez@themis.gob
+                    </p>
+                    <p class="mb-1 small">
+                        <i class="bi bi-briefcase-fill me-2 text-primary"></i>
+                        <span class="fw-semibold">Cargo:</span> Jefe de Personal
+                    </p>
+                    <p class="mb-0 small">
+                        <i class="bi bi-calendar-check me-2 text-primary"></i>
+                        <span class="fw-semibold">Registro:</span> 15/05/2022
+                    </p>
+                </div>
             </div>
-            <div class="modal-footer justify-content-between px-4">
-                <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">
-                    <i class="bi bi-x-circle me-1"></i> Cancelar
-                </button>
-                <a href="../api/logout.php" class="btn btn-primary rounded-pill px-4">
-                    <i class="bi bi-box-arrow-right me-1"></i> Cerrar Sesión
-                </a>
+
+            <div class="modal-footer justify-content-center border-top-0 pt-0 pb-3">
+                <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-4" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>

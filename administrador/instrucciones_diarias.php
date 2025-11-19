@@ -2,6 +2,7 @@
 include_once '../includes/header.php';
 ?>
 
+
 <body>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
     <div class="container-fluid p-0">
@@ -10,6 +11,9 @@ include_once '../includes/header.php';
             <?php
             include_once '../includes/silebar_admin.php';
             ?>
+
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 
 
             <div class="main-content" id="mainContent">
@@ -43,9 +47,10 @@ include_once '../includes/header.php';
                                     <i class="bi bi-person-circle me-1"></i> <?= $nombre_usuario; ?>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Mi Perfil</a>
+                                    <li><a class="dropdown-item" href="./perfil_admin.php">
+                                        <i class="bi bi-person me-2"></i>Mi Perfil</a>
                                     </li>
-                                    <li><a class="dropdown-item" href="#"><i
+                                    <li><a class="dropdown-item" href="./configuracion.php"><i
                                                 class="bi bi-gear me-2"></i>Configuración</a></li>
                                     <li>
                                         <hr class="dropdown-divider">
@@ -98,13 +103,10 @@ include_once '../includes/header.php';
 
 
 
-
-
-
                 <div class="container-fluid px-4">
                     <div class="table-custom mb-4 p-4">
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5 class="mb-0 fw-semibold">Listado de Funcionarios</h5>
+                            <h5 class="mb-0 fw-semibold">Listado de Funcionarios con Instrucciones</h5>
                         </div>
                         <div class="table-responsive">
 
@@ -117,9 +119,9 @@ include_once '../includes/header.php';
 
                             // Consulta de instrucciones con datos del funcionario
                             $sql = "SELECT i.*, f.Nombres, f.Apellidos, f.DNI_Pasaporte, f.Fotografia
-            FROM tbl_instrucciones i
-            JOIN tbl_funcionarios f ON i.ID_Funcionario = f.ID_Funcionario
-            ORDER BY i.ID_Instruccion DESC";
+                            FROM tbl_instrucciones i
+                            JOIN tbl_funcionarios f ON i.ID_Funcionario = f.ID_Funcionario
+                            ORDER BY i.ID_Instruccion DESC";
 
                             $stmt = $pdo->query($sql);
                             $instrucciones = $stmt->fetchAll();
@@ -155,7 +157,7 @@ include_once '../includes/header.php';
                                                 <?php if ($instr['Leido'] == 1): ?>
                                                     <span class="badge bg-success">Sí</span>
                                                 <?php else: ?>
-                                                    <span class="badge bg-warning text-dark">No</span>
+                                                    <span class="badge bg-danger ">No</span>
                                                 <?php endif; ?>
                                             </td>
                                             <td>
@@ -175,12 +177,15 @@ include_once '../includes/header.php';
                                                         <!-- Botón eliminar -->
                                                         <button class="btn btn-sm btn-danger btn-eliminar-instruccion"
                                                             data-id="<?= $instr['ID_Instruccion'] ?>"
-                                                            title="Eliminar">
+                                                            data-titulo="<?= htmlspecialchars($instr['Titulo']) ?>"
+                                                            data-funcionario="<?= htmlspecialchars($instr['Nombres'] . ' ' . $instr['Apellidos']) ?>"
+                                                            title="Eliminar Instrucción">
                                                             <i class="bi bi-trash"></i>
                                                         </button>
                                                     <?php endif; ?>
 
-                                                    <!-- Botón detalles (siempre visible) -->
+
+                                                    <!-- Botón detalles  -->
                                                     <button class="btn btn-sm btn-info btn-detalles-instruccion"
                                                         data-id="<?= $instr['ID_Instruccion'] ?>"
                                                         data-funcionario="<?= htmlspecialchars($instr['Nombres'] . ' ' . $instr['Apellidos']) ?>"
@@ -189,7 +194,7 @@ include_once '../includes/header.php';
                                                         data-mensaje="<?= htmlspecialchars($instr['Mensaje']) ?>"
                                                         data-fecha="<?= htmlspecialchars($instr['Fecha_Envio']) ?>"
                                                         data-leido="<?= $instr['Leido'] ?>"
-                                                        title="Ver Detalles">
+                                                        data-foto="<?= htmlspecialchars($instr['Fotografia']) ?>" title="Ver Detalles">
                                                         <i class="bi bi-eye"></i>
                                                     </button>
                                                 </div>
@@ -231,7 +236,7 @@ include_once '../includes/header.php';
 
 
 
-    <!-- Modal para Registrar Permiso -->
+    <!-- Modal para Registrar Instrucciones diarias -->
     <div class="modal fade" id="addInstruccionModal" tabindex="-1" aria-labelledby="addInstruccionModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
@@ -244,7 +249,7 @@ include_once '../includes/header.php';
                 <div class="modal-body">
 
                     <!-- Buscador -->
-                    <div class="mb-4">
+                    <div class="mb-4 mt-2">
                         <label for="searchFuncionario" class="form-label fw-semibold">
                             <i class="bi bi-search me-2 text-primary"></i>Buscar Funcionario
                         </label>
@@ -290,7 +295,7 @@ include_once '../includes/header.php';
                         </div>
 
                         <!-- Botón enviar -->
-                        <div class="mt-4 d-flex justify-content-end">
+                        <div class="mt-4 d-flex justify-content-end mb-3">
                             <button type="submit" class="btn btn-success">
                                 <i class="bi bi-save me-2"></i>Registrar Instrucción
                             </button>
@@ -314,11 +319,11 @@ include_once '../includes/header.php';
     <div class="modal fade" id="editInstruccionModal" tabindex="-1" aria-labelledby="editInstruccionModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
+                <div class="modal-header bg-warning text-dark">
                     <h5 class="modal-title" id="editInstruccionModalLabel">
                         <i class="bi bi-pencil-square me-2"></i>Editar Instrucción
                     </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    <button type="button" class="btn-close " data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body">
 
@@ -327,7 +332,7 @@ include_once '../includes/header.php';
                         <input type="hidden" name="ID_Funcionario" id="editID_Funcionario">
 
                         <!-- Funcionario -->
-                        <div class="mb-3">
+                        <div class="mb-3 mt-3">
                             <label class="form-label fw-semibold"><i class="bi bi-person-badge me-2"></i>Funcionario</label>
                             <input type="text" id="editFuncionarioNombre" class="form-control" readonly>
                         </div>
@@ -346,19 +351,42 @@ include_once '../includes/header.php';
 
                         <!-- Leído -->
                         <div class="mb-3">
-                            <label for="editLeido" class="form-label fw-semibold"><i class="bi bi-check2-square me-2"></i>Leído</label>
-                            <select name="Leido" id="editLeido" class="form-select" required>
-                                <option value="0">No</option>
-                                <option value="1">Sí</option>
-                            </select>
+                            <label for="displayLeido" class="form-label fw-semibold">
+                                <i class="bi bi-check2-square me-2"></i>Estado de Lectura
+                            </label>
+
+                            <?php
+
+                            $valor_leido = 0;
+
+                            // Simplificación de la lógica:
+                            $texto_leido = ($valor_leido == 1) ? 'Sí Leído' : 'No Leído';
+                            $clase_color = ($valor_leido == 0) ? 'text-danger' : 'text-success'; // text-success es opcional para el Sí
+                            ?>
+
+                            <input type="text"
+                                id="displayLeido"
+                                class="form-control <?php echo $clase_color; ?> fw-bold"
+                                value="<?php echo $texto_leido; ?>"
+                                readonly>
+
+                            <input type="hidden"
+                                name="Leido"
+                                value="<?php echo $valor_leido; ?>">
                         </div>
 
+
+
+
+
+
+
                         <!-- Botones -->
-                        <div class="d-flex justify-content-end">
-                            <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">
+                        <div class="d-flex justify-content-end mb-3">
+                            <!-- <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">
                                 <i class="bi bi-x-circle me-1"></i>Cancelar
-                            </button>
-                            <button type="submit" class="btn btn-success">
+                            </button> -->
+                            <button type="submit" class="btn btn-warning">
                                 <i class="bi bi-save me-1"></i>Guardar Cambios
                             </button>
                         </div>
@@ -389,7 +417,7 @@ include_once '../includes/header.php';
                 document.getElementById('editFuncionarioNombre').value = nombre;
                 document.getElementById('editTitulo').value = titulo;
                 document.getElementById('editMensaje').value = mensaje;
-                document.getElementById('editLeido').value = leido;
+                // document.getElementById('editLeido').value = leido;
 
                 const modal = new bootstrap.Modal(document.getElementById('editInstruccionModal'));
                 modal.show();
@@ -399,10 +427,7 @@ include_once '../includes/header.php';
 
 
     <!-- Script para buscar y seleccionar funcionario -->
-    <!-- Agrega este script justo antes de </body> -->
     <script>
-        // Elementos del DOM
-        // Elementos del DOM
         const listaFuncionarios = document.getElementById('listaFuncionarios');
         const searchFuncionario = document.getElementById('searchFuncionario');
         const funcionarioSeleccionado = document.getElementById('funcionarioSeleccionado');
@@ -512,20 +537,6 @@ include_once '../includes/header.php';
             });
         });
     </script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -690,15 +701,6 @@ include_once '../includes/header.php';
 
 
 
-
-
-
-
-
-
-
-
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.btn-editar-funcionario').forEach(button => {
@@ -731,6 +733,177 @@ include_once '../includes/header.php';
             });
         });
     </script>
+
+
+    <!-- Modal de ver instrucciones -->
+
+    <script>
+        function mostrarDetallesInstruccion(funcionario, dni, titulo, mensaje, fecha, leido, fotoUrl) {
+
+            const rutaBaseFotos = './api/funcionarios/';
+
+            // Verifica si hay nombre de archivo de foto. Si no, usa una imagen de placeholder.
+            const urlFoto = fotoUrl && fotoUrl !== '' ?
+                rutaBaseFotos :
+                'default.jpg';
+
+
+            const estadoLeido = leido == 1 ?
+                '<span class="badge bg-success py-2 px-3 fs-6"><i class="bi bi-check-circle-fill me-1"></i> Sí</span>' :
+                '<span class="badge bg-warning text-dark py-2 px-3 fs-6"><i class="bi bi-x-circle-fill me-1"></i> No</span>';
+
+            // Estructura el contenido HTML
+            const htmlContent = `
+            <div class="container-fluid text-start p-0">
+              <h3 class="mt-2 mb-3 text-center"><i class="bi bi-file-text me-1"></i> Instruccion Diaria </h3>
+                <div class="d-flex align-items-center mb-4 p-3 bg-light border-bottom rounded-top shadow-sm">
+                    <img src="${urlFoto}" 
+                         alt="${funcionario}" 
+                         class="img-fluid rounded-circle border border-3 border-secondary me-3"
+                         style="width: 80px; height: 80px; object-fit: cover;">
+                    <div class="text-start">
+                        <h6 class="mb-0 text-dark">Instrucción para:</h6>
+                        <h5 class="mb-0 text-primary fw-bold">${funcionario}</h5>
+                        <small class="text-muted">DNI: ${dni}</small>
+                    </div>
+                </div>
+
+                <h5 class="text-start text-primary mb-3 px-3"><i class="bi bi-file-text me-2"></i>Información de la Instrucción</h5>
+                
+                <div class="row g-3 px-3">
+                    
+                    <div class="col-md-6">
+                        <div class="bg-light p-2 rounded border">
+                            <small class="text-muted d-block">Título</small>
+                            <strong class="text-dark">${titulo}</strong>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="bg-light p-2 rounded border">
+                            <small class="text-muted d-block">Fecha de Envío</small>
+                            <strong class="text-dark">${fecha}</strong>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-4 mt-3 text-center">
+                    <small class="text-muted d-block mb-1">Estado (Leído):</small>
+                    ${estadoLeido}
+                </div>
+
+                <div class="card border-primary shadow-sm mx-3 mb-3">
+                    <div class="card-header bg-primary text-white p-2">
+                        <h6 class="mb-0"><i class="bi bi-chat-left-text me-1"></i> Mensaje Completo</h6>
+                    </div>
+                    <div class="card-body p-3" style="max-height: 200px; overflow-y: auto;">
+                        <p class="card-text text-wrap mb-0" style="white-space: pre-wrap;">
+                            ${mensaje}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        `;
+
+            Swal.fire({
+                title: '',
+                html: htmlContent,
+                showCloseButton: true,
+                showCancelButton: false,
+                confirmButtonText: '<i class="bi bi-x-circle"></i> Cerrar',
+                confirmButtonColor: '#56585cd5',
+                width: '750px',
+                customClass: {
+                    container: 'swal2-wide',
+                    // Añadimos padding para que el contenido no pegue con los bordes del modal
+                    popup: 'p-0'
+                }
+            });
+        }
+
+        // El Event Listener de DOMContentLoaded se mantiene igual:
+        document.addEventListener('DOMContentLoaded', function() {
+            const detailsButtons = document.querySelectorAll('.btn-detalles-instruccion');
+
+            detailsButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    const funcionario = this.getAttribute('data-funcionario');
+                    const dni = this.getAttribute('data-dni');
+                    const titulo = this.getAttribute('data-titulo');
+                    const mensaje = this.getAttribute('data-mensaje');
+                    const fecha = this.getAttribute('data-fecha');
+                    const leido = this.getAttribute('data-leido');
+                    const fotoUrl = this.getAttribute('data-foto');
+
+                    mostrarDetallesInstruccion(funcionario, dni, titulo, mensaje, fecha, leido, fotoUrl);
+                });
+            });
+        });
+    </script>
+
+
+
+    <!-- Modal de eliminar instrucciones diarias-->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+
+            const deleteButtons = document.querySelectorAll('.btn-eliminar-instruccion');
+
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    const id = this.getAttribute('data-id');
+                    const titulo = this.getAttribute('data-titulo');
+                    const funcionario = this.getAttribute('data-funcionario');
+
+                    Swal.fire({
+                        title: '¿Estás seguro?',
+
+                        html: `Se eliminará la instrucción: <strong style="color: #070808ff; font-size: 1.1em; ">${titulo}</strong> <br>
+                    enviada a  <strong style="color: #007bff; font-size: 1.1em;">${funcionario}</strong> . <br><br>
+                    
+                    <br><br>
+                    <span style="color: red; font-weight: bold;">
+                        Esta acción no se puede deshacer
+                    </span>`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#dc3545',
+                        cancelButtonColor: '#6c757d',
+                        cancelButtonText: '<i class="bi bi-x-circle"></i> Cancelar',
+                        confirmButtonText: '<i class="bi bi-trash"></i> Sí, Eliminar'
+
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+
+
+                            const form = document.createElement('form');
+                            form.method = 'POST';
+
+                            form.action = '../api/eliminar_instruccion.php';
+
+                            const idField = document.createElement('input');
+                            idField.type = 'hidden';
+
+                            idField.name = 'id_instruccion';
+                            idField.value = id;
+
+                            form.appendChild(idField);
+                            document.body.appendChild(form);
+                            form.submit();
+
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+
+
 
 
     <?php

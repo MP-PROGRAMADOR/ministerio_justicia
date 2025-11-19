@@ -43,9 +43,10 @@ include_once '../includes/header.php';
                                     <i class="bi bi-person-circle me-1"></i> <?= $nombre_usuario; ?>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Mi Perfil</a>
+                                    <li><a class="dropdown-item" href="./perfil_admin.php">
+                                        <i class="bi bi-person me-2"></i>Mi Perfil</a>
                                     </li>
-                                    <li><a class="dropdown-item" href="#"><i
+                                    <li><a class="dropdown-item" href="./configuracion.php"><i
                                                 class="bi bi-gear me-2"></i>Configuración</a></li>
                                     <li>
                                         <hr class="dropdown-divider">
@@ -151,13 +152,13 @@ include_once '../includes/header.php';
                                             </td>
                                             <td>
                                                 <div class="d-flex gap-2">
-                                                    <button class="btn btn-sm btn-primary" title="Editar"><i class="bi bi-pencil"></i></button>
+                                                    <button class="btn btn-sm btn-secondary disabled" title="Editar"><i class="bi bi-pencil-square"></i></i></button>
 
                                                     <?php if ($_SESSION['Rol_Usuario'] !== 'Usuario'): ?>
-                                                        <button class="btn btn-sm btn-danger" title="Eliminar"><i class="bi bi-trash"></i></button>
+                                                        <button class="btn btn-sm btn-secondary disabled" title="Eliminar"><i class="bi bi-trash"></i></button>
                                                     <?php endif; ?>
 
-                                                    <button class="btn btn-sm btn-info" title="Detalles"><i class="bi bi-info-circle"></i></button>
+                                                    <button class="btn btn-sm btn-secondary disabled" title="Detalles"><i class="bi bi-eye"></i></button>
                                                 </div>
 
                                             </td>
