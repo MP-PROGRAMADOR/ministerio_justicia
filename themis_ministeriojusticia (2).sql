@@ -29,6 +29,7 @@ SET time_zone = "+00:00";
 
 use Themis_MinisterioJusticia;
 
+
 CREATE TABLE `roles` (
   `id` int(11) NOT NULL,
   `nombre` varchar(50) NOT NULL,
@@ -429,6 +430,24 @@ CREATE TABLE `usos_deposito` (
   `descuento` decimal(10,2) DEFAULT NULL,
   `fecha` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+--
+-- Estructura de tabla para la tabla `configuracion`
+--
+CREATE TABLE `configuracion` (
+  `clave` varchar(100) NOT NULL,
+  `valor` text DEFAULT NULL,
+  PRIMARY KEY (`clave`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Volcado de datos inicial (Opcional, si quieres definir valores por defecto)
+--
+INSERT INTO `configuracion` (`clave`, `valor`) VALUES
+('nombre_sistema', 'THEMIS - Ministerio de Justicia'),
+('email_soporte', 'soporte@ministeriojusticia.gq'),
+('limite_funcionarios', '500'),
+('tiempo_sesion', '3600'),
+('habilitar_registro', '0');
 
 --
 -- Índices para tablas volcadas

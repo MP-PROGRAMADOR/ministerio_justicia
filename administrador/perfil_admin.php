@@ -4,18 +4,17 @@ include_once '../includes/header.php';
 
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 
 
+ <?php include_once '../includes/silebar_admin.php'; ?>
 
 <body>
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
     <div class="container-fluid p-0">
         <div class="row g-0">
 
-            <?php
-            include_once '../includes/silebar_admin.php';
-            ?>
+           
 
 
             <?php
@@ -310,8 +309,6 @@ include_once '../includes/header.php';
                 </div>
             </div>
 
-            <!-- Scripts necesarios (Bootstrap JS y Popper) -->
-            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 
             <script>
@@ -349,5 +346,4 @@ include_once '../includes/header.php';
                     togglePasswordVisibility('confirmPassword', 'eyeIconConfirm');
                 });
             </script>
-
-        <?php
+<?php include_once '../includes/footer.php'; ?>

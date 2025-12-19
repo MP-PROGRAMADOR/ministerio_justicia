@@ -7,67 +7,15 @@ include_once '../includes/header.php';
 
     <div class="container-fluid p-0">
         <div class="row g-0">
-            <!-- Sidebar -->
             <?php
             include_once '../includes/silebar_admin.php';
             ?>
-
             <!-- Main Content -->
             <div class="main-content" id="mainContent">
-                <!-- Top Navigation -->
-                <div class="top-navbar">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <!-- Botón para mostrar/ocultar sidebar en móviles -->
-                        <button class="btn btn-outline-secondary d-md-none me-2 menu-toggle" id="sidebarToggle">
-                            <i class="bi bi-list"></i>
-                        </button>
-                        <div>
-                            <nav aria-label="breadcrumb">
-                                <ol class="breadcrumb breadcrumb-custom mb-0">
-                                    <li class="breadcrumb-item"><a href="#" class="text-decoration-none">Inicio</a></li>
-                                    <li class="breadcrumb-item active">Dashboard</li>
-                                </ol>
-                            </nav>
-                        </div>
+                <!-- Sidebar -->
 
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="input-group" style="width: 300px;">
-                                <span class="input-group-text bg-light border-end-0">
-                                    <i class="bi bi-search text-muted"></i>
-                                </span>
-                                <input type="text" class="form-control border-start-0"
-                                    placeholder="Buscar funcionario...">
-                            </div>
-                            <button class="btn btn-outline-primary btn-refresh" onclick="refreshData()">
-                                <i class="bi bi-arrow-clockwise me-1"></i> Actualizar
-                            </button>
-                            
-                            <div class="dropdown">
-                                <button class="btn btn-outline-secondary dropdown-toggle" type="button"
-                                    data-bs-toggle="dropdown">
-                                    <i class="bi bi-person-circle me-1"></i> <?= $nombre_usuario; ?>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><a class="dropdown-item" href="./perfil_admin.php">
-                                        <i class="bi bi-person me-2"></i>Mi Perfil</a>
-                                    </li>
-                                    <li><a class="dropdown-item" href="./configuracion.php"><i
-                                                class="bi bi-gear me-2"></i>Configuración</a></li>
-                                    <li>
-                                        <hr class="dropdown-divider">
-                                    </li>
-                                    <li>
-                                        <button class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#logoutModal">
-                                            <i class="bi bi-box-arrow-right me-1"></i> Cerrar Sesión
-                                        </button>
-                                    </li>
-                                </ul>
-                            </div>
-                            
-                        </div>
 
-                    </div>
-                </div>
+
 
                 <!-- Header Section -->
                 <div class="header-section">

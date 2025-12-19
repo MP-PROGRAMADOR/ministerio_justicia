@@ -5,63 +5,61 @@ if (!isset($_SESSION['ID_Usuario'])) {
     exit;
 }
 
-  $id_usuario=$_SESSION['ID_Usuario'];
-    $nombre_usuario=$_SESSION['Nombre_Usuario'];
-    $rol_usuario=$_SESSION['Rol_Usuario'] ;
+$id_usuario = $_SESSION['ID_Usuario'];
+$nombre_usuario = $_SESSION['Nombre_Usuario'];
+$rol_usuario = $_SESSION['Rol_Usuario'];
 include_once 'conexion.php';
 
 
 
 
-    
-   
 
-    try {
-        $pdo = new PDO($dsn, $user, $pass, $options);
+try {
+    $pdo = new PDO($dsn, $user, $pass, $options);
 
-        // --- 1. Obtener estadísticas de tarjetas (Statistics Cards) ---
-        // Total Funcionarios
-        $stmt = $pdo->query("SELECT COUNT(*) AS total FROM tbl_funcionarios");
-        $dashboardData['totalFuncionarios'] = $stmt->fetchColumn();
+    // --- 1. Obtener estadísticas de tarjetas (Statistics Cards) ---
+    // Total Funcionarios
+    $stmt = $pdo->query("SELECT COUNT(*) AS total FROM tbl_funcionarios");
+    $dashboardData['totalFuncionarios'] = $stmt->fetchColumn();
 
-        // Funcionarios Activos
-        $stmt = $pdo->query("SELECT COUNT(*) AS activos FROM tbl_funcionarios WHERE Estado_Laboral = 'Activo'");
-        $dashboardData['funcionariosActivos'] = $stmt->fetchColumn();
+    // Funcionarios Activos
+    $stmt = $pdo->query("SELECT COUNT(*) AS activos FROM tbl_funcionarios WHERE Estado_Laboral = 'Activo'");
+    $dashboardData['funcionariosActivos'] = $stmt->fetchColumn();
 
-        // Permisos Este Mes (contando los solicitados en el mes actual)
-        $stmt = $pdo->query("SELECT COUNT(*) AS permisos_mes FROM tbl_permisos WHERE Fecha_Solicitud >= CURDATE() - INTERVAL (DAY(CURDATE())-1) DAY");
-        $dashboardData['permisosEsteMes'] = $stmt->fetchColumn();
+    // Permisos Este Mes (contando los solicitados en el mes actual)
+    $stmt = $pdo->query("SELECT COUNT(*) AS permisos_mes FROM tbl_permisos WHERE Fecha_Solicitud >= CURDATE() - INTERVAL (DAY(CURDATE())-1) DAY");
+    $dashboardData['permisosEsteMes'] = $stmt->fetchColumn();
 
-        // Permisos Pendientes (para la notificación)
-        $stmt = $pdo->query("SELECT COUNT(*) AS pendientes FROM tbl_permisos WHERE Estado_Permiso = 'Pendiente'");
-        $dashboardData['permisosPendientes'] = $stmt->fetchColumn();
+    // Permisos Pendientes (para la notificación)
+    $stmt = $pdo->query("SELECT COUNT(*) AS pendientes FROM tbl_permisos WHERE Estado_Permiso = 'Pendiente'");
+    $dashboardData['permisosPendientes'] = $stmt->fetchColumn();
 
-        // Total Destinos Activos
-        $stmt = $pdo->query("SELECT COUNT(*) AS totalDestinos FROM tbl_destinos");
-        $dashboardData['destinosActivos'] = $stmt->fetchColumn();
+    // Total Destinos Activos
+    $stmt = $pdo->query("SELECT COUNT(*) AS totalDestinos FROM tbl_destinos");
+    $dashboardData['destinosActivos'] = $stmt->fetchColumn();
 
-        // Nuevos Funcionarios este mes (ejemplo)
-        $stmt = $pdo->query("SELECT COUNT(*) FROM tbl_funcionarios WHERE Fecha_Ingreso >= CURDATE() - INTERVAL (DAY(CURDATE())-1) DAY");
-        $dashboardData['newFuncionariosThisMonth'] = $stmt->fetchColumn();
+    // Nuevos Funcionarios este mes (ejemplo)
+    $stmt = $pdo->query("SELECT COUNT(*) FROM tbl_funcionarios WHERE Fecha_Ingreso >= CURDATE() - INTERVAL (DAY(CURDATE())-1) DAY");
+    $dashboardData['newFuncionariosThisMonth'] = $stmt->fetchColumn();
 
 
-        // --- 2. Distribución de Funcionarios por Estado (Doughnut Chart) ---
-        $stmt = $pdo->query("SELECT Estado_Laboral, COUNT(*) AS count FROM tbl_funcionarios GROUP BY Estado_Laboral");
-        $estadoData = $stmt->fetchAll();
+    // --- 2. Distribución de Funcionarios por Estado (Doughnut Chart) ---
+    $stmt = $pdo->query("SELECT Estado_Laboral, COUNT(*) AS count FROM tbl_funcionarios GROUP BY Estado_Laboral");
+    $estadoData = $stmt->fetchAll();
 
-        $labels = [];
-        $data = [];
-        foreach ($estadoData as $row) {
-            $labels[] = $row['Estado_Laboral'];
-            $data[] = (int)$row['count'];
-        }
-        $dashboardData['funcionarioDistribution'] = [
-            'labels' => $labels,
-            'data' => $data
-        ];
+    $labels = [];
+    $data = [];
+    foreach ($estadoData as $row) {
+        $labels[] = $row['Estado_Laboral'];
+        $data[] = (int)$row['count'];
+    }
+    $dashboardData['funcionarioDistribution'] = [
+        'labels' => $labels,
+        'data' => $data
+    ];
 
-        // --- 3. Departamentos con Mayor Personal (Progress Bars) ---
-        $stmt = $pdo->query("
+    // --- 3. Departamentos con Mayor Personal (Progress Bars) ---
+    $stmt = $pdo->query("
             SELECT d.Nombre_Departamento, COUNT(a.ID_Funcionario) AS num_funcionarios
             FROM tbl_asignaciones a
             JOIN tbl_departamentos d ON a.ID_Departamento = d.ID_Departamento
@@ -69,87 +67,86 @@ include_once 'conexion.php';
             ORDER BY num_funcionarios DESC
             LIMIT 4
         ");
-        $dashboardData['departmentStaff'] = $stmt->fetchAll();
+    $dashboardData['departmentStaff'] = $stmt->fetchAll();
 
-        // --- 4. Tipos de Destinos (Small Cards) ---
-        $stmt = $pdo->query("SELECT Tipo_Destino, COUNT(*) AS count FROM tbl_destinos GROUP BY Tipo_Destino");
-        $dashboardData['destinationTypes'] = $stmt->fetchAll();
+    // --- 4. Tipos de Destinos (Small Cards) ---
+    $stmt = $pdo->query("SELECT Tipo_Destino, COUNT(*) AS count FROM tbl_destinos GROUP BY Tipo_Destino");
+    $dashboardData['destinationTypes'] = $stmt->fetchAll();
 
-        // --- 5. Actividad Reciente (Recent Activity) ---
-        // Últimos funcionarios añadidos
-        $stmt = $pdo->query("
+    // --- 5. Actividad Reciente (Recent Activity) ---
+    // Últimos funcionarios añadidos
+    $stmt = $pdo->query("
             SELECT 'Nuevo Funcionario' as type, Nombres, Apellidos, Fecha_Creacion_Registro as timestamp
             FROM tbl_funcionarios
             ORDER BY Fecha_Creacion_Registro DESC LIMIT 3
         ");
-        $recentActivity = $stmt->fetchAll();
+    $recentActivity = $stmt->fetchAll();
 
-        // Últimos permisos solicitados/aprobados
-        $stmt = $pdo->query("
+    // Últimos permisos solicitados/aprobados
+    $stmt = $pdo->query("
             SELECT 'Permiso' as type, f.Nombres, f.Apellidos, p.Tipo_Permiso, p.Estado_Permiso, p.Fecha_Creacion_Registro as timestamp
             FROM tbl_permisos p
             JOIN tbl_funcionarios f ON p.ID_Funcionario = f.ID_Funcionario
             ORDER BY p.Fecha_Creacion_Registro DESC LIMIT 3
         ");
-        $recentActivity = array_merge($recentActivity, $stmt->fetchAll());
+    $recentActivity = array_merge($recentActivity, $stmt->fetchAll());
 
-        // Ordenar toda la actividad por timestamp
-        usort($recentActivity, function($a, $b) {
-            return strtotime($b['timestamp']) - strtotime($a['timestamp']);
-        });
+    // Ordenar toda la actividad por timestamp
+    usort($recentActivity, function ($a, $b) {
+        return strtotime($b['timestamp']) - strtotime($a['timestamp']);
+    });
 
-        $dashboardData['recentActivity'] = array_slice($recentActivity, 0, 7);
+    $dashboardData['recentActivity'] = array_slice($recentActivity, 0, 7);
 
-        // --- 6. Notificaciones Importantes (Important Notifications) ---
-        $notifications = [];
+    // --- 6. Notificaciones Importantes (Important Notifications) ---
+    $notifications = [];
 
-        // Próximos permisos pendientes
-        $stmt = $pdo->query("SELECT COUNT(*) FROM tbl_permisos WHERE Estado_Permiso = 'Pendiente'");
-        $pendingPermitsCount = $stmt->fetchColumn();
-        if ($pendingPermitsCount > 0) {
-            $notifications[] = [
-                'type' => 'primary',
-                'title' => 'Próximos permisos pendientes',
-                'description' => $pendingPermitsCount . ' permisos necesitan revisión y aprobación.',
-                'count' => $pendingPermitsCount
-            ];
-        }
-
-        // Alertas de caducidad de contratos (simulado, ya que no hay tabla de contratos)
-        $mockExpiringContracts = 2;
-        if ($mockExpiringContracts > 0) {
-            $notifications[] = [
-                'type' => 'warning',
-                'title' => 'Alertas de caducidad de contratos',
-                'description' => $mockExpiringContracts . ' contratos vencen en los próximos 30 días.',
-                'count' => $mockExpiringContracts
-            ];
-        }
-
-        // Añadir una notificación de actualización de datos de personal (ejemplo)
+    // Próximos permisos pendientes
+    $stmt = $pdo->query("SELECT COUNT(*) FROM tbl_permisos WHERE Estado_Permiso = 'Pendiente'");
+    $pendingPermitsCount = $stmt->fetchColumn();
+    if ($pendingPermitsCount > 0) {
         $notifications[] = [
-            'type' => 'success',
-            'title' => 'Actualización de datos de personal',
-            'description' => 'Se han actualizado 3 perfiles de funcionarios.',
-            'count' => null
+            'type' => 'primary',
+            'title' => 'Próximos permisos pendientes',
+            'description' => $pendingPermitsCount . ' permisos necesitan revisión y aprobación.',
+            'count' => $pendingPermitsCount
         ];
-
-        // Añadir una notificación de nuevo anuncio (ejemplo)
-        $notifications[] = [
-            'type' => 'info',
-            'title' => 'Nuevo anuncio del Ministerio',
-            'description' => 'Cambios en la política de licencias.',
-            'count' => null
-        ];
-
-        $dashboardData['notifications'] = $notifications;
-
-    } catch (\PDOException $e) {
-        $error_message = 'Error de base de datos: ' . $e->getMessage();
-        // En un entorno de producción, loggea el error en lugar de mostrarlo al usuario
-        error_log($error_message);
     }
-    ?>
+
+    // Alertas de caducidad de contratos (simulado, ya que no hay tabla de contratos)
+    $mockExpiringContracts = 2;
+    if ($mockExpiringContracts > 0) {
+        $notifications[] = [
+            'type' => 'warning',
+            'title' => 'Alertas de caducidad de contratos',
+            'description' => $mockExpiringContracts . ' contratos vencen en los próximos 30 días.',
+            'count' => $mockExpiringContracts
+        ];
+    }
+
+    // Añadir una notificación de actualización de datos de personal (ejemplo)
+    $notifications[] = [
+        'type' => 'success',
+        'title' => 'Actualización de datos de personal',
+        'description' => 'Se han actualizado 3 perfiles de funcionarios.',
+        'count' => null
+    ];
+
+    // Añadir una notificación de nuevo anuncio (ejemplo)
+    $notifications[] = [
+        'type' => 'info',
+        'title' => 'Nuevo anuncio del Ministerio',
+        'description' => 'Cambios en la política de licencias.',
+        'count' => null
+    ];
+
+    $dashboardData['notifications'] = $notifications;
+} catch (\PDOException $e) {
+    $error_message = 'Error de base de datos: ' . $e->getMessage();
+    // En un entorno de producción, loggea el error en lugar de mostrarlo al usuario
+    error_log($error_message);
+}
+?>
 
 
 
@@ -839,114 +836,189 @@ include_once 'conexion.php';
     </style>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f8f9fa; /* Light gray background for body */
+            background-color: #f8f9fa;
+            /* Light gray background for body */
         }
+
         .modal-header {
             border-bottom: none;
             padding-bottom: 0.75rem;
         }
+
         .modal-body {
             padding-top: 0;
             padding-bottom: 0;
         }
+
         .modal-footer {
             border-top: none;
             padding-top: 0.75rem;
         }
+
         .modal-content {
-            border-radius: 1.5rem; /* More rounded corners */
-            overflow: hidden; /* Ensures shadows and borders look good */
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15); /* Stronger, modern shadow */
-            animation: fadeInScale 0.3s ease-out forwards; /* Fade in and scale animation */
+            border-radius: 1.5rem;
+            /* More rounded corners */
+            overflow: hidden;
+            /* Ensures shadows and borders look good */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            /* Stronger, modern shadow */
+            animation: fadeInScale 0.3s ease-out forwards;
+            /* Fade in and scale animation */
         }
+
         @keyframes fadeInScale {
             from {
                 opacity: 0;
                 transform: scale(0.95);
             }
+
             to {
                 opacity: 1;
                 transform: scale(1);
             }
         }
+
         .modal.fade .modal-dialog {
             transition: transform 0.3s ease-out, opacity 0.3s ease-out;
         }
+
         .modal.show .modal-dialog {
             transform: none;
         }
 
         /* Custom scrollbar for modern look */
         .modal-body-scrollable {
-            max-height: 80vh; /* Limits height, enables scroll */
+            max-height: 80vh;
+            /* Limits height, enables scroll */
             overflow-y: auto;
         }
+
         .modal-body-scrollable::-webkit-scrollbar {
             width: 8px;
             height: 8px;
         }
+
         .modal-body-scrollable::-webkit-scrollbar-track {
-            background: #e9ecef; /* Light track */
+            background: #e9ecef;
+            /* Light track */
             border-radius: 10px;
         }
+
         .modal-body-scrollable::-webkit-scrollbar-thumb {
-            background: #adb5bd; /* Gray thumb */
+            background: #adb5bd;
+            /* Gray thumb */
             border-radius: 10px;
         }
+
         .modal-body-scrollable::-webkit-scrollbar-thumb:hover {
-            background: #6c757d; /* Darker on hover */
+            background: #6c757d;
+            /* Darker on hover */
         }
 
         .info-card {
-            background-color: #e3f2fd; /* Light blue (Bootstrap's primary-100 equivalent) */
+            background-color: #e3f2fd;
+            /* Light blue (Bootstrap's primary-100 equivalent) */
             border-radius: 1rem;
             padding: 1.5rem;
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.05); /* Subtle inner shadow */
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+            /* Subtle inner shadow */
         }
+
         .section-card {
             background-color: #ffffff;
             border-radius: 1rem;
             padding: 1.5rem;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); /* Subtle outer shadow */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            /* Subtle outer shadow */
         }
+
         .section-title {
-            font-weight: 600; /* Semi-bold */
-            color: #343a40; /* Dark gray */
-            border-bottom: 2px solid #f0f0f0; /* Light gray border */
+            font-weight: 600;
+            /* Semi-bold */
+            color: #343a40;
+            /* Dark gray */
+            border-bottom: 2px solid #f0f0f0;
+            /* Light gray border */
             padding-bottom: 0.5rem;
             margin-bottom: 1rem;
             display: flex;
             align-items: center;
         }
+
         .section-item {
-            background-color: #f8f9fa; /* Very light gray for items */
+            background-color: #f8f9fa;
+            /* Very light gray for items */
             border-radius: 0.75rem;
             padding: 1rem;
             margin-bottom: 0.75rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05); /* Very subtle shadow for items */
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            /* Very subtle shadow for items */
         }
+
         .section-item:last-child {
             margin-bottom: 0;
         }
+
         .profile-pic {
-            border: 4px solid #0d6efd; /* Primary blue border */
-            box-shadow: 0 5px 15px rgba(13, 110, 253, 0.2); /* Blue glowing shadow */
-            width: 120px; /* Larger size for profile pic */
+            border: 4px solid #0d6efd;
+            /* Primary blue border */
+            box-shadow: 0 5px 15px rgba(13, 110, 253, 0.2);
+            /* Blue glowing shadow */
+            width: 120px;
+            /* Larger size for profile pic */
             height: 120px;
         }
-        .w-100px { width: 100px; } /* Custom utility for fixed width */
-        .h-100px { height: 100px; } /* Custom utility for fixed height */
+
+        .w-100px {
+            width: 100px;
+        }
+
+        /* Custom utility for fixed width */
+        .h-100px {
+            height: 100px;
+        }
+
+        /* Custom utility for fixed height */
 
         /* Custom colors for sections (matching Bootstrap's palette where possible) */
-        .text-purple { color: #6f42c1; } /* Custom color for consistency */
-        .bg-purple-100 { background-color: #e6e0f0; } /* Light purple background */
-        .text-purple-600 { color: #5a32a3; } /* Darker purple for icons */
-        .text-success-600 { color: #198754; } /* Darker green for icons */
-        .text-warning-600 { color: #ffc107; } /* Darker yellow for icons */
-        .text-danger-600 { color: #dc3545; } /* Darker red for icons */
-        .text-info-600 { color: #0dcaf0; } /* Darker info for icons */
+        .text-purple {
+            color: #6f42c1;
+        }
+
+        /* Custom color for consistency */
+        .bg-purple-100 {
+            background-color: #e6e0f0;
+        }
+
+        /* Light purple background */
+        .text-purple-600 {
+            color: #5a32a3;
+        }
+
+        /* Darker purple for icons */
+        .text-success-600 {
+            color: #198754;
+        }
+
+        /* Darker green for icons */
+        .text-warning-600 {
+            color: #ffc107;
+        }
+
+        /* Darker yellow for icons */
+        .text-danger-600 {
+            color: #dc3545;
+        }
+
+        /* Darker red for icons */
+        .text-info-600 {
+            color: #0dcaf0;
+        }
+
+        /* Darker info for icons */
 
 
         /* Loading spinner styles */
@@ -956,12 +1028,14 @@ include_once 'conexion.php';
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(255, 255, 255, 0.85); /* Slightly less transparent */
+            background: rgba(255, 255, 255, 0.85);
+            /* Slightly less transparent */
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 10;
-            border-radius: 1.5rem; /* Match modal content border-radius */
+            border-radius: 1.5rem;
+            /* Match modal content border-radius */
         }
 
 
@@ -969,32 +1043,43 @@ include_once 'conexion.php';
 
 
         .sidebar {
-    height: 100vh;               /* altura de toda la ventana */
-    overflow-y: auto;            /* scroll vertical */
-    overflow-x: hidden;          /* evita scroll horizontal */
-    position: fixed;             /* sidebar fijo en el lateral */
-    top: 0;
-    left: 0;
-    width: 250px;                /* ajusta según tu diseño */
-    background-color: #212529;   /* color de fondo (opcional) */
-    z-index: 1000;
-}
+            height: 100vh;
+            /* altura de toda la ventana */
+            overflow-y: auto;
+            /* scroll vertical */
+            overflow-x: hidden;
+            /* evita scroll horizontal */
+            position: fixed;
+            /* sidebar fijo en el lateral */
+            top: 0;
+            left: 0;
+            width: 250px;
+            /* ajusta según tu diseño */
+            background-color: #212529;
+            /* color de fondo (opcional) */
+            z-index: 1000;
+        }
 
-/* Personalizar el scroll (opcional) */
-.sidebar::-webkit-scrollbar {
-    width: 6px;
-}
-.sidebar::-webkit-scrollbar-thumb {
-    background: #0d6efd;
-    border-radius: 10px;
-}
-.sidebar::-webkit-scrollbar-thumb:hover {
-    background: #0b5ed7;
-}
+        /* Personalizar el scroll (opcional) */
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
 
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #0d6efd;
+            border-radius: 10px;
+        }
 
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: #0b5ed7;
+        }
 
+        /* Añade este CSS a tu hoja de estilos principal */
+        #userProfileModal {
+            /* Un valor de z-index más alto que el valor predeterminado de Bootstrap (1055) */
+            z-index: 1060 !important;
+        }
     </style>
 
-     
+
 </head>

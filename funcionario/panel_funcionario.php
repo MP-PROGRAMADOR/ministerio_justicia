@@ -1,74 +1,8 @@
 <?php
 session_start();
-require_once '../includes/conexion.php';
-$pdo = new PDO($dsn, $user, $pass, $options);
-
-// Verificar si el funcionario ha iniciado sesión
-if (!isset($_SESSION['Codigo_Funcionario'])) {
-    header("Location: login.php");
-    exit;
-}
-
-$codigoFuncionario = $_SESSION['Codigo_Funcionario'];
-
-// Obtener datos personales del funcionario
-$stmt = $pdo->prepare("SELECT * FROM tbl_funcionarios WHERE Codigo_Funcionario = ?");
-$stmt->execute([$codigoFuncionario]);
-$funcionario = $stmt->fetch();
-
-if (!$funcionario) {
-    echo "Funcionario no encontrado.";
-    exit;
-}
-
-
-
-
-$idFuncionario = $_SESSION['ID_Funcionario'];
-
-// Consultar datos del funcionario y su cargo
-$sql = "SELECT f.Codigo_Funcionario, f.Nombres, f.Apellidos, f.Email_Oficial, 
-               f.Telefono_Contacto, f.Fotografia, c.Nombre_Cargo, f.DNI_Pasaporte, f.Nacionalidad
-        FROM tbl_funcionarios f
-        LEFT JOIN tbl_cargos c ON c.ID_Cargo = (
-            SELECT ID_Cargo 
-            FROM tbl_cargos 
-            WHERE ID_Funcionario = f.ID_Funcionario 
-            LIMIT 1
-        )
-        WHERE f.ID_Funcionario = :id";
-
-$stmt = $pdo->prepare($sql);
-$stmt->execute([':id' => $idFuncionario]);
-$funcionario = $stmt->fetch(PDO::FETCH_ASSOC);
-
-// Ruta foto
-$fotoURL = !empty($funcionario['Fotografia'])
-    ? "../api/" . $funcionario['Fotografia']
-    : "https://placehold.co/80x80/3f51b5/ffffff?text=" . strtoupper(substr($funcionario['Nombres'], 0, 1) . substr($funcionario['Apellidos'], 0, 1));
-
-
-
-
-
-
-
-try {
-    $stmt = $pdo->prepare("SELECT ID_Instruccion, Titulo, Fecha_Envio, Leido 
-                           FROM tbl_instrucciones 
-                           WHERE ID_Funcionario = :id_funcionario 
-                           ORDER BY Fecha_Envio DESC 
-                           LIMIT 3");
-    $stmt->execute(['id_funcionario' => $idFuncionario]);
-    $instrucciones = $stmt->fetchAll();
-} catch (PDOException $e) {
-    echo "Error al traer las instrucciones: " . $e->getMessage();
-}
-
-
-
-
 ?>
+
+
 
 
 <!DOCTYPE html>
@@ -108,77 +42,41 @@ try {
 
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-dark shadow-lg">
-        <div class="container-fluid">
-            <a class="navbar-brand d-flex align-items-center me-3 ms-3" href="#">
-                <i class="fas fa-building fa-2x me-2"></i>
-                <span class="d-none d-md-block">Panel del Funcionario</span>
-            </a>
-
-            <div class="d-flex align-items-center ms-auto">
-                <button type="button" class="btn btn-primary rounded-pill me-3" data-bs-toggle="modal" data-bs-target="#quejasModal">
-                    <i class="fas fa-comment-dots me-2"></i>
-                    Quejas / Sugerencias
-                </button>
-
-                <div class="dropdown me-3">
-                    <a class="dropdown-toggle d-flex align-items-center hidden-arrow" href="#" id="navbarDropdownMenuAvatar" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <img src="<?= htmlspecialchars($fotoURL) ?>" class="rounded-circle me-2 border border-white" style="width: 50px; height: 50px; object-fit: cover;" alt="Avatar" loading="lazy" />
-                        <strong class="d-none d-sm-block text-white"><?= htmlspecialchars($funcionario['Nombres'] ?? 'Sin Nombre') ?></strong>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-mobile-center" aria-labelledby="navbarDropdownMenuAvatar">
-                        <li><a class="dropdown-item" href="#"><i class="fas fa-user-cog me-2 text-muted"></i>Mi Perfil</a></li>
-                        <li><a class="dropdown-item" href="#"><i class="fas fa-cogs me-2 text-muted"></i>Configuración</a></li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-                        <li><a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal"><i class="fas fa-sign-out-alt me-2"></i>Cerrar sesión</a></li>
 
 
+    <?php require('header_funcionario.php') ?>
 
-                    </ul>
-                </div>
+
+    <div class="container mt-4">
+        <?php
+        // --- Alerta de Éxito ---
+        if (isset($_SESSION['exito'])) {
+        ?>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                <strong>¡Éxito!</strong> <?= htmlspecialchars($_SESSION['exito']) ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
             </div>
-        </div>
-    </nav>
+        <?php
+            // Importante: Eliminar la variable de sesión para que no se muestre de nuevo
+            unset($_SESSION['exito']);
+        }
 
-    <div class="modal fade" id="quejasModal" tabindex="-1" aria-labelledby="quejasModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="quejasModalLabel">Enviar Queja o Sugerencia</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="complaint-form">
-                        <div class="mb-4">
-                            <label for="type" class="form-label">Tipo</label>
-                            <select class="form-select" id="type" name="type">
-                                <option value="queja">Queja</option>
-                                <option value="sugerencia">Sugerencia</option>
-                            </select>
-                        </div>
-
-                        <div class="mb-4">
-                            <label for="message" class="form-label">Mensaje</label>
-                            <textarea class="form-control" id="message" name="message" rows="5"></textarea>
-                        </div>
-
-                        <!-- Interruptor para Anónimo -->
-                        <div class="form-check form-switch mb-4">
-                            <input class="form-check-input" type="checkbox" id="anonimo" name="anonimo" value="1">
-                            <label class="form-check-label" for="anonimo">Enviar como anónimo</label>
-                        </div>
-                    </form>
-                </div>
-
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="submit" form="complaint-form" class="btn btn-primary">Enviar</button>
-                </div>
+        // --- Alerta de Error ---
+        if (isset($_SESSION['error'])) {
+        ?>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-times-circle me-2"></i>
+                <strong>¡Error!</strong> <?= htmlspecialchars($_SESSION['error']) ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
             </div>
-        </div>
+        <?php
+            // Importante: Eliminar la variable de sesión para que no se muestre de nuevo
+            unset($_SESSION['error']);
+        }
+        ?>
     </div>
+
 
     <div class="container my-5">
         <div class="row g-4">
@@ -288,32 +186,32 @@ try {
 
                                                     if ($cargo) {
                                                         echo "<tr>
-                    <td>{$id}</td>
-                    <td>{$nombre}</td>
-                    <td>Cargo</td>
-                    <td>{$cargo['Nombre_Cargo']}</td>
-                    <td>{$cargo['Fecha_Creacion_Registro']}</td>
-                  </tr>";
+                                                        <td>{$id}</td>
+                                                        <td>{$nombre}</td>
+                                                        <td>Cargo</td>
+                                                        <td>{$cargo['Nombre_Cargo']}</td>
+                                                        <td>{$cargo['Fecha_Creacion_Registro']}</td>
+                                                    </tr>";
                                                     }
 
                                                     // Cursos inscritos del funcionario
                                                     $stmtCurso = $pdo->prepare("
-            SELECT cr.Nombre_Curso, cf.Fecha_Matricula
-            FROM tbl_cursos_funcionarios cf
-            INNER JOIN tbl_cursos cr ON cf.ID_Curso = cr.ID_Curso
-            WHERE cf.ID_Funcionario = :id
-        ");
+                                                        SELECT cr.Nombre_Curso, cf.Fecha_Matricula
+                                                        FROM tbl_cursos_funcionarios cf
+                                                        INNER JOIN tbl_cursos cr ON cf.ID_Curso = cr.ID_Curso
+                                                        WHERE cf.ID_Funcionario = :id
+                                                    ");
                                                     $stmtCurso->execute(['id' => $id]);
                                                     $cursos = $stmtCurso->fetchAll();
 
                                                     foreach ($cursos as $curso) {
                                                         echo "<tr>
-                    <td>{$id}</td>
-                    <td>{$nombre}</td>
-                    <td>Curso</td>
-                    <td>{$curso['Nombre_Curso']}</td>
-                    <td>{$curso['Fecha_Matricula']}</td>
-                  </tr>";
+                                                        <td>{$id}</td>
+                                                        <td>{$nombre}</td>
+                                                        <td>Curso</td>
+                                                        <td>{$curso['Nombre_Curso']}</td>
+                                                        <td>{$curso['Fecha_Matricula']}</td>
+                                                    </tr>";
                                                     }
 
                                                     // Aquí se pueden añadir más tablas (permisos, quejas, etc.) filtradas por $idFuncionario
@@ -339,31 +237,52 @@ try {
 
             <div class="row g-3 d-flex align-items-stretch">
                 <!-- Columna 1: Instrucciones del Superior -->
-                <div class="col-lg-4 col-md-12 d-flex">
-                    <div class="card p-4 w-100">
-                        <h5 class="fw-bold mb-4 d-flex align-items-center">
-                            <i class="fas fa-calendar-plus fa-2x text-success me-3"></i>
-                            Instrucciones del Superior
-                        </h5>
-                        <ul class="list-group list-group-flush">
-                            <?php if ($instrucciones): ?>
-                                <?php foreach ($instrucciones as $instr): ?>
-                                    <li class="list-group-item d-flex align-items-start px-0 instruccion-item"
-                                        data-id="<?= $instr['ID_Instruccion'] ?>"
-                                        data-titulo="<?= htmlspecialchars($instr['Titulo']) ?>"
-                                        data-mensaje="<?= htmlspecialchars($instr['Mensaje']) ?>">
-                                        <i class="fas fa-flag-checkered text-success mt-1 me-3"></i>
-                                        <div>
-                                            <p class="mb-0 fw-bold"><?= htmlspecialchars($instr['Titulo']) ?> - <?= date('d/m/Y', strtotime($instr['Fecha_Envio'])) ?></p>
-                                            <p class="text-muted small"><?= mb_strimwidth($instr['Mensaje'], 0, 50, "...") ?></p>
-                                        </div>
-                                    </li>
-                                <?php endforeach; ?>
-                            <?php else: ?>
-                                <li class="list-group-item px-0 text-muted">No hay instrucciones recientes.</li>
-                            <?php endif; ?>
-                        </ul>
+                <?php
+                
+
+                $ID_Funcionario_Sesion = $_SESSION['ID_Funcionario'] ?? 0;
+                $stmtInstrucciones = $pdo->prepare("
+                SELECT ID_Instruccion, Titulo, Mensaje, Fecha_Envio
+                FROM tbl_instrucciones
+                WHERE ID_Funcionario = :id
+                ORDER BY Fecha_Envio DESC
+                LIMIT 5
+            ");
+                $stmtInstrucciones->execute(['id' => $ID_Funcionario_Sesion]);
+                $instrucciones = $stmtInstrucciones->fetchAll(PDO::FETCH_ASSOC);
+
+
+                // *** AÑADIR ESTE BLOQUE EN TU ARCHIVO PHP ANTES DEL CÓDIGO HTML ***
+                ?>
+
+                <div class="row g-3 d-flex align-items-stretch">
+                    <div class="col-lg-4 col-md-12 d-flex">
+                        <div class="card p-4 w-100">
+                            <h5 class="fw-bold mb-4 d-flex align-items-center">
+                                <i class="fas fa-calendar-plus fa-2x text-success me-3"></i>
+                                Instrucciones del Superior
+                            </h5>
+                            <ul class="list-group list-group-flush">
+                                <?php if ($instrucciones): ?>
+                                    <?php foreach ($instrucciones as $instr): ?>
+                                        <li class="list-group-item d-flex align-items-start px-0 instruccion-item"
+                                            data-id="<?= $instr['ID_Instruccion'] ?>"
+                                            data-titulo="<?= htmlspecialchars($instr['Titulo']) ?>"
+                                            data-mensaje="<?= htmlspecialchars($instr['Mensaje']) ?>">
+                                            <i class="fas fa-flag-checkered text-success mt-1 me-3"></i>
+                                            <div>
+                                                <p class="mb-0 fw-bold"><?= htmlspecialchars($instr['Titulo']) ?> - <?= date('d/m/Y', strtotime($instr['Fecha_Envio'])) ?></p>
+                                                <p class="text-muted small"><?= mb_strimwidth($instr['Mensaje'], 0, 50, "...") ?></p>
+                                            </div>
+                                        </li>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <li class="list-group-item px-0 text-muted">No hay instrucciones recientes.</li>
+                                <?php endif; ?>
+                            </ul>
+                        </div>
                     </div>
+
                 </div>
 
 
@@ -373,20 +292,18 @@ try {
 
                 // Traer todos los permisos del funcionario
                 $stmtPermisos = $pdo->prepare("
-    SELECT Motivo, Estado_Permiso, Fecha_Ultima_Modificacion, Fecha_Inicio_Permiso, Fecha_Fin_Permiso
-    FROM tbl_permisos
-    WHERE ID_Funcionario = :id
-    ORDER BY Fecha_Ultima_Modificacion DESC LIMIT 1
-");
+                    SELECT Motivo, Estado_Permiso, Fecha_Ultima_Modificacion, Fecha_Inicio_Permiso, Fecha_Fin_Permiso
+                    FROM tbl_permisos
+                    WHERE ID_Funcionario = :id
+                    ORDER BY Fecha_Ultima_Modificacion DESC LIMIT 1
+                ");
                 $stmtPermisos->execute(['id' => $ID_Funcionario]);
                 $permisos = $stmtPermisos->fetchAll(PDO::FETCH_ASSOC);
                 ?>
 
 
 
-                <!-- Columna 2: Mis Estadísticas -->
-                <!-- Columna: Permisos del Usuario -->
-                <!-- Columna: Permisos del Usuario -->
+
                 <div class="col-lg-4 col-md-12 d-flex">
                     <div class="card p-4 w-100">
                         <h5 class="fw-bold mb-4 d-flex align-items-center">
@@ -432,6 +349,11 @@ try {
                                 <li class="list-group-item text-muted">No hay permisos registrados</li>
                             <?php endif; ?>
                         </ul>
+                        <div class="mt-3 text-center">
+                            <a href="./histrorial_permis.php" class="btn btn-sm btn-outline-primary w-75">
+                                <i class="fas fa-eye me-1"></i> Ver Historial Completo
+                            </a>
+                        </div>
                     </div>
                 </div>
 
@@ -446,12 +368,12 @@ try {
 
                 // Traer cursos activos (fecha_fin >= hoy)
                 $stmtCursos = $pdo->prepare("
-    SELECT c.Nombre_Curso, c.Fecha_Inicio, c.Fecha_Fin, cf.Fecha_Matricula
-    FROM tbl_cursos_funcionarios cf
-    INNER JOIN tbl_cursos c ON cf.ID_Curso = c.ID_Curso
-    WHERE cf.ID_Funcionario = :id AND c.Fecha_Fin >= :hoy
-    ORDER BY cf.Fecha_Matricula DESC
-");
+                SELECT c.Nombre_Curso, c.Fecha_Inicio, c.Fecha_Fin, cf.Fecha_Matricula
+                FROM tbl_cursos_funcionarios cf
+                INNER JOIN tbl_cursos c ON cf.ID_Curso = c.ID_Curso
+                WHERE cf.ID_Funcionario = :id AND c.Fecha_Fin >= :hoy
+                ORDER BY cf.Fecha_Matricula DESC
+                ");
                 $stmtCursos->execute(['id' => $ID_Funcionario, 'hoy' => $hoy]);
                 $cursos = $stmtCursos->fetchAll(PDO::FETCH_ASSOC);
                 ?>
@@ -625,11 +547,6 @@ try {
                 </div>
             </div>
 
-
-
-
-
-
         </div>
     </div>
 
@@ -637,49 +554,12 @@ try {
 
 
 
-    <!-- Modal de Cierre de Sesión -->
-    <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg rounded-4">
-                <div class="modal-header border-0 pb-0">
-                    <h5 class="modal-title" id="logoutModalLabel">Cerrar Sesión</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
-                <div class="modal-body text-center py-4">
-                    <!-- Icono de advertencia -->
-                    <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
-
-                    <!-- Avatar del usuario -->
-                    <div class="mb-3">
-                        <img src="<?= htmlspecialchars($fotoURL) ?>" alt="Avatar" class="rounded-circle" width="80" height="80">
-                    </div>
-
-                    <?php
-
-                    $nombre = $_SESSION['Nombres'];
-                    $apellidos =     $_SESSION['Apellidos'];
-                    ?>
-                    <!-- Nombre del usuario -->
-                    <p class="fw-bold mb-2">¿Deseas cerrar sesión, <span class="text-primary"><?= htmlspecialchars($nombre ." ".$apellidos) ?></span>?</p>
-                    <p class="text-muted small">Se cerrará tu sesión actual y se te redirigirá a la página de inicio de sesión.</p>
-                </div>
-                <div class="modal-footer border-0 justify-content-center pb-4">
-                    <button type="button" class="btn btn-secondary btn-lg btn-sm" data-bs-dismiss="modal">
-                        Cancelar
-                    </button>
-                    <a href="../api/logout2.php" class="btn btn-danger btn-lg btn-sm">
-                        <i class="fas fa-sign-out-alt me-2"></i> Cerrar Sesión
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
 
 
 
 
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 
 
 

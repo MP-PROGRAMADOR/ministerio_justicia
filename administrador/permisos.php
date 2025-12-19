@@ -13,54 +13,7 @@ include_once '../includes/header.php';
 
 
             <div class="main-content" id="mainContent">
-                <div class="top-navbar">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <button class="btn btn-outline-secondary d-md-none me-2 menu-toggle" id="sidebarToggle">
-                            <i class="bi bi-list"></i>
-                        </button>
-                        <div>
-                            <nav aria-label="breadcrumb">
-                                <ol class="breadcrumb breadcrumb-custom mb-0">
-                                    <li class="breadcrumb-item"><a href="#" class="text-decoration-none">Inicio</a></li>
-                                    <li class="breadcrumb-item active">Dashboard</li>
-                                </ol>
-                            </nav>
-                        </div>
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="input-group" style="width: 300px;">
-                                <span class="input-group-text bg-light border-end-0">
-                                    <i class="bi bi-search text-muted"></i>
-                                </span>
-                                <input type="text" class="form-control border-start-0"
-                                    placeholder="Buscar funcionario...">
-                            </div>
-                            <button class="btn btn-outline-primary btn-refresh" onclick="refreshData()">
-                                <i class="bi bi-arrow-clockwise me-1"></i> Actualizar
-                            </button>
-                            <div class="dropdown">
-                                <button class="btn btn-outline-secondary dropdown-toggle" type="button"
-                                    data-bs-toggle="dropdown">
-                                    <i class="bi bi-person-circle me-1"></i> <?= $nombre_usuario; ?>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><a class="dropdown-item" href="./perfil_admin.php">
-                                            <i class="bi bi-person me-2"></i>Mi Perfil</a>
-                                    </li>
-                                    <li><a class="dropdown-item" href="./configuracion.php"><i
-                                                class="bi bi-gear me-2"></i>Configuración</a></li>
-                                    <li>
-                                        <hr class="dropdown-divider">
-                                    </li>
-                                    <li>
-                                        <button class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#logoutModal">
-                                            <i class="bi bi-box-arrow-right me-1"></i> Cerrar Sesión
-                                        </button>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+
 
                 <div class="header-section">
                     <div class="row align-items-center">
@@ -80,6 +33,8 @@ include_once '../includes/header.php';
                         </div>
                     </div>
                 </div>
+
+
 
 
 
@@ -114,7 +69,7 @@ include_once '../includes/header.php';
                                 $pdo = new PDO($dsn, $user, $pass, $options);
                             } catch (PDOException $e) {
                                 die("Error de conexión: " . $e->getMessage());
-                             }
+                            }
 
                             // Asumiendo que tienes el rol en una variable de sesión
                             $rol = $_SESSION['Rol_Usuario'] ?? ''; // Por ejemplo: "Administrador"
@@ -205,11 +160,6 @@ include_once '../includes/header.php';
                                                 <div class="d-flex gap-2">
 
 
-
-
-
-
-
                                                     <?php if ($_SESSION['Rol_Usuario'] !== 'Usuario'): ?>
 
                                                         <?php if (
@@ -272,6 +222,26 @@ include_once '../includes/header.php';
                                                         title="Ver Detalles">
                                                         <i class="bi bi-eye"></i>
                                                     </button>
+
+
+                                                    <button class="btn btn-sm btn-success btn-aprobar-permiso"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#modalAceptarPermiso"
+                                                        data-id="<?= $permiso['ID_Permiso'] ?>"
+                                                        data-funcionario="<?= htmlspecialchars($permiso['Nombres'] . ' ' . $permiso['Apellidos']) ?>"
+                                                        title="Aprobar Permiso">
+                                                        <i class="bi bi-check-lg"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-danger btn-denegar-permiso"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#modalDenegarPermiso"
+                                                        data-id="<?= $permiso['ID_Permiso'] ?>"
+                                                        data-funcionario="<?= htmlspecialchars($permiso['Nombres'] . ' ' . $permiso['Apellidos']) ?>"
+                                                        title="Denegar Permiso">
+                                                        <i class="bi bi-x-lg"></i>
+                                                    </button>
+
+
 
 
                                                 </div>
@@ -426,6 +396,62 @@ include_once '../includes/header.php';
         </div>
     </div>
 
+
+
+    <!-- Modal para Aceptar Permiso -->
+    <div class="modal fade" id="modalAceptarPermiso" tabindex="-1" aria-labelledby="modalAceptarPermisoLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <form action="tu_script_de_procesamiento.php" method="POST">
+                <div class="modal-content">
+                    <div class="modal-header bg-success text-white">
+                        <h5 class="modal-title" id="modalAceptarPermisoLabel">Aprobar Permiso</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body mt-2">
+                        <p>¿Estás seguro de que deseas APROBAR este permiso? <strong id="funcionarioAprobar"></strong>?</p>
+                        <div class="mb-3">
+                            <label for="observacionesAceptar" class="form-label">Observaciones (Opcional):</label>
+                            <textarea class="form-control" id="observacionesAceptar" name="observaciones" rows="3"></textarea>
+                        </div>
+                        <input type="hidden" name="id_permiso" id="idPermisoAprobar">
+                        <input type="hidden" name="accion" value="aprobar">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success"> <i class="bi bi-check-circle me-1"></i>Confirmar Aprobacion</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+
+    <!-- Modal para Denegar Permiso -->
+    <div class="modal fade" id="modalDenegarPermiso" tabindex="-1" aria-labelledby="modalDenegarPermisoLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <form action="tu_script_de_procesamiento.php" method="POST">
+                <div class="modal-content">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title" id="modalDenegarPermisoLabel">Denegar Permiso</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body mt-2">
+                        <p>¿Estás seguro de que deseas DENEGAR este permiso <strong id="funcionarioDenegar"></strong>?</p>
+                        <div class="mb-3">
+                            <label for="observacionesDenegar" class="form-label">Motivo de Denegación (Requerido):</label>
+                            <textarea class="form-control" id="observacionesDenegar" name="observaciones" rows="3" required></textarea>
+                        </div>
+                        <input type="hidden" name="id_permiso" id="idPermisoDenegar">
+                        <input type="hidden" name="accion" value="denegar">
+                    </div>
+                    <div class="modal-footer">
+                        <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button> -->
+                        <button type="submit" class="btn btn-danger"> <i class="bi bi-check-circle me-1"></i> Confirmar Denegación</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
 
 
 
@@ -760,6 +786,7 @@ include_once '../includes/header.php';
         });
     </script>
 
+
     <!-- Script para buscar y seleccionar funcionario -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -891,17 +918,6 @@ include_once '../includes/header.php';
                     }
                 }
             });
-
-            // Function for refreshing data (example)
-            window.refreshData = function() {
-                const refreshBtn = document.querySelector('.btn-refresh');
-                refreshBtn.classList.add('refreshing');
-                // Simulate data fetching
-                setTimeout(() => {
-                    alert('Datos actualizados!');
-                    refreshBtn.classList.remove('refreshing');
-                }, 1000);
-            };
 
 
 

@@ -5,6 +5,7 @@ include_once '../includes/header.php';
 <body>
 
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
     <!-- Overlay para cerrar sidebar en móvil -->
 
     <div class="container-fluid p-0">
@@ -12,67 +13,18 @@ include_once '../includes/header.php';
             <!-- Sidebar -->
 
 
-            <?php
-            include_once '../includes/silebar_admin.php';
-
-            ?>
-
             <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
             <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
             <!-- Main Content -->
             <div class="main-content" id="mainContent">
 
 
-                <div class="top-navbar">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <button class="btn btn-outline-secondary d-md-none me-2 menu-toggle" id="sidebarToggle">
-                            <i class="bi bi-list"></i>
-                        </button>
-                        <div>
-                            <nav aria-label="breadcrumb">
-                                <ol class="breadcrumb breadcrumb-custom mb-0">
-                                    <li class="breadcrumb-item"><a href="#" class="text-decoration-none">Inicio</a></li>
-                                    <li class="breadcrumb-item active">Dashboard</li>
-                                </ol>
-                            </nav>
-                        </div>
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="input-group" style="width: 300px;">
-                                <span class="input-group-text bg-light border-end-0">
-                                    <i class="bi bi-search text-muted"></i>
-                                </span>
-                                <input type="text" class="form-control border-start-0"
-                                    placeholder="Buscar funcionario...">
-                            </div>
-                            <button class="btn btn-outline-primary btn-refresh" onclick="refreshData()">
-                                <i class="bi bi-arrow-clockwise me-1"></i> Actualizar
-                            </button>
-                            <div class="dropdown">
-                                <button class="btn btn-outline-secondary dropdown-toggle" type="button"
-                                    data-bs-toggle="dropdown">
-                                    <i class="bi bi-person-circle me-1"></i> <?= $nombre_usuario; ?>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><a class="dropdown-item" href="./perfil_admin.php">
-                                            <i class="bi bi-person me-2"></i>Mi Perfil</a>
-                                    </li>
-                                    <li><a class="dropdown-item" href="./configuracion.php"><i
-                                                class="bi bi-gear me-2"></i>Configuración</a></li>
-                                    <li>
-                                        <hr class="dropdown-divider">
-                                    </li>
+                <?php
+                include_once '../includes/silebar_admin.php';
 
-                                    <li>
-                                        <button class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#logoutModal">
-                                            <i class="bi bi-box-arrow-right me-1"></i> Cerrar Sesión
-                                        </button>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                ?>
 
 
                 <!-- Header Section -->
@@ -193,7 +145,7 @@ include_once '../includes/header.php';
                         <div class="col-lg-8">
                             <div class="chart-container">
                                 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
-                                   <h5 class="mb-0 fw-semibold" id="chartTitle">Distribución de Funcionarios por Estado</h5>
+                                    <h5 class="mb-0 fw-semibold" id="chartTitle">Distribución de Funcionarios por Estado</h5>
                                     <div class="btn-group btn-group-sm mt-2 mt-md-0" role="group">
                                         <input type="radio" class="btn-check" name="chartOptions" id="option1" value="estado" checked>
                                         <label class="btn btn-outline-primary" for="option1">Estado</label>
@@ -503,13 +455,13 @@ include_once '../includes/header.php';
 
 
 
-                                       
 
-<?php 
- 
+
+    <?php
+
     // Asegúrese de que 'conexion.php' contiene la configuración correcta de $dsn, $user, $pass, $options.
-    require_once ('../includes/conexion.php');
-    
+    require_once('../includes/conexion.php');
+
     // Si la conexión no se maneja en 'conexion.php' o si necesita redefinir $pdo:
     // $pdo = null;
     $dashboardData = [];
@@ -517,13 +469,13 @@ include_once '../includes/header.php';
     $error_message = '';
 
     try {
-       
+
         $pdo = new PDO($dsn, $user, $pass, $options);
-        
+
 
 
         // Función auxiliar para procesar resultados
-        $process_chart_data = function($stmt, $title) {
+        $process_chart_data = function ($stmt, $title) {
             $results = $stmt->fetchAll();
             $labels = array_column($results, 'label');
             $data = array_map('intval', array_column($results, 'data_count'));
@@ -578,193 +530,200 @@ include_once '../includes/header.php';
         // Total de Permisos Pendientes
         $stmt_total_permisos_pendientes = $pdo->query("SELECT COUNT(*) AS total FROM tbl_permisos WHERE Estado_Permiso = 'Pendiente'");
         $asideData['totalPermisosPendientes'] = $stmt_total_permisos_pendientes->fetchColumn();
-
-
     } catch (PDOException $e) {
         // En caso de error, inicializamos las variables para evitar fallos en el JSON
         $error_message = "Error de conexión o consulta a la base de datos: " . $e->getMessage();
-        $dashboardData = []; 
+        $dashboardData = [];
         $asideData = ['totalActivos' => 0, 'totalQSPendientes' => 0, 'totalPermisosPendientes' => 0];
     }
-?>
+    ?>
 
 
 
-<script>
-    // Data pasada desde PHP (debe contener la data de la DB)
-    const dashboardData = <?php echo json_encode($dashboardData ?? []); ?>;
-    const errorMessage = "<?php echo htmlspecialchars($error_message); ?>";
+    <script>
+        // Data pasada desde PHP (debe contener la data de la DB)
+        const dashboardData = <?php echo json_encode($dashboardData ?? []); ?>;
+        const errorMessage = "<?php echo htmlspecialchars($error_message); ?>";
 
-    let funcionariosChart;
-    // Se inicializará en renderDashboard() con el elemento <h5 id="chartTitle">
-    let chartTitleElement; 
+        let funcionariosChart;
+        // Se inicializará en renderDashboard() con el elemento <h5 id="chartTitle">
+        let chartTitleElement;
 
-    // --- ESTRUCTURA DE DATOS DE RESERVA (FALLBACK) ---
-    
-    const defaultDashboardData = {
-        'funcionarioDistribution': {
-            labels: ['Activo', 'Baja Temporal', 'Jubilado', 'Cesado', 'Permiso', 'Vacaciones'],
-            data: [0, 0, 0, 0, 0, 0],
-            title: 'Distribución de Funcionarios por Estado Laboral' // Título por defecto
-        },
-        'generoDistribution': {
-            labels: ['Masculino', 'Femenino', 'Otro'],
-            data: [0, 0, 0],
-            title: 'Distribución de Funcionarios por Género' // Título por defecto
-        },
-        'destinoDistribution': {
-            labels: ['Juzgado de Malabo', 'Ministerio de Justicia de Malabo', 'Otros Destinos'],
-            data: [0, 0, 0],
-            title: 'Distribución de Destinos (Por Asignaciones)' // Título por defecto
-        }
-    };
+        // --- ESTRUCTURA DE DATOS DE RESERVA (FALLBACK) ---
 
-    // 1. Mapeo de claves: Radio Button Value -> Clave real en dashboardData
-    const dataKeyMap = {
-        'estado': 'funcionarioDistribution',
-        'genero': 'generoDistribution',
-        'destino': 'destinoDistribution'
-    };
+        const defaultDashboardData = {
+            'funcionarioDistribution': {
+                labels: ['Activo', 'Baja Temporal', 'Jubilado', 'Cesado', 'Permiso', 'Vacaciones'],
+                data: [0, 0, 0, 0, 0, 0],
+                title: 'Distribución de Funcionarios por Estado Laboral' // Título por defecto
+            },
+            'generoDistribution': {
+                labels: ['Masculino', 'Femenino', 'Otro'],
+                data: [0, 0, 0],
+                title: 'Distribución de Funcionarios por Género' // Título por defecto
+            },
+            'destinoDistribution': {
+                labels: ['Juzgado de Malabo', 'Ministerio de Justicia de Malabo', 'Otros Destinos'],
+                data: [0, 0, 0],
+                title: 'Distribución de Destinos (Por Asignaciones)' // Título por defecto
+            }
+        };
 
-    // Colores fijos (Mantenidos)
-    const backgroundColorsMap = {
-        'Activo': 'rgba(5, 150, 105, 0.8)', 
-        'Permiso': 'rgba(217, 119, 6, 0.8)',
-        'Vacaciones': 'rgba(14, 165, 233, 0.8)',
-        'Baja Temporal': 'rgba(245, 158, 11, 0.8)',
-        'Jubilado': 'rgba(71, 85, 105, 0.8)',
-        'Cesado': 'rgba(220, 38, 38, 0.8)',
-        'Masculino': 'rgba(54, 162, 235, 0.8)',
-        'Femenino': 'rgba(255, 99, 132, 0.8)',
-        // ... otros colores ...
-        'Juzgado de Mlabo': 'rgba(255, 159, 64, 0.8)', // Asegúrese de unificar si es 'Mlabo' o 'Malabo'
-        'Ministerio de Justicia de Malabo': 'rgba(75, 192, 192, 0.8)',
-        'Otro': 'rgba(100, 116, 139, 0.8)', 
-        'Otros Destinos': 'rgba(100, 116, 139, 0.8)'
-    };
+        // 1. Mapeo de claves: Radio Button Value -> Clave real en dashboardData
+        const dataKeyMap = {
+            'estado': 'funcionarioDistribution',
+            'genero': 'generoDistribution',
+            'destino': 'destinoDistribution'
+        };
 
-
-    // Función principal para actualizar el gráfico basada en el filtro
-    function updateChart(dataKey) {
-        
-        if (!dataKey || dataKey === 'on' || dataKey === '') {
-            dataKey = 'estado';
-            console.warn("updateChart() fue llamado sin una clave válida. Usando 'estado' por defecto.");
-        }
-        
-        const dataKeyInDashboard = dataKeyMap[dataKey]; 
-
-        if (!dataKeyInDashboard) {
-            console.error(`ERROR: La clave '${dataKey}' no existe en dataKeyMap. Deteniendo actualización.`);
-            return;
-        }
-
-        // Obtener el conjunto de datos (Real de PHP si existe, o Fallback)
-        const dataSet = dashboardData[dataKeyInDashboard] || defaultDashboardData[dataKeyInDashboard];
-
-        if (!dataSet || !dataSet.labels || !dataSet.data) {
-            console.error(`ERROR: No se encontró data (ni siquiera fallback) para la clave: ${dataKeyInDashboard}.`);
-            return;
-        }
+        // Colores fijos (Mantenidos)
+        const backgroundColorsMap = {
+            'Activo': 'rgba(5, 150, 105, 0.8)',
+            'Permiso': 'rgba(217, 119, 6, 0.8)',
+            'Vacaciones': 'rgba(14, 165, 233, 0.8)',
+            'Baja Temporal': 'rgba(245, 158, 11, 0.8)',
+            'Jubilado': 'rgba(71, 85, 105, 0.8)',
+            'Cesado': 'rgba(220, 38, 38, 0.8)',
+            'Masculino': 'rgba(54, 162, 235, 0.8)',
+            'Femenino': 'rgba(255, 99, 132, 0.8)',
+            // ... otros colores ...
+            'Juzgado de Mlabo': 'rgba(255, 159, 64, 0.8)', // Asegúrese de unificar si es 'Mlabo' o 'Malabo'
+            'Ministerio de Justicia de Malabo': 'rgba(75, 192, 192, 0.8)',
+            'Otro': 'rgba(100, 116, 139, 0.8)',
+            'Otros Destinos': 'rgba(100, 116, 139, 0.8)'
+        };
 
 
-        let title = dataSet.title || 'Distribución de Funcionarios';
-        
-        const labels = dataSet.labels;
-        const data = dataSet.data;
-        const colors = labels.map(label => backgroundColorsMap[label] || 'rgba(150, 150, 150, 0.8)');
+        // Función principal para actualizar el gráfico basada en el filtro
+        function updateChart(dataKey) {
 
-        // 3. ACTUALIZAR EL TÍTULO y datos del Chart.js
-        if (chartTitleElement) {
-            // AQUÍ SE APLICA EL CAMBIO DEL TÍTULO
-            chartTitleElement.textContent = title;
-        }
+            if (!dataKey || dataKey === 'on' || dataKey === '') {
+                dataKey = 'estado';
+                console.warn("updateChart() fue llamado sin una clave válida. Usando 'estado' por defecto.");
+            }
 
-        if (funcionariosChart) {
-            funcionariosChart.data.labels = labels;
-            funcionariosChart.data.datasets[0].data = data;
-            funcionariosChart.data.datasets[0].backgroundColor = colors;
-            funcionariosChart.update();
-        }
-    }
+            const dataKeyInDashboard = dataKeyMap[dataKey];
+
+            if (!dataKeyInDashboard) {
+                console.error(`ERROR: La clave '${dataKey}' no existe en dataKeyMap. Deteniendo actualización.`);
+                return;
+            }
+
+            // Obtener el conjunto de datos (Real de PHP si existe, o Fallback)
+            const dataSet = dashboardData[dataKeyInDashboard] || defaultDashboardData[dataKeyInDashboard];
+
+            if (!dataSet || !dataSet.labels || !dataSet.data) {
+                console.error(`ERROR: No se encontró data (ni siquiera fallback) para la clave: ${dataKeyInDashboard}.`);
+                return;
+            }
 
 
-    function renderDashboard() {
-        if (errorMessage) {
-            console.error("Error al cargar el dashboard:", errorMessage);
-            return;
-        }
+            let title = dataSet.title || 'Distribución de Funcionarios';
 
-        // 1. OBTENER REFERENCIA AL TÍTULO
-        chartTitleElement = document.getElementById('chartTitle');
-        const ctx = document.getElementById('funcionariosChart')?.getContext('2d');
-        if (!ctx) return;
+            const labels = dataSet.labels;
+            const data = dataSet.data;
+            const colors = labels.map(label => backgroundColorsMap[label] || 'rgba(150, 150, 150, 0.8)');
 
-        // Si el chart ya existe, solo actualizamos los datos
-        if (funcionariosChart) {
-            updateChart('estado');
-        } else {
-            // Lógica de creación del Chart.js (Mantenida)
-            const initialDataKey = dataKeyMap['estado'];
-            const initialData = dashboardData[initialDataKey] || defaultDashboardData[initialDataKey];
-            const initialLabels = initialData.labels;
-            const initialDataArray = initialData.data;
-            const initialColors = initialLabels.map(label => backgroundColorsMap[label] || 'rgba(150, 150, 150, 0.8)');
-            
-            funcionariosChart = new Chart(ctx, {
-                // ... opciones del chart ...
-                type: 'doughnut',
-                data: {
-                    labels: initialLabels,
-                    datasets: [{
-                        data: initialDataArray,
-                        backgroundColor: initialColors,
-                        borderColor: '#ffffff',
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'bottom', labels: { boxWidth: 12, padding: 20 } },
-                        tooltip: {
-                            callbacks: {
-                                label: function(tooltipItem) {
-                                    let label = tooltipItem.label || '';
-                                    if (label) { label += ': '; }
-                                    label += tooltipItem.raw + ' funcionarios';
-                                    return label;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-            // ✅ Establecer el título inicial
+            // 3. ACTUALIZAR EL TÍTULO y datos del Chart.js
             if (chartTitleElement) {
-                chartTitleElement.textContent = initialData.title;
+                // AQUÍ SE APLICA EL CAMBIO DEL TÍTULO
+                chartTitleElement.textContent = title;
+            }
+
+            if (funcionariosChart) {
+                funcionariosChart.data.labels = labels;
+                funcionariosChart.data.datasets[0].data = data;
+                funcionariosChart.data.datasets[0].backgroundColor = colors;
+                funcionariosChart.update();
             }
         }
 
 
-        // --- Conectar Botones de Radio ---
-        const radioButtons = document.querySelectorAll('input[name="chartOptions"]');
-        radioButtons.forEach(radio => {
-            radio.addEventListener('change', function() {
-                updateChart(this.value); 
+        function renderDashboard() {
+            if (errorMessage) {
+                console.error("Error al cargar el dashboard:", errorMessage);
+                return;
+            }
+
+            // 1. OBTENER REFERENCIA AL TÍTULO
+            chartTitleElement = document.getElementById('chartTitle');
+            const ctx = document.getElementById('funcionariosChart')?.getContext('2d');
+            if (!ctx) return;
+
+            // Si el chart ya existe, solo actualizamos los datos
+            if (funcionariosChart) {
+                updateChart('estado');
+            } else {
+                // Lógica de creación del Chart.js (Mantenida)
+                const initialDataKey = dataKeyMap['estado'];
+                const initialData = dashboardData[initialDataKey] || defaultDashboardData[initialDataKey];
+                const initialLabels = initialData.labels;
+                const initialDataArray = initialData.data;
+                const initialColors = initialLabels.map(label => backgroundColorsMap[label] || 'rgba(150, 150, 150, 0.8)');
+
+                funcionariosChart = new Chart(ctx, {
+                    // ... opciones del chart ...
+                    type: 'doughnut',
+                    data: {
+                        labels: initialLabels,
+                        datasets: [{
+                            data: initialDataArray,
+                            backgroundColor: initialColors,
+                            borderColor: '#ffffff',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    boxWidth: 12,
+                                    padding: 20
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(tooltipItem) {
+                                        let label = tooltipItem.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        label += tooltipItem.raw + ' funcionarios';
+                                        return label;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+                // ✅ Establecer el título inicial
+                if (chartTitleElement) {
+                    chartTitleElement.textContent = initialData.title;
+                }
+            }
+
+
+            // --- Conectar Botones de Radio ---
+            const radioButtons = document.querySelectorAll('input[name="chartOptions"]');
+            radioButtons.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    updateChart(this.value);
+                });
             });
+        }
+
+        // El resto de funciones (refreshData, DOMContentLoaded, sidebar logic) se mantiene igual.
+        function refreshData() {
+            /* ... */ }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            renderDashboard();
+
         });
-    }
-
-    // El resto de funciones (refreshData, DOMContentLoaded, sidebar logic) se mantiene igual.
-    function refreshData() { /* ... */ }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        renderDashboard(); 
- 
-    });
-</script>
+    </script>
 
 
 
@@ -775,4 +734,5 @@ include_once '../includes/header.php';
 
 
 </body>
+
 </html>

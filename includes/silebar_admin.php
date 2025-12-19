@@ -18,6 +18,90 @@ $current_page = basename($_SERVER['PHP_SELF']);
 // Nota: $nombre_usuario; y $dashboardData[] deben estar definidos antes de este bloque.
 ?>
 
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+
+<!-- Acciones de arriba: buscar funcionario, actualizar, usuario conectado -->
+<div class="top-navbar">
+    <div class="d-flex justify-content-between align-items-center">
+        <button class="btn btn-outline-secondary d-md-none me-2 menu-toggle" id="sidebarToggle">
+            <i class="bi bi-list"></i>
+        </button>
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb breadcrumb-custom mb-0">
+                    <li class="breadcrumb-item"><a href="../administrador/index.php" class="text-decoration-none">Inicio</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+            <!-- <div class="input-group" style="width: 300px;">
+                <span class="input-group-text bg-light border-end-0">
+                    <i class="bi bi-search text-muted"></i>
+                </span>
+                <input type="text" class="form-control border-start-0"
+                    placeholder="Buscar funcionario...">
+            </div> -->
+
+
+            <button class="btn btn-outline-primary btn-refresh" onclick="refreshData()">
+                <i class="bi bi-arrow-clockwise me-1"></i> Actualizar
+            </button>
+            <div class="dropdown">
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button"
+                    data-bs-toggle="dropdown">
+                    <i class="bi bi-person-circle me-1"></i> <?= $nombre_usuario; ?>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="./perfil_admin.php">
+                            <i class="bi bi-person me-2"></i>Mi Perfil</a>
+                    </li>
+                    <li><a class="dropdown-item" href="./configuracion.php"><i
+                                class="bi bi-gear me-2"></i>Configuración</a></li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
+                    <li>
+                        <button class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#logoutModal">
+                            <i class="bi bi-box-arrow-right me-1"></i> Cerrar Sesión
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="successModalLabel">✅ Actualización Exitosa</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <i class="bi bi-check-circle-fill text-success fs-3 mb-2"></i>
+                <p>Los datos han sido actualizados correctamente.</p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-success" data-bs-dismiss="modal">Aceptar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+<!-- ASIDE -->
 <div class="sidebar" id="sidebar">
     <div class="logo-section">
         <div class="d-flex align-items-center justify-content-center mb-3">
@@ -292,9 +376,6 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
 
 
-
-
-
 <!-- Para recoger la ultima hora de acceso -->
 <script>
     function formatCurrentTime() {
@@ -337,6 +418,32 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
 
 
+<!-- Script para Actualizar la pagina -->
+<script>
+    window.refreshData = function() {
+        const refreshBtn = document.querySelector('.btn-refresh');
+        // 1. Añadir el estilo de "cargando"
+        refreshBtn.classList.add('refreshing');
+
+        // Deshabilitar el botón durante la carga
+        refreshBtn.setAttribute('disabled', 'true');
+
+        // Simulate data fetching (reemplaza esto con tu llamada real a la API/BD)
+        setTimeout(() => {
+
+            // 2. Quitar el estilo de "cargando"
+            refreshBtn.classList.remove('refreshing');
+
+            // Habilitar el botón
+            refreshBtn.removeAttribute('disabled');
+
+            // 3. Mostrar el Modal (Reemplaza alert())
+            const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+            successModal.show();
+
+        }, 1000);
+    };
+</script>
 
 
 
@@ -345,50 +452,42 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
 
 
+<!-- Script para saber donde estamos -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const pageMap = {
+            'dashboard': 'Dashboard',
+            'funcionarios': 'Funcionarios',
+            'formacion': 'Formación',
+            'departamentos': 'Departamentos',
+            'permisos': 'Permisos',
+            'reportes': 'Reportes',
+            'usuarios': 'Usuarios',
+            'destinos': 'Destinos',
+            'cargos': 'Cargos'
+        };
+
+        let path = window.location.pathname.toLowerCase();
+
+        let pathSegments = path.split('/').filter(segment => segment.length > 0);
+        let currentPageSegment = pathSegments[pathSegments.length - 1];
+        if (currentPageSegment === '' || currentPageSegment === 'index.php' || currentPageSegment === 'ministerio_justicia') {
+            currentPageSegment = 'dashboard';
+        }
 
 
+        if (currentPageSegment.endsWith('.php')) {
+            currentPageSegment = currentPageSegment.replace('.php', '');
+        }
 
+        const activePageName = pageMap[currentPageSegment] || currentPageSegment;
 
+        // 6. Actualizar el elemento activo del breadcrumb.
+        const activeBreadcrumbItem = document.querySelector('.breadcrumb-custom .breadcrumb-item.active');
 
-<div class="modal fade" id="userProfileModal" tabindex="-1" aria-labelledby="userProfileModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-sm">
-        <div class="modal-content border-0 shadow-lg rounded-4">
-
-            <div class="modal-header bg-primary text-white rounded-top-4 border-bottom-0 pt-4 pb-2">
-                <h5 class="modal-title fw-bold" id="userProfileModalLabel">
-                    <i class="bi bi-person-circle me-2"></i> Mi Perfil
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-            </div>
-
-            <div class="modal-body text-center pt-4 pb-4">
-
-                <div class="user-avatar-lg mx-auto mb-3 bg-primary text-white d-flex align-items-center justify-content-center rounded-circle" style="width: 70px; height: 70px; font-size: 2rem; border: 3px solid rgba(255, 255, 255, 0.5);">
-                    JP
-                </div>
-
-                <h5 class="mb-0 fw-bold"><?= $nombre_usuario; ?></h5>
-                <p class="text-primary small mb-4">Administrador del Sistema</p>
-
-                <div class="card text-start border-0 bg-light p-3">
-                    <p class="mb-1 small">
-                        <i class="bi bi-envelope-fill me-2 text-primary"></i>
-                        <span class="fw-semibold">Correo:</span> juan.perez@themis.gob
-                    </p>
-                    <p class="mb-1 small">
-                        <i class="bi bi-briefcase-fill me-2 text-primary"></i>
-                        <span class="fw-semibold">Cargo:</span> Jefe de Personal
-                    </p>
-                    <p class="mb-0 small">
-                        <i class="bi bi-calendar-check me-2 text-primary"></i>
-                        <span class="fw-semibold">Registro:</span> 15/05/2022
-                    </p>
-                </div>
-            </div>
-
-            <div class="modal-footer justify-content-center border-top-0 pt-0 pb-3">
-                <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-4" data-bs-dismiss="modal">Cerrar</button>
-            </div>
-        </div>
-    </div>
-</div>
+        if (activeBreadcrumbItem) {
+            activeBreadcrumbItem.textContent = activePageName;
+            activeBreadcrumbItem.setAttribute('aria-current', 'page');
+        }
+    });
+</script>
