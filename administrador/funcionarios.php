@@ -235,7 +235,6 @@ include_once '../includes/header.php';
                                                     </button>
 
                                                     <!-- Boton de ver detalles del funcionario -->
-
                                                     <button type="button" class="btn btn-sm btn-info shadow-sm" title="Ver Detalles"
                                                         data-bs-toggle="modal" data-bs-target="#employeeDetailModal"
                                                         data-funcionario-id="<?= $f['ID_Funcionario'] ?>">

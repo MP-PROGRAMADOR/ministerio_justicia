@@ -1,6 +1,6 @@
 <?php
 // Asegúrate de que estos includes existan y contengan la lógica de conexión ($dsn, $user, $pass, $options)
-include_once '../includes/header.php'; 
+include_once '../includes/header.php';
 ?>
 
 
@@ -14,17 +14,10 @@ include_once '../includes/header.php';
     <div class="container-fluid p-0">
         <div class="row g-0">
 
-           
-            // Se asume que este archivo maneja la lógica de la sesión y el menú lateral.
-                <?php require('header_funcionario.php') ?>
-
-        
-
+            <?php require('header_funcionario.php') ?>
 
             <?php
 
-            // 1. **VALIDACIÓN DE ACCESO Y OBTENCIÓN DE ID DEL FUNCIONARIO**
-            
             // Si el usuario no ha iniciado sesión, redirigir
             if (!isset($_SESSION['ID_Usuario'])) {
                 header('Location: login.php');
@@ -38,18 +31,16 @@ include_once '../includes/header.php';
                 // Redirigir o mostrar un error si no hay ID válido en la URL
                 $_SESSION['alerta_mensaje'] = "ID de Funcionario no proporcionado o inválido.";
                 $_SESSION['alerta_tipo'] = "danger";
-                // En un entorno real, puedes redirigir a una página de error o a la lista de funcionarios.
-                // header('Location: lista_funcionarios.php'); 
-                // exit();
-                $funcionario_id_a_mostrar = 0; // Para forzar que no se encuentre en la BDD y mostrar un error interno
+
+                $funcionario_id_a_mostrar = 0;
             }
 
 
-            $pdo = null; // Usaremos $pdo para la conexión
+            $pdo = null;
 
             try {
                 // Reemplaza esto con tu configuración de conexión real si no viene del header.php
-                $pdo = new PDO($dsn, $user, $pass, $options); 
+                $pdo = new PDO($dsn, $user, $pass, $options);
             } catch (\PDOException $e) {
                 // Error fatal si la conexión falla
                 die("Error Fatal de Conexión: " . $e->getMessage());
@@ -101,7 +92,7 @@ include_once '../includes/header.php';
                     $dni_a_mostrar = $datos_funcionario['DNI_Pasaporte'] ?? 'N/A';
                     $correo_a_mostrar = $datos_funcionario['Email_Oficial'] ?? 'N/A';
                     $cargo_usuario = $datos_funcionario['Nombre_Cargo'] ?? 'Sin Asignación';
-                    
+
                     // Datos de la cuenta de usuario (pueden ser NULL si no tiene cuenta asociada)
                     $rol_a_mostrar    = $datos_funcionario['Rol_Usuario'] ?? 'Sin Cuenta';
                     $fecha_creacion   = $datos_funcionario['Fecha_Creacion'];
@@ -109,8 +100,8 @@ include_once '../includes/header.php';
 
                     // Obtener URL de la fotografía
                     if (!empty($datos_funcionario['Fotografia'])) {
-                         // Asume que las fotos se encuentran en la ruta configurada en la BDD
-                        $fotografia_url = '../api/' . $datos_funcionario['Fotografia']; 
+                        // Asume que las fotos se encuentran en la ruta configurada en la BDD
+                        $fotografia_url = '../api/' . $datos_funcionario['Fotografia'];
                     }
 
 
@@ -127,7 +118,6 @@ include_once '../includes/header.php';
                         return substr($initials, 0, 2);
                     }
                     $user_initials = get_initials($nombre_completo);
-
                 } else {
                     die("Error: Funcionario con ID " . htmlspecialchars($funcionario_id_a_mostrar) . " no encontrado.");
                 }
@@ -218,9 +208,9 @@ include_once '../includes/header.php';
                                         <i class="bi bi-envelope-fill me-2 fw-"></i>Email Oficial: </br>
                                         <span class="text-secondary"><?php echo htmlspecialchars($correo_a_mostrar); ?></span>
                                     </div>
-                                    
+
                                 </div>
-                                
+
                                 <h5 class="mt-5 mb-3 text-dark fw-bold border-bottom pb-2 text-primary">
                                     <i class="bi bi-person-circle me-2"></i> Detalles de la Cuenta (Si Existe)
                                 </h5>
@@ -250,19 +240,19 @@ include_once '../includes/header.php';
                                     </div>
                                 </div>
 
-                                
+
                                 <?php if ($_SESSION['Rol_Usuario'] === 'Administrador'): ?>
                                     <h5 class="mt-5 mb-3 text-dark fw-bold border-bottom pb-2 text-danger">
                                         <i class="bi bi-gear-fill me-2"></i> Acciones Administrativas
                                     </h5>
 
                                     <div class="d-flex flex-column gap-3">
-                                        <button class="btn btn-outline-danger rounded-pill action-button" 
+                                        <button class="btn btn-outline-danger rounded-pill action-button"
                                             data-bs-toggle="modal" data-bs-target="#resetPasswordModal"
                                             title="Restablecer contraseña de la cuenta asociada">
                                             <i class="bi bi-arrow-clockwise me-2"></i> Restablecer Contraseña (Admin)
                                         </button>
-                                        <button class="btn btn-outline-warning rounded-pill action-button" 
+                                        <button class="btn btn-outline-warning rounded-pill action-button"
                                             title="Editar información del funcionario">
                                             <i class="bi bi-pencil-square me-2"></i> Editar Datos del Funcionario
                                         </button>
@@ -287,7 +277,7 @@ include_once '../includes/header.php';
                             <div class="modal-body p-4">
                                 <p>Estás a punto de restablecer la contraseña para **<?php echo htmlspecialchars($nombre_a_mostrar); ?>**.</p>
                                 <p class="fw-bold text-danger">Esta acción no se puede deshacer.</p>
-                                
+
                                 <input type="hidden" name="funcionario_id" value="<?= htmlspecialchars($datos_funcionario['ID_Funcionario']) ?>">
                                 <input type="hidden" name="user_email" value="<?= htmlspecialchars($correo_a_mostrar) ?>">
 
@@ -309,8 +299,9 @@ include_once '../includes/header.php';
             </div>
 
             <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-            
-            </div>
+
+        </div>
     </div>
 </body>
+
 </html>

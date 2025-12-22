@@ -62,16 +62,11 @@ session_start();
     </div>
 
 
-
-
-
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 
     <div class=" my-5">
-        
-
         <?php
 
         // 1. OBTENER ID DEL FUNCIONARIO DE LA SESIÓN
@@ -107,16 +102,41 @@ session_start();
 
 
 
-
         <!-- Tablas de permisos -->
         <div class="container-fluid px-4">
             <div class="table-custom mb-4 p-4">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="mb-0 fw-semibold">Mis Permisos Solicitados</h5>
-                    <a href="panel_funcionario.php" class="btn btn-primary btn-sm">
+                <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom border-light">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-badge bg-primary bg-opacity-10 text-primary rounded-3 p-2 me-3">
+                            <i class="bi bi-file-earmark-person fs-4"></i>
+                        </div>
+                        <div>
+                            <h5 class="mb-0 fw-bold text-dark">Mis Permisos Solicitados</h5>
+                            <p class="text-muted small mb-0">Gestione y visualice el estado de sus trámites</p>
+                        </div>
+                    </div>
+
+                    <a href="panel_funcionario.php" class="btn btn-outline-primary btn-sm fw-bold px-3 shadow-0">
                         <i class="bi bi-house-door-fill me-1"></i> Volver al Inicio
                     </a>
                 </div>
+
+                <style>
+                    /* Estilo adicional para el efecto del ícono si no usas MDB completo */
+                    .icon-badge {
+                        width: 45px;
+                        height: 45px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    }
+
+
+                    /* Opcional: un ligero efecto hover en el encabezado */
+                    .text-dark {
+                        letter-spacing: -0.5px;
+                    }
+                </style>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0" id="funcionariosTable">
                         <thead class=" table-light">
@@ -152,7 +172,7 @@ session_start();
                                                 'Denegado' => 'bg-danger',
                                                 'Cancelado' => 'bg-secondary',
                                                 'Disfrutado' => 'bg-info',
-                                                default => 'bg-warning' // Pendiente
+                                                default => 'bg-warning'
                                             };
                                             ?>
                                             <span class="badge <?= $clase ?>"><?= $estado ?></span>
@@ -201,11 +221,6 @@ session_start();
                                                 </button>
 
 
-                                                <button
-                                                    class="btn btn-sm btn-danger btn-eliminar-permiso" title="Eliminar Permiso"
-                                                    data-id="<?= $permiso['ID_Permiso'] ?>" data-tipo="<?= htmlspecialchars($permiso['Tipo_Permiso']) ?>" data-estado="<?= htmlspecialchars($permiso['Estado_Permiso']) ?>">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
                                                 <!-- <button class="btn btn-sm btn-danger" title="Eliminar"><i class="bi bi-trash"></i></button> -->
                                             </div>
                                         </td>
@@ -222,102 +237,6 @@ session_start();
             </div>
         </div>
     </div>
-
-
-
-
-
-
-    <!-- Modal de solicitud de permiso -->
-    <div class="modal fade" id="addPermisoModal" tabindex="-1" aria-labelledby="addPermisoModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title" id="addPermisoModalLabel">
-                        <i class="bi bi-clipboard-check me-2"></i>Solicitud de Permiso
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
-                <div class="modal-body">
-
-                    <!-- Formulario de permiso -->
-                    <form method="POST" action="../api/guardar_permiso.php" enctype="multipart/form-data">
-                        <!-- <input type="hidden" name="ID_Funcionario" id="ID_Funcionario"> -->
-
-                        <div class="row g-3">
-                            <!-- Tipo de Permiso -->
-                            <div class="col-md-6">
-                                <label for="tipoPermiso" class="form-label fw-semibold">
-                                    <i class="bi bi-ui-checks-grid text-primary me-2"></i>Tipo de Permiso
-                                </label>
-                                <select class="form-select" name="Tipo_Permiso" id="tipoPermiso" required>
-                                    <option selected disabled>Selecciona tipo</option>
-                                    <option value="Vacaciones">Vacaciones</option>
-                                    <option value="Enfermedad">Enfermedad</option>
-                                    <option value="Maternidad">Maternidad</option>
-                                    <option value="Paternidad">Paternidad</option>
-                                    <option value="Asuntos Propios">Asuntos Propios</option>
-                                    <option value="Estudios">Estudios</option>
-                                    <option value="Comisión Servicio">Comisión Servicio</option>
-                                    <option value="Otro">Otro</option>
-                                </select>
-                            </div>
-
-                            <!-- Fechas -->
-                            <div class="col-md-3">
-                                <label for="fechaInicio" class="form-label fw-semibold">
-                                    <i class="bi bi-calendar-event text-primary me-2"></i>Inicio
-                                </label>
-                                <input type="date" name="Fecha_Inicio_Permiso" class="form-control" id="fechaInicio" required>
-                            </div>
-                            <div class="col-md-3">
-                                <label for="fechaFin" class="form-label fw-semibold">
-                                    <i class="bi bi-calendar-check text-primary me-2"></i>Fin
-                                </label>
-                                <input type="date" name="Fecha_Fin_Permiso" class="form-control" id="fechaFin" required>
-                            </div>
-
-                            <!-- Motivo -->
-                            <div class="col-md-12">
-                                <label for="motivo" class="form-label fw-semibold">
-                                    <i class="bi bi-chat-square-text text-primary me-2"></i>Motivo
-                                </label>
-                                <textarea name="Motivo" class="form-control" id="motivo" rows="3"></textarea>
-                            </div>
-
-                            <!-- Observaciones -->
-                            <div class="col-md-12">
-                                <label for="observaciones" class="form-label fw-semibold">
-                                    <i class="bi bi-info-circle text-primary me-2"></i>Observaciones
-                                </label>
-                                <textarea name="Observaciones" class="form-control" id="observaciones" rows="2"></textarea>
-                            </div>
-
-                            <!-- Documento Soporte -->
-                            <div class="col-md-6">
-                                <label for="documento" class="form-label fw-semibold">
-                                    <i class="bi bi-upload text-primary me-2"></i> Documento Soporte (Obligatorio)
-                                </label>
-                                <input type="file" name="Documento_Soporte_URL" class="form-control" id="documento" accept=".pdf,.jpg,.png,.doc,.docx" required>
-                            </div>
-                        </div>
-
-                        <!-- Botón enviar -->
-                        <div class="mt-4 d-flex justify-content-end mb-3">
-                            <button type="submit" class="btn btn-success">
-                                <i class="fas fa-paper-plane me-1"></i> Enviar Solicitud
-                            </button>
-                        </div>
-                    </form>
-
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-
-
 
 
 
@@ -387,79 +306,7 @@ session_start();
 
 
 
-<!-- Modal de confirmacion para eliminar permiso -->
-    <script>
-        function confirmarEliminacionPermiso(idPermiso, tipoPermiso, estadoPermiso) {
-            // Validación CRÍTICA: Solo permitir eliminar si el estado es 'Pendiente'
-            if (estadoPermiso !== 'Pendiente') {
-                Swal.fire({
-                    title: 'No se puede eliminar',
-                    html: `El permiso de **${tipoPermiso}** (ID: ${idPermiso}) 
-                       tiene un estado de: <strong style="color: #ffc107;">${estadoPermiso}</strong>. 
-                       <br><br>Solo se pueden eliminar permisos con estado **Pendiente**.`,
-                    icon: 'error',
-                    confirmButtonColor: '#0d6efd',
-                    confirmButtonText: '<i class="bi bi-check-circle"></i> Entendido'
-                });
-                return; // Detiene la ejecución si el estado no es Pendiente
-            }
 
-
-            // Confirmación para permisos 'Pendiente'
-            Swal.fire({
-                title: '¿Estás seguro?',
-                html: `¡Vas a eliminar el permiso de tipo: </br>
-               <strong style="color: #dc3545; font-size: 1.1em;">${tipoPermiso}</strong>! 
-               <br><br>
-               <span style="color: red;">
-                    Esta acción es irreversible
-               </span>`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#dc3545',
-                cancelButtonColor: '#5a5d5fff',
-                cancelButtonText: '<i class="bi bi-x-circle"></i> Cancelar',
-                confirmButtonText: '<i class="bi bi-trash"></i> Sí, Eliminar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Envío del formulario dinámico por POST
-                    const form = document.createElement('form');
-                    form.method = 'POST';
-                    // RUTA CRÍTICA: Ajusta la acción al nuevo archivo PHP
-                    form.action = '../api/eliminar_permiso.php';
-
-                    const idField = document.createElement('input');
-                    idField.type = 'hidden';
-                    idField.name = 'id'; // Clave esperada por el PHP
-                    idField.value = idPermiso;
-
-                    form.appendChild(idField);
-                    document.body.appendChild(form);
-                    form.submit();
-                }
-            });
-        }
-
-
-        document.addEventListener('DOMContentLoaded', function() {
-
-            const deleteButtons = document.querySelectorAll('.btn-eliminar-permiso'); // Selector adaptado
-
-            deleteButtons.forEach(button => {
-                button.addEventListener('click', function(e) {
-                    e.preventDefault();
-
-                    // Obtiene los datos de los atributos data-*
-                    const permisoId = this.getAttribute('data-id');
-                    const permisoTipo = this.getAttribute('data-tipo');
-                    const permisoEstado = this.getAttribute('data-estado'); // Nuevo atributo
-
-
-                    confirmarEliminacionPermiso(permisoId, permisoTipo, permisoEstado);
-                });
-            });
-        });
-    </script>
 
 
 
@@ -487,7 +334,7 @@ session_start();
                     <?php
 
                     $nombre = $_SESSION['Nombres'];
-                    $apellidos =     $_SESSION['Apellidos'];
+                    $apellidos = $_SESSION['Apellidos'];
                     ?>
                     <!-- Nombre del usuario -->
                     <p class="fw-bold mb-2">¿Deseas cerrar sesión, <span class="text-primary"><?= htmlspecialchars($nombre . " " . $apellidos) ?></span>?</p>

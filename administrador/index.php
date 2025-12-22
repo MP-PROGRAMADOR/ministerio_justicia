@@ -17,14 +17,15 @@ include_once '../includes/header.php';
             <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
             <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+              <?php
+                include_once '../includes/silebar_admin.php';
+
+                ?>
             <!-- Main Content -->
             <div class="main-content" id="mainContent">
 
 
-                <?php
-                include_once '../includes/silebar_admin.php';
-
-                ?>
+              
 
 
                 <!-- Header Section -->
