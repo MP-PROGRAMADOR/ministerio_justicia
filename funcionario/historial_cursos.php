@@ -17,7 +17,7 @@ session_start();
         .table-custom {
             background: white;
             border-radius: 15px;
-            shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         }
 
         .modal-header {
