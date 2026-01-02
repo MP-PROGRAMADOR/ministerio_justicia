@@ -21,8 +21,8 @@ include_once '../includes/silebar_admin.php';
                             <div
                                 class="d-flex justify-content-md-end align-items-center gap-2 flex-wrap justify-content-center">
                                 <!-- Botón para abrir modal de registrar asignación -->
-                                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addAsignacionModal">
-                                    <i class="bi bi-plus-circle me-2"></i> Nueva Asignación
+                                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addCategoriaModal">
+                                    <i class="bi bi-plus-circle me-2"></i> Nueva Categoria
                                 </button>
 
                                 <div class="input-group" style="width: auto;">
@@ -59,7 +59,7 @@ include_once '../includes/silebar_admin.php';
                 <div class="container-fluid px-4">
                     <div class="table-custom mb-4 p-4">
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5 class="mb-0 fw-semibold">Listado de Asignaciones</h5>
+                            <h5 class="mb-0 fw-semibold">Listado de Categorias</h5>
                         </div>
                         <div class="table-responsive">
                             <?php
@@ -69,99 +69,66 @@ include_once '../includes/silebar_admin.php';
                                 die("Error de conexión: " . $e->getMessage());
                             }
 
-                            // Consulta para obtener asignaciones con datos asociados
-                            $sql = "SELECT 
-                                a.ID_Asignacion,
-                                a.ID_Funcionario,
-                                a.ID_Cargo,
-                                a.ID_Departamento,
-                                a.ID_Destino,
-                                a.Fecha_Inicio_Asignacion,
-                                a.Fecha_Fin_Asignacion,
-                                f.Nombres,
-                                f.Apellidos,
-                                f.DNI_Pasaporte,
-                                c.Nombre_Cargo,
-                                d.Nombre_Departamento,
-                                dest.Nombre_Destino
-                            FROM tbl_asignaciones a
-                            JOIN tbl_funcionarios f ON a.ID_Funcionario = f.ID_Funcionario
-                            JOIN tbl_cargos c ON a.ID_Cargo = c.ID_Cargo
-                            JOIN tbl_departamentos d ON a.ID_Departamento = d.ID_Departamento
-                            JOIN tbl_destinos dest ON a.ID_Destino = dest.ID_Destino
-                            ORDER BY a.ID_Asignacion DESC";
+                            // Consulta para obtener categorías
+                            $sql = "SELECT Id_categoria, nombre, descripcion 
+            FROM categorias 
+            ORDER BY Id_categoria DESC";
 
-                            $stmt = $pdo->query($sql);
-                            $asignaciones = $stmt->fetchAll();
+                            $stmt = $pdo->prepare($sql);
+                            $stmt->execute();
+                            $categorias = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             ?>
 
-                            <table class="table table-hover align-middle mb-0" id="asignacionesTable">
-                                <thead class="table table-hover align-middle mb-0" id="funcionariosTable">
+                            <table class="table table-hover align-middle mb-0" id="funcionariosTable">
+                                <thead class="table-light">
                                     <tr>
                                         <th>ID</th>
-                                        <th>Funcionario</th>
-                                        <th>DNI</th>
-                                        <th>Cargo</th>
-                                        <th>Departamento</th>
-                                        <th>Destino</th>
-                                        <th>Inicio</th>
-                                        <th>Fin</th>
-                                        <th>Acciones</th>
+                                        <th>Nombre</th>
+                                        <th>Descripción</th>
+                                        <th class="text-center">Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody id="funcionariosTableBody">
-                                    <?php foreach ($asignaciones as $asignacion): ?>
+                                    <?php if ($categorias): ?>
+                                        <?php foreach ($categorias as $categoria): ?>
+                                            <tr>
+                                                <td><?= htmlspecialchars($categoria['Id_categoria']) ?></td>
+                                                <td class="fw-semibold">
+                                                    <?= htmlspecialchars($categoria['nombre']) ?>
+                                                </td>
+                                                <td>
+                                                    <?= htmlspecialchars($categoria['descripcion'] ?? '—') ?>
+                                                </td>
+                                                <td class="text-center">
+                                                    <div class="d-flex justify-content-center gap-2">
+
+                                                        <!-- EDITAR -->
+                                                        <button
+                                                            class="btn btn-sm btn-warning btn-editar-categoria"
+                                                            data-id="<?= $categoria['Id_categoria'] ?>"
+                                                            data-nombre="<?= htmlspecialchars($categoria['nombre']) ?>"
+                                                            data-descripcion="<?= htmlspecialchars($categoria['descripcion']) ?>"
+                                                            title="Editar categoría">
+                                                            <i class="bi bi-pencil-square"></i>
+                                                        </button>
+
+                                                      
+
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
                                         <tr>
-                                            <td><?= htmlspecialchars($asignacion['ID_Asignacion']) ?></td>
-                                            <td><?= htmlspecialchars($asignacion['Nombres'] . ' ' . $asignacion['Apellidos']) ?></td>
-                                            <td><?= htmlspecialchars($asignacion['DNI_Pasaporte']) ?></td>
-                                            <td><?= htmlspecialchars($asignacion['Nombre_Cargo']) ?></td>
-                                            <td><?= htmlspecialchars($asignacion['Nombre_Departamento']) ?></td>
-                                            <td><?= htmlspecialchars($asignacion['Nombre_Destino']) ?></td>
-                                            <td><?= htmlspecialchars($asignacion['Fecha_Inicio_Asignacion']) ?></td>
-                                            <td><?= $asignacion['Fecha_Fin_Asignacion'] ? htmlspecialchars($asignacion['Fecha_Fin_Asignacion']) : '<span class="text-muted">Actual</span>' ?></td>
-                                            <td>
-                                                <div class="d-flex gap-2">
-                                                    <button class="btn btn-sm btn-warning btn-editar-asignacion"
-                                                        data-id="<?= $asignacion['ID_Asignacion'] ?>"
-                                                        data-funcionario="<?= $asignacion['ID_Funcionario'] ?>"
-                                                        data-cargo="<?= $asignacion['ID_Cargo'] ?>"
-                                                        data-departamento="<?= $asignacion['ID_Departamento'] ?>"
-                                                        data-destino="<?= $asignacion['ID_Destino'] ?>"
-                                                        data-fechainicio="<?= $asignacion['Fecha_Inicio_Asignacion'] ?>"
-                                                        data-fechafin="<?= $asignacion['Fecha_Fin_Asignacion'] ?>"
-                                                        title="Editar Asignación">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-
-
-                                                    <?php
-
-                                                    $nombre_completo = $asignacion['Nombres'] . ' ' . $asignacion['Apellidos'];
-                                                    ?>
-
-                                                    <button
-                                                        type="button"
-                                                        class="btn btn-sm btn-danger btn-eliminar-asignacion"
-                                                        data-id="<?= htmlspecialchars($asignacion['ID_Asignacion']) ?>"
-                                                        data-funcionario="<?= htmlspecialchars($nombre_completo) ?>"
-                                                        data-destino="<?= htmlspecialchars($asignacion['Nombre_Destino']) ?>">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-
-
-
-
-                                                </div>
+                                            <td colspan="4" class="text-center text-muted">
+                                                No hay categorías registradas
                                             </td>
                                         </tr>
-                                    <?php endforeach; ?>
+                                    <?php endif; ?>
                                 </tbody>
                             </table>
-
-
-
                         </div>
+
                         <nav aria-label="Page navigation example" class="mt-3">
                             <ul class="pagination justify-content-center" id="paginationControls">
                                 <li class="page-item disabled"><a class="page-link" href="#" tabindex="-1"
@@ -192,638 +159,138 @@ include_once '../includes/silebar_admin.php';
 
 
 
-    <?php
-    // Consulta para cargos
-    $stmtCargos = $pdo->query("SELECT ID_Cargo, Nombre_Cargo FROM tbl_cargos ORDER BY Nombre_Cargo ASC");
-    $cargos = $stmtCargos->fetchAll(PDO::FETCH_ASSOC);
+   
 
-    // Consulta para departamentos
-    $stmtDepartamentos = $pdo->query("SELECT ID_Departamento, Nombre_Departamento FROM tbl_departamentos ORDER BY Nombre_Departamento ASC");
-    $departamentos = $stmtDepartamentos->fetchAll(PDO::FETCH_ASSOC);
+    <!-- Modal para Registrar categoria -->
+<div class="modal fade" id="addCategoriaModal" tabindex="-1" aria-labelledby="addCategoriaModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content shadow">
 
-    // Consulta para destinos
-    $stmtDestinos = $pdo->query("SELECT ID_Destino, Nombre_Destino FROM tbl_destinos ORDER BY Nombre_Destino ASC");
-    $destinos = $stmtDestinos->fetchAll(PDO::FETCH_ASSOC);
-    ?>
+            <!-- HEADER -->
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="addCategoriaModalLabel">
+                    <i class="bi bi-tags-fill me-2"></i>Registrar Categoría
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Cerrar"></button>
+            </div>
+
+            <!-- BODY -->
+            <div class="modal-body">
+                <form method="POST" action="../api/guardar_categoria.php" id="formCategoria">
+
+                    <div class="row g-3">
+                        <!-- Nombre -->
+                        <div class="col-md-12">
+                            <label class="form-label fw-semibold">
+                                <i class="bi bi-tag text-success me-2"></i>Nombre de la categoría
+                            </label>
+                            <input type="text" name="nombre" class="form-control"
+                                placeholder="Ej. Material Médico" required>
+                        </div>
+
+                        <!-- Descripción -->
+                        <div class="col-md-12">
+                            <label class="form-label fw-semibold">
+                                <i class="bi bi-card-text text-success me-2"></i>Descripción
+                            </label>
+                            <textarea name="descripcion" class="form-control" rows="4"
+                                placeholder="Descripción opcional de la categoría..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- FOOTER -->
+                    <div class="mt-4 d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                            <i class="bi bi-x-circle me-1"></i>Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-save me-1"></i>Guardar Categoría
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+   
 
 
-    <!-- Modal para Registrar Asignación -->
-    <div class="modal fade" id="addAsignacionModal" tabindex="-1" aria-labelledby="addAsignacionModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl">
-            <div class="modal-content">
-                <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title" id="addAsignacionModalLabel">
-                        <i class="bi bi-person-plus me-2"></i>Registrar Asignación
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
-                <div class="modal-body">
 
+<div class="modal fade" id="editCategoriaModal" tabindex="-1" aria-labelledby="editCategoriaModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content shadow">
 
-                    <!-- Buscador -->
-                    <div class="mb-4 mt-2">
-                        <label for="searchFuncionario" class="form-label fw-semibold">
-                            <i class="bi bi-search me-2 text-primary"></i>Buscar Funcionario
+            <!-- HEADER -->
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title" id="editCategoriaModalLabel">
+                    <i class="bi bi-pencil-square me-2"></i>Editar Categoría
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                    aria-label="Cerrar"></button>
+            </div>
+
+            <!-- BODY -->
+            <div class="modal-body">
+                <form method="POST" action="../api/actualizar_categoria.php" id="formEditarCategoria">
+
+                    <input type="hidden" name="Id_categoria" id="editIdCategoria">
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">
+                            <i class="bi bi-tag me-2 text-warning"></i>Nombre de la categoría
                         </label>
-                        <input type="text" id="searchFuncionario" class="form-control" placeholder="Escriba un nombre...">
+                        <input type="text" name="nombre" id="editNombreCategoria"
+                            class="form-control" required>
                     </div>
 
-                    <!-- Lista de funcionarios -->
-                    <div class="list-group mb-3" id="listaFuncionarios"></div>
-
-                    <!-- Funcionario seleccionado -->
-                    <div id="funcionarioSeleccionado" class="mb-4 d-none">
-                        <div class="alert alert-info d-flex justify-content-between align-items-center">
-                            <div>
-                                <i class="bi bi-person-check-fill me-2"></i>
-                                <span id="nombreFuncionario"></span>
-                            </div>
-                            <button type="button" class="btn btn-sm btn-outline-danger" id="quitarSeleccion">
-                                <i class="bi bi-x-circle"></i> Quitar
-                            </button>
-                        </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">
+                            <i class="bi bi-card-text me-2 text-warning"></i>Descripción
+                        </label>
+                        <textarea name="descripcion" id="editDescripcionCategoria"
+                            class="form-control" rows="4"></textarea>
                     </div>
 
-                    <!-- Formulario -->
-                    <form method="POST" action="../api/guardar_asignacion.php">
-                        <input type="hidden" name="ID_Funcionario" id="ID_Funcionario">
+                    <!-- FOOTER -->
+                    <div class="d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                            <i class="bi bi-x-circle me-1"></i>Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-warning">
+                            <i class="bi bi-save me-1"></i>Actualizar
+                        </button>
+                    </div>
 
-                        <div class="row g-3">
-                            <!-- Cargo -->
-                            <div class="col-md-4">
-                                <label class="form-label fw-semibold">
-                                    <i class="bi bi-award text-success me-2"></i>Cargo
-                                </label>
-                                <select class="form-select" name="ID_Cargo" id="cargoAsignacion" required></select>
-                            </div>
-
-                            <!-- Departamento -->
-                            <div class="col-md-4">
-                                <label class="form-label fw-semibold">
-                                    <i class="bi bi-diagram-3 text-success me-2"></i>Departamento
-                                </label>
-                                <select class="form-select" name="ID_Departamento" id="departamentoAsignacion" required></select>
-                            </div>
-
-                            <!-- Destino -->
-                            <div class="col-md-4">
-                                <label class="form-label fw-semibold">
-                                    <i class="bi bi-geo-alt text-success me-2"></i>Destino
-                                </label>
-                                <select class="form-select" name="ID_Destino" id="destinoAsignacion" required></select>
-                            </div>
-
-                            <!-- Fechas -->
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold">
-                                    <i class="bi bi-calendar-event text-success me-2"></i>Fecha Inicio
-                                </label>
-                                <input type="date" name="Fecha_Inicio_Asignacion" class="form-control" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold">
-                                    <i class="bi bi-calendar-check text-success me-2"></i>Fecha Fin (opcional)
-                                </label>
-                                <input type="date" name="Fecha_Fin_Asignacion" class="form-control">
-                            </div>
-                        </div>
-
-                        <div class="mt-4 d-flex justify-content-end mb-3">
-                            <button type="submit" class="btn btn-success">
-                                <i class="bi bi-save me-2"></i>Guardar Asignación
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                </form>
             </div>
+
         </div>
     </div>
+</div>
 
-    <script>
-        // Datos traídos desde PHP
-        const cargos = <?= json_encode($cargos) ?>;
-        const departamentos = <?= json_encode($departamentos) ?>;
-        const destinos = <?= json_encode($destinos) ?>;
 
-        // Función para poblar un select con opciones
-        function poblarSelect(selectId, items, idField, textField) {
-            const select = document.getElementById(selectId);
-            if (!select) return;
-            select.innerHTML = '<option value="" selected disabled>Seleccione...</option>';
-            items.forEach(item => {
-                const option = document.createElement('option');
-                option.value = item[idField];
-                option.textContent = item[textField];
-                select.appendChild(option);
-            });
-        }
 
-        // Poblar los selects al cargar la página o modal
-        document.addEventListener('DOMContentLoaded', () => {
-            poblarSelect('cargoAsignacion', cargos, 'ID_Cargo', 'Nombre_Cargo');
-            poblarSelect('departamentoAsignacion', departamentos, 'ID_Departamento', 'Nombre_Departamento');
-            poblarSelect('destinoAsignacion', destinos, 'ID_Destino', 'Nombre_Destino');
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const editModal = new bootstrap.Modal(document.getElementById('editCategoriaModal'));
+
+    document.querySelectorAll('.btn-editar-categoria').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.getElementById('editIdCategoria').value = btn.dataset.id;
+            document.getElementById('editNombreCategoria').value = btn.dataset.nombre;
+            document.getElementById('editDescripcionCategoria').value = btn.dataset.descripcion || '';
+
+            editModal.show();
         });
-    </script>
+    });
+});
+</script>
 
 
-
-
-
-
-
-    <!-- Modal para Editar Asignación -->
-    <?php
-    // Cargar cargos
-    try {
-        $pdo = new PDO($dsn, $user, $pass, $options);
-        $cargos = $pdo->query("SELECT ID_Cargo, Nombre_Cargo FROM tbl_cargos ORDER BY Nombre_Cargo ASC")->fetchAll();
-        $departamentos = $pdo->query("SELECT ID_Departamento, Nombre_Departamento FROM tbl_departamentos ORDER BY Nombre_Departamento ASC")->fetchAll();
-        $destinos = $pdo->query("SELECT ID_Destino, Nombre_Destino FROM tbl_destinos ORDER BY Nombre_Destino ASC")->fetchAll();
-    } catch (PDOException $e) {
-        echo "Error de conexión: " . $e->getMessage();
-        exit;
-    }
-    ?>
-
-    <!-- Modal para Editar Asignación -->
-    <div class="modal fade" id="editAsignacionModal" tabindex="-1" aria-labelledby="editAsignacionModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header bg-warning text-dark">
-                    <h5 class="modal-title" id="editAsignacionModalLabel">
-                        <i class="bi bi-pencil-square me-2"></i>Editar Asignación
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
-                <div class="modal-body mt-2">
-                    <form method="POST" action="../api/actualizar_asignacion.php">
-                        <input type="hidden" name="ID_Asignacion" id="edit_ID_Asignacion">
-                        <input type="hidden" name="ID_Funcionario" id="edit_ID_Funcionario">
-
-                        <div class="row g-3">
-                            <!-- Cargo -->
-                            <div class="col-md-4">
-                                <label class="form-label fw-semibold">
-                                    <i class="bi bi-award text-success me-2"></i>Cargo
-                                </label>
-                                <select class="form-select" name="ID_Cargo" id="edit_cargoAsignacion" required>
-                                    <option value="">Seleccione cargo</option>
-                                    <?php foreach ($cargos as $cargo): ?>
-                                        <option value="<?= $cargo['ID_Cargo'] ?>"><?= htmlspecialchars($cargo['Nombre_Cargo']) ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-
-                            <!-- Departamento -->
-                            <div class="col-md-4">
-                                <label class="form-label fw-semibold">
-                                    <i class="bi bi-diagram-3 text-success me-2"></i>Departamento
-                                </label>
-                                <select class="form-select" name="ID_Departamento" id="edit_departamentoAsignacion" required>
-                                    <option value="">Seleccione departamento</option>
-                                    <?php foreach ($departamentos as $depto): ?>
-                                        <option value="<?= $depto['ID_Departamento'] ?>"><?= htmlspecialchars($depto['Nombre_Departamento']) ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-
-                            <!-- Destino -->
-                            <div class="col-md-4">
-                                <label class="form-label fw-semibold">
-                                    <i class="bi bi-geo-alt text-success me-2"></i>Destino
-                                </label>
-                                <select class="form-select" name="ID_Destino" id="edit_destinoAsignacion" required>
-                                    <option value="">Seleccione destino</option>
-                                    <?php foreach ($destinos as $dest): ?>
-                                        <option value="<?= $dest['ID_Destino'] ?>"><?= htmlspecialchars($dest['Nombre_Destino']) ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-
-                            <!-- Fechas -->
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold">
-                                    <i class="bi bi-calendar-event text-success me-2"></i>Fecha Inicio
-                                </label>
-                                <input type="date" name="Fecha_Inicio_Asignacion" class="form-control" id="edit_Fecha_Inicio" required>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold">
-                                    <i class="bi bi-calendar-check text-success me-2"></i>Fecha Fin (opcional)
-                                </label>
-                                <input type="date" name="Fecha_Fin_Asignacion" class="form-control" id="edit_Fecha_Fin">
-                            </div>
-                        </div>
-
-                        <div class="mt-4 d-flex justify-content-end mb-3">
-                            <button type="submit" class="btn btn-warning">
-                                <i class="bi bi-save me-2"></i>Guardar Cambios
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            // Captura todos los botones de edición
-            const botones = document.querySelectorAll(".btn-editar-asignacion");
-
-            botones.forEach(btn => {
-                btn.addEventListener("click", function() {
-                    // Obtener los datos desde los atributos del botón
-                    const idAsignacion = this.dataset.id;
-                    const idFuncionario = this.dataset.funcionario;
-                    const idCargo = this.dataset.cargo;
-                    const idDepartamento = this.dataset.departamento;
-                    const idDestino = this.dataset.destino;
-                    const fechaInicio = this.dataset.fechainicio;
-                    const fechaFin = this.dataset.fechafin;
-
-                    // Asignar valores al formulario del modal
-                    document.getElementById("edit_ID_Asignacion").value = idAsignacion;
-                    document.getElementById("edit_ID_Funcionario").value = idFuncionario;
-                    document.getElementById("edit_cargoAsignacion").value = idCargo;
-                    document.getElementById("edit_departamentoAsignacion").value = idDepartamento;
-                    document.getElementById("edit_destinoAsignacion").value = idDestino;
-                    document.getElementById("edit_Fecha_Inicio").value = fechaInicio;
-                    document.getElementById("edit_Fecha_Fin").value = fechaFin;
-
-                    // Mostrar el modal
-                    const modal = new bootstrap.Modal(document.getElementById("editAsignacionModal"));
-                    modal.show();
-                });
-            });
-        });
-    </script>
-
-
-
-
-
-
-    <!-- Script para buscar y seleccionar funcionario -->
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const searchInput = document.getElementById('searchFuncionario');
-            const listaFuncionarios = document.getElementById('listaFuncionarios');
-            const seleccionadoDiv = document.getElementById('funcionarioSeleccionado');
-            const nombreFuncionarioSpan = document.getElementById('nombreFuncionario');
-            const quitarBtn = document.getElementById('quitarSeleccion');
-            const idFuncionarioInput = document.getElementById('ID_Funcionario');
-
-            searchInput.addEventListener('input', () => {
-                const query = searchInput.value.trim();
-                if (query.length < 2) {
-                    listaFuncionarios.innerHTML = '';
-                    return;
-                }
-                fetch(`../api/buscar_funcionarios.php?q=${encodeURIComponent(query)}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.error) {
-                            listaFuncionarios.innerHTML = `<div class="text-danger">Error: ${data.error}</div>`;
-                            return;
-                        }
-                        if (!Array.isArray(data) || data.length === 0) {
-                            listaFuncionarios.innerHTML = `<div class="text-muted">No se encontraron funcionarios</div>`;
-                            return;
-                        }
-                        listaFuncionarios.innerHTML = '';
-                        data.forEach(f => {
-                            const item = document.createElement('button');
-                            item.type = 'button';
-                            item.className = 'list-group-item list-group-item-action';
-                            item.textContent = `${f.Nombres} ${f.Apellidos} - ${f.DNI_Pasaporte}`;
-                            item.addEventListener('click', () => {
-                                idFuncionarioInput.value = f.ID_Funcionario;
-                                nombreFuncionarioSpan.textContent = `${f.Nombres} ${f.Apellidos} - DOCUMENTO: ${f.DNI_Pasaporte}`;
-                                seleccionadoDiv.classList.remove('d-none');
-                                listaFuncionarios.innerHTML = '';
-                                searchInput.value = '';
-                            });
-                            listaFuncionarios.appendChild(item);
-                        });
-                    })
-                    .catch(err => {
-                        listaFuncionarios.innerHTML = `<div class="text-danger">Error al buscar funcionarios</div>`;
-                        console.error(err);
-                    });
-            });
-
-            quitarBtn.addEventListener('click', () => {
-                idFuncionarioInput.value = '';
-                nombreFuncionarioSpan.textContent = '';
-                seleccionadoDiv.classList.add('d-none');
-            });
-        });
-    </script>
-
-
-
-
-
-
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const botonesEditar = document.querySelectorAll('.btn-editar-permiso');
-
-            botonesEditar.forEach(boton => {
-                boton.addEventListener('click', () => {
-                    const modal = new bootstrap.Modal(document.getElementById('editPermisoModal'));
-
-                    // Obtener los datos del botón
-                    document.getElementById('edit_ID_Permiso').value = boton.dataset.id;
-                    document.getElementById('edit_nombreFuncionario').value = boton.dataset.funcionario;
-                    document.getElementById('edit_Tipo_Permiso').value = boton.dataset.tipo;
-                    document.getElementById('edit_Estado_Permiso').value = boton.dataset.estado;
-                    document.getElementById('edit_Fecha_Inicio').value = boton.dataset.inicio;
-                    document.getElementById('edit_Fecha_Fin').value = boton.dataset.fin;
-                    document.getElementById('edit_Motivo').value = boton.dataset.motivo;
-                    document.getElementById('edit_Observaciones').value = boton.dataset.observaciones;
-
-                    modal.show();
-                });
-            });
-        });
-    </script>
-
-
-
-
-
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Sidebar toggle for mobile
-            const sidebarToggle = document.getElementById('sidebarToggle');
-            const sidebar = document.getElementById('sidebar');
-            const sidebarOverlay = document.getElementById('sidebarOverlay');
-            const mainContent = document.getElementById('mainContent');
-
-            sidebarToggle.addEventListener('click', function() {
-                sidebar.classList.toggle('show');
-                sidebarOverlay.classList.toggle('show');
-            });
-
-            sidebarOverlay.addEventListener('click', function() {
-                sidebar.classList.remove('show');
-                sidebarOverlay.classList.remove('show');
-            });
-
-
-            // Live Search for Table
-            const liveSearchInput = document.getElementById('liveSearchInput');
-            const funcionariosTableBody = document.getElementById('funcionariosTableBody');
-
-            liveSearchInput.addEventListener('keyup', function() {
-                const searchTerm = liveSearchInput.value.toLowerCase();
-                const rows = funcionariosTableBody.getElementsByTagName('tr');
-
-                for (let i = 0; i < rows.length; i++) {
-                    let rowText = rows[i].textContent.toLowerCase();
-                    if (rowText.includes(searchTerm)) {
-                        rows[i].style.display = '';
-                    } else {
-                        rows[i].style.display = 'none';
-                    }
-                }
-            });
-
-
-
-
-            // Pagination logic (Client-side example)
-            const rowsPerPage = 8; // Number of rows per page
-            const tableRows = funcionariosTableBody.getElementsByTagName('tr');
-            const totalPages = Math.ceil(tableRows.length / rowsPerPage);
-            const paginationControls = document.getElementById('paginationControls');
-
-            function displayPage(page) {
-                const startIndex = (page - 1) * rowsPerPage;
-                const endIndex = startIndex + rowsPerPage;
-
-                for (let i = 0; i < tableRows.length; i++) {
-                    if (i >= startIndex && i < endIndex) {
-                        tableRows[i].style.display = '';
-                    } else {
-                        tableRows[i].style.display = 'none';
-                    }
-                }
-
-                // Update pagination controls
-                updatePaginationButtons(page);
-            }
-
-            function setupPagination() {
-                paginationControls.innerHTML = ''; // Clear existing buttons
-
-                const prevButton = document.createElement('li');
-                prevButton.classList.add('page-item');
-                prevButton.innerHTML = '<a class="page-link" href="#" tabindex="-1" aria-disabled="true">Anterior</a>';
-                paginationControls.appendChild(prevButton);
-
-                for (let i = 1; i <= totalPages; i++) {
-                    const pageItem = document.createElement('li');
-                    pageItem.classList.add('page-item');
-                    pageItem.innerHTML = `<a class="page-link" href="#">${i}</a>`;
-                    pageItem.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        displayPage(i);
-                    });
-                    paginationControls.appendChild(pageItem);
-                }
-
-                const nextButton = document.createElement('li');
-                nextButton.classList.add('page-item');
-                nextButton.innerHTML = '<a class="page-link" href="#">Siguiente</a>';
-                paginationControls.appendChild(nextButton);
-
-                displayPage(1); // Show first page initially
-            }
-
-            function updatePaginationButtons(currentPage) {
-                const pageItems = paginationControls.children;
-                for (let i = 0; i < pageItems.length; i++) {
-                    pageItems[i].classList.remove('active');
-                }
-
-                if (currentPage === 1) {
-                    pageItems[0].classList.add('disabled'); // Previous button
-                } else {
-                    pageItems[0].classList.remove('disabled');
-                }
-
-                if (currentPage === totalPages) {
-                    pageItems[pageItems.length - 1].classList.add('disabled'); // Next button
-                } else {
-                    pageItems[pageItems.length - 1].classList.remove('disabled');
-                }
-
-                // Mark current page as active
-                pageItems[currentPage].classList.add('active'); // Adjust index because of prev button
-            }
-
-            setupPagination();
-
-            // Event listeners for Previous and Next buttons
-            paginationControls.children[0].addEventListener('click', function(e) {
-                e.preventDefault();
-                const currentPage = parseInt(paginationControls.querySelector('.page-item.active .page-link').textContent);
-                if (currentPage > 1) {
-                    displayPage(currentPage - 1);
-                }
-            });
-
-            paginationControls.children[paginationControls.children.length - 1].addEventListener('click', function(e) {
-                e.preventDefault();
-                const currentPage = parseInt(paginationControls.querySelector('.page-item.active .page-link').textContent);
-                if (currentPage < totalPages) {
-                    displayPage(currentPage + 1);
-                }
-            });
-        });
-    </script>
-
-
-
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.btn-editar-funcionario').forEach(button => {
-                button.addEventListener('click', function() {
-                    const datos = this.dataset;
-
-                    // Llenar el formulario con los valores
-                    document.getElementById('editIDFuncionario').value = datos.id;
-                    document.getElementById('editCodigoFuncionario').value = datos.codigo;
-                    document.getElementById('editNombres').value = datos.nombres;
-                    document.getElementById('editApellidos').value = datos.apellidos;
-                    document.getElementById('editDNI').value = datos.dni;
-                    document.getElementById('editFechaNacimiento').value = datos.fechaNacimiento;
-                    document.getElementById('editGenero').value = datos.genero;
-                    document.getElementById('editNacionalidad').value = datos.nacionalidad;
-                    document.getElementById('editDireccion').value = datos.direccion;
-                    document.getElementById('editTelefono').value = datos.telefono;
-                    document.getElementById('editEmail').value = datos.email;
-                    document.getElementById('editFechaIngreso').value = datos.fechaIngreso;
-                    document.getElementById('editEstadoLaboral').value = datos.estado;
-
-                    // Imagen
-                    const rutaFoto = datos.foto && datos.foto !== '' ? `../api/${datos.foto}` : '';
-                    document.getElementById('previewEditFoto').src = rutaFoto;
-
-                    // Mostrar el modal
-                    const modal = new bootstrap.Modal(document.getElementById('editFuncionarioModal'));
-                    modal.show();
-                });
-            });
-        });
-    </script>
-
-
-    <!-- Modal de confirmacion de eliminacion de asignacion -->
-    <script>
-        function confirmarEliminacion(idAsignacion, nombreFuncionario, destinoAsignacion) {
-
-
-            // Esto evita que la palabra "null" aparezca en la alerta si el atributo data-* no existe.
-            const funcionario = nombreFuncionario || "Desconocido";
-            const destino = destinoAsignacion || "Sin destino";
-
-            Swal.fire({
-                title: '¿Estás seguro? </br>',
-                html: `
-                ¡Vas a eliminar la asignación del: </br>
-                
-                <strong style="color: #007bff; display: block; margin-top: 10px;">
-                    Funcionario: ${funcionario}
-                </strong>
-                <strong style="color: #28a745; display: block; margin-bottom: 10px;">
-                    Destino: ${destino}
-                </strong> </br>
-                
-                <span style="color: red;">
-                    Esta acción es irreversible
-                </span>
-            `,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#5a5d5fff',
-                confirmButtonText: '<i class="bi bi-trash"></i> Sí, Eliminar',
-                cancelButtonText: '<i class="bi bi-x-circle"></i> Cancelar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Envío del formulario dinámico por POST
-                    const form = document.createElement('form');
-                    form.method = 'POST';
-                    form.action = '../api/eliminar_asignacion.php';
-
-                    const idField = document.createElement('input');
-                    idField.type = 'hidden';
-                    idField.name = 'id';
-                    idField.value = idAsignacion;
-
-                    form.appendChild(idField);
-                    document.body.appendChild(form);
-                    form.submit();
-                }
-            });
-        }
-
-        // Listener para el botón
-        document.addEventListener('DOMContentLoaded', function() {
-            const deleteButtons = document.querySelectorAll('.btn-eliminar-asignacion');
-
-            deleteButtons.forEach(button => {
-                button.addEventListener('click', function(e) {
-                    e.preventDefault();
-
-                    // Obtiene los datos del botón
-                    const asignacionId = this.getAttribute('data-id');
-
-                    // 🌟 MEJORA: Usamos 'data-funcionario' y 'data-destino' como planeado
-                    // Si el atributo no existe, getAttribute devuelve null, que es manejado arriba.
-                    const funcionarioNombre = this.getAttribute('data-funcionario');
-                    const asignacionDestino = this.getAttribute('data-destino');
-
-                    // Llama a la función con los tres datos de la asignación
-                    confirmarEliminacion(asignacionId, funcionarioNombre, asignacionDestino);
-                });
-            });
-        });
-    </script>
-
-
-
-
-    <!-- Script para que se abra el modal de asignaciones desde el dashboard -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('action') === 'register') {
-                const modalElement = document.getElementById('addAsignacionModal');
-                if (modalElement && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-                    new bootstrap.Modal(modalElement).show();
-                    // Limpiar URL
-                    if (history.replaceState) {
-                        const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
-                        window.history.replaceState({
-                            path: cleanUrl
-                        }, '', cleanUrl);
-                    }
-                }
-            }
-        });
-    </script>
 
 
     <?php
