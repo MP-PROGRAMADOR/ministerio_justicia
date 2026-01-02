@@ -559,11 +559,11 @@ session_start();
                     </button>
 
                     <div class="forgot-password">
-                        <a href="#" id="forgotPasswordLink">¿Olvidaste tu contraseña?</a>
+                        <a href="./api/olvide_password.php" id="forgotPasswordLink">¿Olvidaste tu contraseña?</a>
                     </div>
                 </form>
 
-                <!-- 🔗 Nuevo enlace al panel del funcionario -->
+                <!-- Nuevo enlace al panel del funcionario -->
                 <div class="text-center mt-3">
                     <a href="funcionario/index.php" class="text-decoration-none fw-bold text-primary">
                         <i class="fas fa-briefcase me-1"></i> Accede al panel del funcionario

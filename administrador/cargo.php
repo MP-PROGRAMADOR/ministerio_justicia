@@ -2,64 +2,21 @@
 include_once '../includes/header.php';
 ?>
 
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+ <?php
+                include_once '../includes/silebar_admin.php';
+                ?>
+
 <body>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
     <div class="container-fluid p-0">
         <div class="row g-0">
 
-            <?php
-            include_once '../includes/silebar_admin.php';
-            ?>
-
 
             <div class="main-content" id="mainContent">
-                <div class="top-navbar">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <button class="btn btn-outline-secondary d-md-none me-2 menu-toggle" id="sidebarToggle">
-                            <i class="bi bi-list"></i>
-                        </button>
-                        <div>
-                            <nav aria-label="breadcrumb">
-                                <ol class="breadcrumb breadcrumb-custom mb-0">
-                                    <li class="breadcrumb-item"><a href="#" class="text-decoration-none">Inicio</a></li>
-                                    <li class="breadcrumb-item active">Dashboard</li>
-                                </ol>
-                            </nav>
-                        </div>
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="input-group" style="width: 300px;">
-                                <span class="input-group-text bg-light border-end-0">
-                                    <i class="bi bi-search text-muted"></i>
-                                </span>
-                                <input type="text" class="form-control border-start-0"
-                                    placeholder="Buscar funcionario...">
-                            </div>
-                            <button class="btn btn-outline-primary btn-refresh" onclick="refreshData()">
-                                <i class="bi bi-arrow-clockwise me-1"></i> Actualizar
-                            </button>
-                            <div class="dropdown">
-                                <button class="btn btn-outline-secondary dropdown-toggle" type="button"
-                                    data-bs-toggle="dropdown">
-                                    <i class="bi bi-person-circle me-1"></i> <?= $nombre_usuario; ?>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Mi Perfil</a>
-                                    </li>
-                                    <li><a class="dropdown-item" href="#"><i
-                                                class="bi bi-gear me-2"></i>Configuración</a></li>
-                                    <li>
-                                        <hr class="dropdown-divider">
-                                    </li>
-                                    <li>
-                                        <button class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#logoutModal">
-                                            <i class="bi bi-box-arrow-right me-1"></i> Cerrar Sesión
-                                        </button>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+               
 
                 <div class="header-section">
                     <div class="row align-items-center">
@@ -99,13 +56,10 @@ include_once '../includes/header.php';
 
 
 
-
-
-
                 <div class="container-fluid px-4">
                     <div class="table-custom mb-4 p-4">
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5 class="mb-0 fw-semibold">Listado de Funcionarios</h5>
+                            <h5 class="mb-0 fw-semibold">Listado de Cargos</h5>
                         </div>
                         <div class="table-responsive">
                             <?php
@@ -148,7 +102,8 @@ include_once '../includes/header.php';
                                             <td><?= htmlspecialchars($cargo['Nivel_Jerarquico']) ?></td>
                                             <td><?= htmlspecialchars($cargo['ID_Usuario_Creador']) ?></td>
                                             <td><?= htmlspecialchars($cargo['Fecha_Creacion_Registro']) ?></td>
-                                            <td><?= htmlspecialchars($cargo['ID_Usuario_Ultima_Modificacion'] ?? '---') ?></td>
+                                            <td><?= htmlspecialchars($cargo['ID_Usuario_Ultima_Modificacion'] ?? '---') ?>
+                                            </td>
                                             <td><?= htmlspecialchars($cargo['Fecha_Ultima_Modificacion'] ?? '---') ?></td>
                                             <td>
                                                 <button class="btn btn-warning btn-sm btn-editar-cargo"
@@ -159,7 +114,14 @@ include_once '../includes/header.php';
                                                     <i class="bi bi-pencil-square"></i>
                                                 </button>
 
-                                                <button class="btn btn-danger btn-sm" title="Eliminar"><i class="bi bi-trash"></i></button>
+                                                <?php if ($_SESSION['Rol_Usuario'] !== 'Usuario'): ?>
+                                                    <button class="btn btn-sm btn-danger" title="Eliminar" type="button"
+                                                        onclick="confirmarEliminacion(<?= $cargo['ID_Cargo'] ?>,
+                                                        '<?= htmlspecialchars($cargo['Nombre_Cargo']) ?>'
+                                                        )">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                <?php endif; ?>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -209,14 +171,15 @@ include_once '../includes/header.php';
                     <h5 class="modal-title" id="addCargoModalLabel">
                         <i class="bi bi-briefcase me-2"></i>Registrar Cargo
                     </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body">
 
                     <form method="POST" action="../api/guardar_cargo.php" enctype="multipart/form-data" novalidate>
                         <!-- No ID_Cargo porque es auto increment o manejado en backend -->
 
-                        <div class="mb-3">
+                        <div class="mb-3 mt-2">
                             <label for="Nombre_Cargo" class="form-label fw-semibold">
                                 <i class="bi bi-card-text me-2 text-primary"></i>Nombre del Cargo *
                             </label>
@@ -227,19 +190,21 @@ include_once '../includes/header.php';
                             <label for="Descripcion_Cargo" class="form-label fw-semibold">
                                 <i class="bi bi-journal-text me-2 text-primary"></i>Descripción del Cargo
                             </label>
-                            <textarea name="Descripcion_Cargo" id="Descripcion_Cargo" rows="4" class="form-control" placeholder="Descripción detallada del cargo"></textarea>
+                            <textarea name="Descripcion_Cargo" id="Descripcion_Cargo" rows="4" class="form-control"
+                                placeholder="Descripción detallada del cargo"></textarea>
                         </div>
 
                         <div class="mb-3">
                             <label for="Nivel_Jerarquico" class="form-label fw-semibold">
                                 <i class="bi bi-bar-chart-line me-2 text-primary"></i>Nivel Jerárquico *
                             </label>
-                            <input type="number" class="form-control" name="Nivel_Jerarquico" id="Nivel_Jerarquico" min="1" required>
+                            <input type="number" class="form-control" name="Nivel_Jerarquico" id="Nivel_Jerarquico"
+                                min="1" required>
                         </div>
 
-                        <div class="mt-4 d-flex justify-content-end">
+                        <div class="mt-4 d-flex justify-content-end mb-3">
                             <button type="submit" class="btn btn-success">
-                                <i class="bi bi-save me-2"></i>Guardar Cargo
+                                <i class="bi bi-save me-2"></i>Registrar Cargo
                             </button>
                         </div>
                     </form>
@@ -248,9 +213,6 @@ include_once '../includes/header.php';
             </div>
         </div>
     </div>
-
-
-
 
 
 
@@ -270,9 +232,10 @@ include_once '../includes/header.php';
                     <form method="POST" action="../api/actualizar_cargo.php">
                         <input type="hidden" name="ID_Cargo" id="edit_ID_Cargo">
 
-                        <div class="mb-3">
+                        <div class="mb-3 mt-2">
                             <label for="edit_Nombre_Cargo" class="form-label fw-semibold">
-                                <i class="bi bi-briefcase text-primary me-2"></i>Nombre del Cargo <span class="text-danger">*</span>
+                                <i class="bi bi-briefcase text-primary me-2"></i>Nombre del Cargo <span
+                                    class="text-danger">*</span>
                             </label>
                             <input type="text" class="form-control" name="Nombre_Cargo" id="edit_Nombre_Cargo" required>
                         </div>
@@ -281,18 +244,21 @@ include_once '../includes/header.php';
                             <label for="edit_Descripcion_Cargo" class="form-label fw-semibold">
                                 <i class="bi bi-card-text text-primary me-2"></i>Descripción del Cargo
                             </label>
-                            <textarea class="form-control" name="Descripcion_Cargo" id="edit_Descripcion_Cargo" rows="3" maxlength="500"></textarea>
+                            <textarea class="form-control" name="Descripcion_Cargo" id="edit_Descripcion_Cargo" rows="3"
+                                maxlength="500"></textarea>
                         </div>
 
                         <div class="mb-3">
                             <label for="edit_Nivel_Jerarquico" class="form-label fw-semibold">
-                                <i class="bi bi-sort-numeric-up text-primary me-2"></i>Nivel Jerárquico <span class="text-danger">*</span>
+                                <i class="bi bi-sort-numeric-up text-primary me-2"></i>Nivel Jerárquico <span
+                                    class="text-danger">*</span>
                             </label>
-                            <input type="number" class="form-control" name="Nivel_Jerarquico" id="edit_Nivel_Jerarquico" required min="1">
+                            <input type="number" class="form-control" name="Nivel_Jerarquico" id="edit_Nivel_Jerarquico"
+                                required min="1">
                         </div>
 
-                        <div class="d-flex justify-content-end">
-                            <button type="submit" class="btn btn-success">
+                        <div class="d-flex justify-content-end mb-3">
+                            <button type="submit" class="btn btn-warning">
                                 <i class="bi bi-save me-2"></i>Guardar Cambios
                             </button>
                         </div>
@@ -316,24 +282,6 @@ include_once '../includes/header.php';
             });
         });
     </script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -374,16 +322,6 @@ include_once '../includes/header.php';
                 }
             });
 
-            // Function for refreshing data (example)
-            window.refreshData = function() {
-                const refreshBtn = document.querySelector('.btn-refresh');
-                refreshBtn.classList.add('refreshing');
-                // Simulate data fetching
-                setTimeout(() => {
-                    alert('Datos actualizados!');
-                    refreshBtn.classList.remove('refreshing');
-                }, 1000);
-            };
 
 
 
@@ -482,22 +420,6 @@ include_once '../includes/header.php';
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.btn-editar-funcionario').forEach(button => {
@@ -529,6 +451,45 @@ include_once '../includes/header.php';
                 });
             });
         });
+    </script>
+
+
+
+
+    <!-- Modal de confirmacion de eliminar cargo -->
+    <script>
+        function confirmarEliminacion(idRegistro, nombreCargo) {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                html: `¡Vas a eliminar el cargo de: <br> <strong style="color: #007bff; font-size: 1.1em; "> ${nombreCargo} </strong> 
+                <span style="color: red;"> <br><br>
+                Esta acción es irreversible
+                </span>  <br>  `,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#5a5d5fff',
+                confirmButtonText: '<i class="bi bi-trash"></i> Sí, Eliminar',
+                cancelButtonText: '<i class="bi bi-x-circle"></i> Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Envío del formulario dinámico por POST a eliminar_cargo.php
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    // RUTA CRÍTICA: Ajusta esta ruta si tu archivo eliminar_cargo.php no está en ../acciones/
+                    form.action = '../api/eliminar_cargo.php';
+
+                    const idField = document.createElement('input');
+                    idField.type = 'hidden';
+                    idField.name = 'id';
+                    idField.value = idRegistro;
+
+                    form.appendChild(idField);
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
+        }
     </script>
 
 

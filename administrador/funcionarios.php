@@ -6,60 +6,16 @@ include_once '../includes/header.php';
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
     <div class="container-fluid p-0">
         <div class="row g-0">
-
             <?php
             include_once '../includes/silebar_admin.php';
             ?>
 
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 
             <div class="main-content" id="mainContent">
-                  <div class="top-navbar">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <button class="btn btn-outline-secondary d-md-none me-2 menu-toggle" id="sidebarToggle">
-                            <i class="bi bi-list"></i>
-                        </button>
-                        <div>
-                            <nav aria-label="breadcrumb">
-                                <ol class="breadcrumb breadcrumb-custom mb-0">
-                                    <li class="breadcrumb-item"><a href="#" class="text-decoration-none">Inicio</a></li>
-                                    <li class="breadcrumb-item active">Dashboard</li>
-                                </ol>
-                            </nav>
-                        </div>
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="input-group" style="width: 300px;">
-                                <span class="input-group-text bg-light border-end-0">
-                                    <i class="bi bi-search text-muted"></i>
-                                </span>
-                                <input type="text" class="form-control border-start-0"
-                                    placeholder="Buscar funcionario...">
-                            </div>
-                            <button class="btn btn-outline-primary btn-refresh" onclick="refreshData()">
-                                <i class="bi bi-arrow-clockwise me-1"></i> Actualizar
-                            </button>
-                            <div class="dropdown">
-                                <button class="btn btn-outline-secondary dropdown-toggle" type="button"
-                                    data-bs-toggle="dropdown">
-                                    <i class="bi bi-person-circle me-1"></i> <?= $nombre_usuario; ?>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Mi Perfil</a>
-                                    </li>
-                                    <li><a class="dropdown-item" href="#"><i
-                                                class="bi bi-gear me-2"></i>Configuración</a></li>
-                                    <li>
-                                        <hr class="dropdown-divider">
-                                    </li>
-                                    <li>
-                                        <button class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#logoutModal">
-                                            <i class="bi bi-box-arrow-right me-1"></i> Cerrar Sesión
-                                        </button>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+
 
                 <div class="header-section">
                     <div class="row align-items-center">
@@ -118,12 +74,12 @@ include_once '../includes/header.php';
 
                             // Consulta para obtener datos de funcionarios
                             $sql = "SELECT 
-            ID_Funcionario, Codigo_Funcionario, Nombres, Apellidos, 
-            DNI_Pasaporte, Fecha_Nacimiento, Genero, Nacionalidad, 
-            Direccion_Residencia, Telefono_Contacto, Email_Oficial, 
-            Fecha_Ingreso, Estado_Laboral, Fotografia 
-        FROM tbl_funcionarios 
-        ORDER BY ID_Funcionario ASC";
+                            ID_Funcionario, Codigo_Funcionario, Nombres, Apellidos, 
+                            DNI_Pasaporte, Fecha_Nacimiento, Genero, Nacionalidad, 
+                            Direccion_Residencia, Telefono_Contacto, Email_Oficial, 
+                            Fecha_Ingreso, Estado_Laboral, Fotografia 
+                            FROM tbl_funcionarios 
+                            ORDER BY ID_Funcionario ASC";
 
                             $stmt = $pdo->query($sql);
                             $funcionarios = $stmt->fetchAll();
@@ -133,6 +89,7 @@ include_once '../includes/header.php';
                                 <thead>
                                     <tr>
                                         <th>ID</th>
+                                        <th>Foto</th>
                                         <th>Código</th>
                                         <th>Nombres</th>
                                         <th>Apellidos</th>
@@ -141,9 +98,7 @@ include_once '../includes/header.php';
                                         <th>Género</th>
                                         <th>Nacionalidad</th>
                                         <th>Teléfono</th>
-
                                         <th>Estado Laboral</th>
-                                        <th>Fotografía</th>
                                         <th>Acciones</th>
                                     </tr>
                                 </thead>
@@ -151,28 +106,6 @@ include_once '../includes/header.php';
                                     <?php foreach ($funcionarios as $f): ?>
                                         <tr>
                                             <td><?= htmlspecialchars($f['ID_Funcionario']) ?></td>
-                                            <td><?= htmlspecialchars($f['Codigo_Funcionario']) ?></td>
-                                            <td><?= htmlspecialchars($f['Nombres']) ?></td>
-                                            <td><?= htmlspecialchars($f['Apellidos']) ?></td>
-                                            <td><?= htmlspecialchars($f['DNI_Pasaporte']) ?></td>
-                                            <td><?= htmlspecialchars($f['Fecha_Nacimiento']) ?></td>
-                                            <td><?= htmlspecialchars($f['Genero']) ?></td>
-                                            <td><?= htmlspecialchars($f['Nacionalidad']) ?></td>
-                                            <td><?= htmlspecialchars($f['Telefono_Contacto']) ?></td>
-
-                                            <td>
-                                                <?php
-                                                $estado = htmlspecialchars($f['Estado_Laboral']);
-                                                $clase = match ($estado) {
-                                                    'Activo' => 'bg-success',
-                                                    'Baja Temporal' => 'bg-warning',
-                                                    'Jubilado', 'Cesado' => 'bg-secondary',
-                                                    'Permiso', 'Vacaciones' => 'bg-info',
-                                                    default => 'bg-dark'
-                                                };
-                                                ?>
-                                                <span class="badge <?= $clase ?>"><?= $estado ?></span>
-                                            </td>
                                             <?php
                                             // Detectar el protocolo y host dinámicamente
                                             $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
@@ -196,14 +129,93 @@ include_once '../includes/header.php';
                                                     <i class="bi bi-image-fill text-muted"></i>
                                                 <?php endif; ?>
                                             </td>
+                                            <td><?= htmlspecialchars($f['Codigo_Funcionario']) ?></td>
+                                            <td><?= htmlspecialchars($f['Nombres']) ?></td>
+                                            <td><?= htmlspecialchars($f['Apellidos']) ?></td>
+                                            <td><?= htmlspecialchars($f['DNI_Pasaporte']) ?></td>
+                                            <td><?= htmlspecialchars($f['Fecha_Nacimiento']) ?></td>
+                                            <td><?= htmlspecialchars($f['Genero']) ?></td>
+                                            <td><?= htmlspecialchars($f['Nacionalidad']) ?></td>
+                                            <td><?= htmlspecialchars($f['Telefono_Contacto']) ?></td>
+
+                                            <td>
+                                                <?php
+                                                $estado_actual = $f['Estado_Laboral'];
+                                                $estados_inactivos = ['Cesado', 'Baja Temporal'];
+                                                $esta_inactivo = in_array($estado_actual, $estados_inactivos);
+                                                $btn_class = $esta_inactivo ? 'btn-secondary' : 'btn-danger';
+                                                $disabled_attr = $esta_inactivo ? 'disabled' : '';
+
+                                                ?>
+
+
+                                                <?php
+                                                // 1. Mapa de colores que asigna un color de Bootstrap a cada estado laboral
+                                                $color_map = [
+                                                    'Activo'         => 'bg-success',
+                                                    'Permiso'        => 'bg-info',
+                                                    'Vacaciones'     => 'bg-primary',
+                                                    'Cesado'         => 'bg-danger',
+                                                    'Baja Temporal'  => 'bg-warning',
+                                                    'Jubilado'       => 'bg-dark',
+
+                                                ];
+
+
+                                                $estados_activos = ['Activo', 'Permiso', 'Vacaciones'];
+                                                $estados_inactivos_activables = ['Cesado', 'Baja Temporal'];
+                                                $estado_actual = $f['Estado_Laboral'];
+
+                                                $es_activo_o_temporal = in_array($estado_actual, $estados_activos);
+                                                $es_reactivable = in_array($estado_actual, $estados_inactivos_activables);
+                                                $es_interactivo = $es_activo_o_temporal || $es_reactivable;
+                                                $badge_color = $color_map[$estado_actual] ?? 'bg-light text-dark';
+
+                                                if ($es_interactivo) {
+
+                                                    // Si el estado es Activo, Permiso o Vacaciones, el switch se muestra 'checked' (ON).
+                                                    $is_checked = $es_activo_o_temporal;
+                                                    $checked_attr = $is_checked ? 'checked' : '';
+                                                ?>
+                                                    <div class="form-check form-switch d-inline-block ">
+                                                        <input
+                                                            class="form-check-input funcionario-toggle"
+                                                            title="Desactivar/Activar"
+                                                            type="checkbox"
+                                                            role="switch"
+                                                            id="toggle-<?= $f['ID_Funcionario'] ?>"
+                                                            data-funcionario-id="<?= $f['ID_Funcionario'] ?>"
+                                                            data-funcionario-nombres="<?= $f['Nombres'] . ' ' . $f['Apellidos'] ?>"
+                                                            <?= $checked_attr ?>>
+                                                        <label class="form-check-label" for="toggle-<?= $f['ID_Funcionario'] ?>">
+                                                            <span class="badge <?= $badge_color ?>">
+                                                                <?= $estado_actual ?>
+                                                            </span>
+                                                        </label>
+                                                    </div>
+                                                <?php
+                                                } else {
+                                                    // Si el estado no es interactivo (ej. 'Jubilado'), muestra solo la etiqueta con su color específico.
+                                                ?>
+                                                    <div class="d-inline-block">
+                                                        Estado:
+                                                        <span class="badge <?= $badge_color ?>">
+                                                            <?= $estado_actual ?>
+                                                        </span>
+                                                    </div>
+                                                <?php
+                                                }
+                                                ?>
+                                            </td>
+
 
 
 
                                             <td>
                                                 <div class="d-flex gap-2">
 
-
-                                                    <button class="btn btn-sm btn-primary btn-editar-funcionario"
+                                                    <!-- Boton de editar funcionario -->
+                                                    <button class="btn btn-sm btn-warning btn-editar-funcionario"
                                                         data-id="<?= $f['ID_Funcionario'] ?>"
                                                         data-codigo="<?= htmlspecialchars($f['Codigo_Funcionario']) ?>"
                                                         data-nombres="<?= htmlspecialchars($f['Nombres']) ?>"
@@ -219,33 +231,18 @@ include_once '../includes/header.php';
                                                         data-estado="<?= $f['Estado_Laboral'] ?>"
                                                         data-foto="<?= htmlspecialchars($f['Fotografia']) ?>"
                                                         title="Editar">
-                                                        <i class="bi bi-pencil"></i>
+                                                        <i class="bi bi-pencil-square"></i>
                                                     </button>
 
-
-
-                                                    <?php if ($_SESSION['Rol_Usuario'] !== 'Usuario'): ?>
-                                                        <button class="btn btn-sm btn-danger" title="Eliminar"><i class="bi bi-trash"></i></button>
-                                                    <?php endif; ?>
-
-
-
-
-
-                                                    <button type="button" class="btn btn-sm btn-info shadow-sm"
+                                                    <!-- Boton de ver detalles del funcionario -->
+                                                    <button type="button" class="btn btn-sm btn-info shadow-sm" title="Ver Detalles"
                                                         data-bs-toggle="modal" data-bs-target="#employeeDetailModal"
                                                         data-funcionario-id="<?= $f['ID_Funcionario'] ?>">
-                                                        <i class="bi bi-person-fill me-2"></i>
+                                                        <i class="bi bi-person-fill"></i>
                                                     </button>
 
 
-
-
-
-
-
-
-
+                                                    <!-- Boton de Descargar PDF del funcionario -->
                                                     <button class="btn btn-sm btn-success" title="Descargar PDF"
                                                         onclick="downloadFile(<?= (int) $f['ID_Funcionario'] ?>)">
                                                         <i class="bi bi-filetype-pdf"></i>
@@ -288,13 +285,12 @@ include_once '../includes/header.php';
 
 
     <!-- script para la funcion de PDF imprimible para los funcionarios -->
-    <script> 
+    <script>
         function downloadFile(id_funcionario) {
             console.log(id_funcionario)
-            const url = '../fpdf/cv_funcionario.php?id_funcionario='+id_funcionario;
+            const url = '../fpdf/cv_funcionario.php?id_funcionario=' + id_funcionario;
             window.open(url, '_blank');
         }
-         
     </script>
 
 
@@ -302,27 +298,20 @@ include_once '../includes/header.php';
 
 
 
-
-
-
-
-
-
-
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             // Sidebar toggle for mobile
             const sidebarToggle = document.getElementById('sidebarToggle');
             const sidebar = document.getElementById('sidebar');
             const sidebarOverlay = document.getElementById('sidebarOverlay');
             const mainContent = document.getElementById('mainContent');
 
-            sidebarToggle.addEventListener('click', function () {
+            sidebarToggle.addEventListener('click', function() {
                 sidebar.classList.toggle('show');
                 sidebarOverlay.classList.toggle('show');
             });
 
-            sidebarOverlay.addEventListener('click', function () {
+            sidebarOverlay.addEventListener('click', function() {
                 sidebar.classList.remove('show');
                 sidebarOverlay.classList.remove('show');
             });
@@ -332,7 +321,7 @@ include_once '../includes/header.php';
             const liveSearchInput = document.getElementById('liveSearchInput');
             const funcionariosTableBody = document.getElementById('funcionariosTableBody');
 
-            liveSearchInput.addEventListener('keyup', function () {
+            liveSearchInput.addEventListener('keyup', function() {
                 const searchTerm = liveSearchInput.value.toLowerCase();
                 const rows = funcionariosTableBody.getElementsByTagName('tr');
 
@@ -345,17 +334,6 @@ include_once '../includes/header.php';
                     }
                 }
             });
-
-            // Function for refreshing data (example)
-            window.refreshData = function () {
-                const refreshBtn = document.querySelector('.btn-refresh');
-                refreshBtn.classList.add('refreshing');
-                // Simulate data fetching
-                setTimeout(() => {
-                    alert('Datos actualizados!');
-                    refreshBtn.classList.remove('refreshing');
-                }, 1000);
-            };
 
 
 
@@ -394,7 +372,7 @@ include_once '../includes/header.php';
                     const pageItem = document.createElement('li');
                     pageItem.classList.add('page-item');
                     pageItem.innerHTML = `<a class="page-link" href="#">${i}</a>`;
-                    pageItem.addEventListener('click', function (e) {
+                    pageItem.addEventListener('click', function(e) {
                         e.preventDefault();
                         displayPage(i);
                     });
@@ -434,7 +412,7 @@ include_once '../includes/header.php';
             setupPagination();
 
             // Event listeners for Previous and Next buttons
-            paginationControls.children[0].addEventListener('click', function (e) {
+            paginationControls.children[0].addEventListener('click', function(e) {
                 e.preventDefault();
                 const currentPage = parseInt(paginationControls.querySelector('.page-item.active .page-link').textContent);
                 if (currentPage > 1) {
@@ -442,7 +420,7 @@ include_once '../includes/header.php';
                 }
             });
 
-            paginationControls.children[paginationControls.children.length - 1].addEventListener('click', function (e) {
+            paginationControls.children[paginationControls.children.length - 1].addEventListener('click', function(e) {
                 e.preventDefault();
                 const currentPage = parseInt(paginationControls.querySelector('.page-item.active .page-link').textContent);
                 if (currentPage < totalPages) {
@@ -457,15 +435,7 @@ include_once '../includes/header.php';
 
 
 
-
-
-
-
-
-
-
-
-
+    <!--Modal de Reigistrar funcionario  -->
     <div class="modal fade" id="addFuncionarioModal" tabindex="-1" aria-labelledby="addFuncionarioModalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-lg">
@@ -487,7 +457,7 @@ include_once '../includes/header.php';
                                     <i class="bi bi-person-vcard me-2 text-primary"></i>Nombres
                                 </label>
                                 <input type="text" class="form-control" id="nombres" name="Nombres" required
-                                    placeholder="Ej: Ana María">
+                                    placeholder="Ej: Ana Trini">
                             </div>
 
                             <!-- Apellidos -->
@@ -621,10 +591,6 @@ include_once '../includes/header.php';
 
 
 
-
-
-
-    <!-- Modal de Detalles del Funcionario -->
     <!-- Modal de Detalles del Funcionario -->
     <div class="modal fade" id="employeeDetailModal" tabindex="-1" aria-labelledby="employeeDetailModalLabel"
         aria-hidden="true">
@@ -671,10 +637,15 @@ include_once '../includes/header.php';
         </div>
     </div>
 
+
     <!-- Bootstrap 5.3 JavaScript Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
+
+
+
+    <!-- Script para cargar datos del funcionario para mostrarlos en el modal de detalles del funcionario -->
     <script>
         // Función para formatear fecha
         function formatDate(dateString) {
@@ -682,6 +653,7 @@ include_once '../includes/header.php';
             const [year, month, day] = dateString.split('-');
             return `${day}/${month}/${year}`;
         }
+
 
         async function loadEmployeeData(funcionarioId) {
             const modalContentData = document.getElementById('modalContentData');
@@ -817,8 +789,8 @@ include_once '../includes/header.php';
                                             <p class="text-muted d-flex align-items-center mb-1"><i class="bi bi-building-fill-add me-2 text-warning-600"></i> ${c.Institucion_Organizadora}</p>
                                             <p class="text-muted small mt-2 d-flex align-items-center"><i class="bi bi-calendar-range me-2 text-warning-600"></i> ${formatDate(c.Fecha_Inicio_Curso)} - ${formatDate(c.Fecha_Fin_Curso)}</p>
                                            ${c.Certificado_URL ? `<a href="${c.Certificado_URL}" download class="text-primary-emphasis text-decoration-none small mt-2 d-flex align-items-center">
-    <i class="bi bi-download me-1"></i> Ver Certificado
-</a>` : ''}
+                                            <i class="bi bi-download me-1"></i> Ver Certificado
+                                        </a>` : ''}
                                         </div>
                                     `).join('') : '<p class="text-muted">No hay capacitaciones registradas.</p>'}
                                 </div>
@@ -835,14 +807,14 @@ include_once '../includes/header.php';
                                             <p class="text-muted d-flex align-items-center mb-1"><i class="bi bi-clipboard-check-fill me-2 text-danger-600"></i> <span class="fw-medium">Estado:</span> ${p.Estado_Permiso}</p>
                                             <p class="text-muted small mt-2 d-flex align-items-center"><i class="bi bi-chat-dots-fill me-2 text-danger-600"></i> ${p.Motivo}</p>
                                          ${p.Documento_Soporte_URL ? `
-  <a href="${p.Documento_Soporte_URL}" 
-     download 
-     class="text-primary-emphasis text-decoration-none small mt-2 d-flex align-items-center" 
-     target="_blank" 
-     rel="noopener noreferrer">
-    <i class="bi bi-file-earmark-arrow-down-fill me-1"></i> Ver Documento
-  </a>
-` : ''}
+                                            <a href="${p.Documento_Soporte_URL}" 
+                                                download 
+                                                class="text-primary-emphasis text-decoration-none small mt-2 d-flex align-items-center" 
+                                                target="_blank" 
+                                                rel="noopener noreferrer">
+                                                <i class="bi bi-file-earmark-arrow-down-fill me-1"></i> Ver Documento
+                                            </a>
+                                            ` : ''}
                                         </div>
                                     `).join('') : '<p class="text-muted">No hay permisos registrados.</p>'}
                                 </div>
@@ -867,7 +839,7 @@ include_once '../includes/header.php';
         const employeeDetailModalElement = document.getElementById('employeeDetailModal');
         const myModal = new bootstrap.Modal(employeeDetailModalElement);
 
-        employeeDetailModalElement.addEventListener('show.bs.modal', function (event) {
+        employeeDetailModalElement.addEventListener('show.bs.modal', function(event) {
             const button = event.relatedTarget;
             const funcionarioId = button.getAttribute('data-funcionario-id');
             if (funcionarioId) {
@@ -887,21 +859,7 @@ include_once '../includes/header.php';
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    <!-- Modal de Editar -->
     <div class="modal fade" id="editFuncionarioModal" tabindex="-1" aria-labelledby="editFuncionarioModalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-lg">
@@ -1016,17 +974,39 @@ include_once '../includes/header.php';
                             </div>
 
                             <!-- Estado Laboral -->
+                            <?php
+
+                            $estado_actual = $f['Estado_Laboral'];
+
+                            // 2. Definir los estados que SÍ se pueden seleccionar en este modal
+                            $estados_editables = ['Activo', 'Permiso', 'Vacaciones'];
+
+
+                            $opciones_finales = $estados_editables;
+
+                            if (!in_array($estado_actual, $estados_editables)) {
+                                // Si el estado actual es 'Cesado', 'Baja Temporal', etc., lo añadimos al inicio de la lista.
+                                $opciones_finales = [$estado_actual] + $estados_editables;
+                            }
+                            ?>
+
                             <div class="col-md-6">
                                 <label for="editEstadoLaboral" class="form-label fw-semibold">
                                     <i class="bi bi-briefcase text-primary me-2"></i>Estado Laboral
                                 </label>
                                 <select class="form-select" id="editEstadoLaboral" name="Estado_Laboral">
-                                    <option value="Activo">Activo</option>
-                                    <option value="Baja Temporal">Baja Temporal</option>
-                                    <option value="Jubilado">Jubilado</option>
-                                    <option value="Cesado">Cesado</option>
-                                    <option value="Permiso">Permiso</option>
-                                    <option value="Vacaciones">Vacaciones</option>
+                                    <?php foreach ($opciones_finales as $estado) : ?>
+                                        <?php
+                                        // Determina si esta es la opción actual
+                                        $is_selected = ($estado === $estado_actual) ? 'selected' : '';
+
+                                        // Determina si la opción debe estar deshabilitada (si no está en los editables, se deshabilita)
+                                        $is_disabled = in_array($estado, $estados_editables) ? '' : 'disabled';
+                                        ?>
+                                        <option value="<?= $estado ?>" <?= $is_selected ?> <?= $is_disabled ?>>
+                                            <?= $estado ?>
+                                        </option>
+                                    <?php endforeach; ?>
                                 </select>
                             </div>
 
@@ -1046,10 +1026,10 @@ include_once '../includes/header.php';
 
                         <!-- Botones -->
                         <div class="mt-4 d-flex justify-content-end gap-3">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                                 <i class="bi bi-x-circle me-1"></i> Cancelar
-                            </button>
-                            <button type="submit" class="btn btn-primary">
+                            </button> -->
+                            <button type="submit" class="btn btn-warning">
                                 <i class="bi bi-save me-1"></i> Guardar Cambios
                             </button>
                         </div>
@@ -1064,22 +1044,18 @@ include_once '../includes/header.php';
 
 
 
-
-
-
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // ... (Tu código JavaScript existente aquí) ...
+        document.addEventListener('DOMContentLoaded', function() {
 
             // Previsualización de la imagen
             const fotoInput = document.getElementById('foto');
             const previewFoto = document.getElementById('previewFoto');
 
-            fotoInput.addEventListener('change', function (event) {
+            fotoInput.addEventListener('change', function(event) {
                 if (event.target.files && event.target.files[0]) {
                     const reader = new FileReader(); // Crea un nuevo objeto FileReader
 
-                    reader.onload = function (e) {
+                    reader.onload = function(e) {
                         // Cuando el archivo se ha leído, actualiza el src de la imagen y la muestra
                         previewFoto.src = e.target.result;
                         previewFoto.style.display = 'block'; // Muestra la imagen
@@ -1097,7 +1073,7 @@ include_once '../includes/header.php';
             // Añadir funcionalidad al botón Cancelar para limpiar la previsualización
             const cancelBtn = document.getElementById('cancelBtn');
             if (cancelBtn) {
-                cancelBtn.addEventListener('click', function () {
+                cancelBtn.addEventListener('click', function() {
                     // Limpia el input de archivo
                     fotoInput.value = '';
                     // Oculta la previsualización
@@ -1115,9 +1091,9 @@ include_once '../includes/header.php';
 
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.btn-editar-funcionario').forEach(button => {
-                button.addEventListener('click', function () {
+                button.addEventListener('click', function() {
                     const datos = this.dataset;
 
                     // Llenar el formulario con los valores
@@ -1146,6 +1122,169 @@ include_once '../includes/header.php';
             });
         });
     </script>
+
+
+    <!-- Modal de activar y desactivar -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggles = document.querySelectorAll('.funcionario-toggle');
+
+            toggles.forEach(toggle => {
+                toggle.addEventListener('change', function(e) {
+                    // Detiene el cambio visual hasta que haya confirmación del servidor
+                    e.preventDefault();
+
+                    const toggleElement = this;
+                    const funcionarioId = toggleElement.getAttribute('data-funcionario-id');
+                    const funcionarioNombre = toggleElement.getAttribute('data-funcionario-nombres');
+
+                    // Determina la acción deseada (true = Activar, false = Desactivar)
+                    const activate = toggleElement.checked;
+
+                    // Función que ejecuta la llamada Fetch (AJAX)
+                    const executeFetch = (apiPath, bodyData, successMessage, action) => {
+                        fetch(apiPath, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded',
+                                },
+                                body: bodyData
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    Swal.close();
+                                    // Se asume que el backend ya establece el mensaje de éxito en $_SESSION
+                                    window.location.reload();
+                                } else {
+                                    Swal.fire('Error', data.message || `No se pudo ${action.toLowerCase()}.`, 'error');
+                                    // Si falla, revierte el switch
+                                    toggleElement.checked = !activate;
+                                }
+                            })
+                            .catch(error => {
+                                Swal.fire('Error de Conexión', `Hubo un problema: ${error.message}`, 'error');
+                                // Si falla, revierte el switch
+                                toggleElement.checked = !activate;
+                            });
+                    };
+
+
+                    if (activate) {
+                        // --- FLUJO DE ACTIVACIÓN ---
+                        const apiPath = '../api/activar_funcionario.php';
+                        const action = 'ACTIVAR';
+
+                        Swal.fire({
+                            title: `¿Confirmas ${action}?`,
+                            html: `Estás a punto de ${action} al funcionario: <br> 
+                            <span style="color: #198754; font-weight: bold;">${funcionarioNombre}</span>`,
+                            icon: 'question',
+                            showCancelButton: true,
+                            confirmButtonColor: '#198754',
+                            cancelButtonColor: '#5a5d5fff',
+                            confirmButtonText: `<i class="bi bi-check-circle"></i> Sí, ${action}`,
+                            cancelButtonText: '<i class="bi bi-x-circle"></i> Cancelar'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                executeFetch(apiPath, `id=${funcionarioId}`, 'activado', action);
+                            } else {
+                                toggleElement.checked = !activate;
+                            }
+                        });
+
+                    } else {
+                        // --- FLUJO DE DESACTIVACIÓN (CON OPCIONES) ---
+                        const apiPathWithState = '../api/desactivar_funcionario.php'; // Usaremos esta API para manejar ambos estados de desactivación
+
+                        Swal.fire({
+                            title: 'Selecciona la acción a realizar',
+                            html: `¿Cómo deseas desactivar a <span style="color: #dc3545; font-weight: bold;">${funcionarioNombre}</span>?`,
+                            icon: 'warning',
+                            showCancelButton: true,
+                            showConfirmButton: true,
+                            showDenyButton: true,
+
+                            // Configuración de los tres botones
+                            confirmButtonText: '<i class="bi bi-check-circle"></i> Baja Temporal',
+                            confirmButtonColor: '#ebbb2cff',
+                            denyButtonText: 'Cesar (Definitivo)',
+                            denyButtonColor: '#970110ff',
+                            cancelButtonText: '<i class="bi bi-x-circle"></i> Cancelar',
+                            cancelButtonColor: '#5a5d5fff'
+
+                        }).then((result) => {
+                            let newState = null;
+                            let action = '';
+
+                            if (result.isConfirmed) {
+                                // Opción 1: Baja Temporal
+                                newState = 'Baja Temporal';
+                                action = 'dar de Baja Temporal';
+                            } else if (result.isDenied) {
+                                // Opción 2: Cesado
+                                newState = 'Cesado';
+                                action = 'Cesar';
+                            }
+
+                            if (newState) {
+                                // Si se eligió una opción, ejecuta la llamada AJAX
+                                const bodyData = `id=${funcionarioId}&new_state=${newState}`;
+                                executeFetch(apiPathWithState, bodyData, action, action);
+                            } else {
+                                // El usuario canceló o cerró el modal
+                                toggleElement.checked = !activate;
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+
+
+
+
+
+    <!-- Script para que se abra el modal de funcionario desde el dashboard -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Función para obtener parámetros de la URL
+            function getQueryParameter(name) {
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get(name);
+            }
+
+            // Comprobamos el parámetro 'action=register'
+            const action = getQueryParameter('action');
+            const modalId = 'addFuncionarioModal'; // El ID de tu modal
+
+            if (action === 'register') {
+                const modalElement = document.getElementById(modalId);
+
+                // Verificamos que el modal exista y que la clase 'bootstrap.Modal' esté disponible
+                if (modalElement && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                    // 1. Crear la instancia del modal
+                    const funcionarioModal = new bootstrap.Modal(modalElement);
+
+                    // 2. Mostrar el modal automáticamente
+                    funcionarioModal.show();
+
+                    // 3. Opcional: Limpiar el parámetro de la URL (para que al recargar la página, el modal no vuelva a aparecer)
+                    if (history.replaceState) {
+                        const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+                        window.history.replaceState({
+                            path: cleanUrl
+                        }, '', cleanUrl);
+                    }
+                } else {
+                    console.error("El modal con ID #" + modalId + " no se encontró o Bootstrap JS no se cargó correctamente.");
+                }
+            }
+        });
+    </script>
+
+
 
 
     <?php

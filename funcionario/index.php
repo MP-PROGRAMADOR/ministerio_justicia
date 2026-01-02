@@ -80,7 +80,7 @@
 
                                         <div class="mb-3">
                                             <label for="codigo" class="form-label fw-semibold">Código de Funcionario</label>
-                                            <input type="text" name="codigo" id="codigo" class="form-control form-control-lg" placeholder="Ingrese su código" required>
+                                            <input type="password" name="codigo" id="codigo" class="form-control form-control-lg" placeholder="Ingrese su código" required>
                                         </div>
 
                                         <div class="mb-4">
@@ -178,5 +178,4 @@
     </script>
 
 </body>
-
 </html>

@@ -7,59 +7,12 @@ include_once '../includes/header.php';
     <div class="container-fluid p-0">
         <div class="row g-0">
 
-            <?php
-            include_once '../includes/silebar_admin.php';
-            ?>
-
+ <?php
+                include_once '../includes/silebar_admin.php';
+                ?>
 
             <div class="main-content" id="mainContent">
-                <div class="top-navbar">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <button class="btn btn-outline-secondary d-md-none me-2 menu-toggle" id="sidebarToggle">
-                            <i class="bi bi-list"></i>
-                        </button>
-                        <div>
-                            <nav aria-label="breadcrumb">
-                                <ol class="breadcrumb breadcrumb-custom mb-0">
-                                    <li class="breadcrumb-item"><a href="#" class="text-decoration-none">Inicio</a></li>
-                                    <li class="breadcrumb-item active">Dashboard</li>
-                                </ol>
-                            </nav>
-                        </div>
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="input-group" style="width: 300px;">
-                                <span class="input-group-text bg-light border-end-0">
-                                    <i class="bi bi-search text-muted"></i>
-                                </span>
-                                <input type="text" class="form-control border-start-0"
-                                    placeholder="Buscar funcionario...">
-                            </div>
-                            <button class="btn btn-outline-primary btn-refresh" onclick="refreshData()">
-                                <i class="bi bi-arrow-clockwise me-1"></i> Actualizar
-                            </button>
-                            <div class="dropdown">
-                                <button class="btn btn-outline-secondary dropdown-toggle" type="button"
-                                    data-bs-toggle="dropdown">
-                                    <i class="bi bi-person-circle me-1"></i> <?= $nombre_usuario; ?>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Mi Perfil</a>
-                                    </li>
-                                    <li><a class="dropdown-item" href="#"><i
-                                                class="bi bi-gear me-2"></i>Configuración</a></li>
-                                    <li>
-                                        <hr class="dropdown-divider">
-                                    </li>
-                                    <li>
-                                        <button class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#logoutModal">
-                                            <i class="bi bi-box-arrow-right me-1"></i> Cerrar Sesión
-                                        </button>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+               
 
                 <div class="header-section">
                     <div class="row align-items-center">
@@ -100,13 +53,13 @@ include_once '../includes/header.php';
 
 
 
-
+                <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 
                 <div class="container-fluid px-4">
                     <div class="table-custom mb-4 p-4">
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5 class="mb-0 fw-semibold">Listado de Funcionarios</h5>
+                            <h5 class="mb-0 fw-semibold">Listado de Destinos</h5>
                         </div>
                         <div class="table-responsive">
 
@@ -170,7 +123,13 @@ include_once '../includes/header.php';
                                                     </button>
 
 
-                                                    <button class="btn btn-sm btn-danger" title="Eliminar"><i class="bi bi-trash"></i></button>
+                                                    <button
+                                                        class="btn btn-sm btn-danger btn-eliminar-destino"
+                                                        title="Eliminar Destino"
+                                                        data-id="<?= $destino['ID_Destino'] ?>"
+                                                        data-descripcion="<?= htmlspecialchars($destino['Nombre_Destino']) ?>">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -222,7 +181,7 @@ include_once '../includes/header.php';
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body mt-2">
                     <form method="POST" action="../api/guardar_destino.php" enctype="multipart/form-data" novalidate>
                         <div class="row g-3">
                             <div class="col-md-6">
@@ -279,9 +238,9 @@ include_once '../includes/header.php';
                             </div>
                         </div>
 
-                        <div class="mt-4 d-flex justify-content-end">
+                        <div class="mt-4 d-flex justify-content-end mb-3">
                             <button type="submit" class="btn btn-success">
-                                <i class="bi bi-save me-2"></i>Guardar Destino
+                                <i class="bi bi-save me-2"></i>Registrar Destino
                             </button>
                         </div>
                     </form>
@@ -360,171 +319,174 @@ include_once '../includes/header.php';
 
 
 
-
-    <!-- Script para buscar y seleccionar funcionario -->
-
     <!-- Modal para Editar Destino -->
-<!-- Modal para Editar Destino -->
-<div class="modal fade" id="editDestinoModal" tabindex="-1" aria-labelledby="editDestinoModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-xl">
-    <div class="modal-content">
-      <div class="modal-header bg-warning text-dark">
-        <h5 class="modal-title" id="editDestinoModalLabel">
-          <i class="bi bi-pencil-square me-2"></i>Editar Destino
-        </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-      </div>
-      <div class="modal-body">
-        <form method="POST" action="../api/actualizar_destino.php" enctype="multipart/form-data">
-          <input type="hidden" name="ID_Destino" id="edit_ID_Destino">
+    <div class="modal fade" id="editDestinoModal" tabindex="-1" aria-labelledby="editDestinoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title" id="editDestinoModalLabel">
+                        <i class="bi bi-pencil-square me-2"></i>Editar Destino
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body mt-2">
+                    <form method="POST" action="../api/actualizar_destino.php" enctype="multipart/form-data">
+                        <input type="hidden" name="ID_Destino" id="edit_ID_Destino">
 
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label class="form-label fw-semibold"><i class="bi bi-building me-2 text-primary"></i>Nombre del Destino <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" name="Nombre_Destino" id="edit_Nombre_Destino" required>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label fw-semibold"><i class="bi bi-diagram-3-fill me-2 text-primary"></i>Tipo de Destino <span class="text-danger">*</span></label>
-              <select class="form-select" name="Tipo_Destino" id="edit_Tipo_Destino" required>
-                <option value="">Seleccione tipo</option>
-                <option value="Juzgado">Juzgado</option>
-                <option value="Tribunal">Tribunal</option>
-                <option value="Fiscalia">Fiscalía</option>
-                <option value="Sede Central">Sede Central</option>
-                <option value="Oficina Regional">Oficina Regional</option>
-                <option value="Otro">Otro</option>
-              </select>
-            </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold"><i class="bi bi-building me-2 text-primary"></i>Nombre del Destino <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="Nombre_Destino" id="edit_Nombre_Destino" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold"><i class="bi bi-diagram-3-fill me-2 text-primary"></i>Tipo de Destino <span class="text-danger">*</span></label>
+                                <select class="form-select" name="Tipo_Destino" id="edit_Tipo_Destino" required>
+                                    <option value="">Seleccione tipo</option>
+                                    <option value="Juzgado">Juzgado</option>
+                                    <option value="Tribunal">Tribunal</option>
+                                    <option value="Fiscalia">Fiscalía</option>
+                                    <option value="Sede Central">Sede Central</option>
+                                    <option value="Oficina Regional">Oficina Regional</option>
+                                    <option value="Otro">Otro</option>
+                                </select>
+                            </div>
 
-            <div class="col-md-12">
-              <label class="form-label fw-semibold"><i class="bi bi-geo-alt me-2 text-primary"></i>Dirección <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" name="Direccion_Destino" id="edit_Direccion_Destino" required>
-            </div>
+                            <div class="col-md-12">
+                                <label class="form-label fw-semibold"><i class="bi bi-geo-alt me-2 text-primary"></i>Dirección <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="Direccion_Destino" id="edit_Direccion_Destino" required>
+                            </div>
 
-            <div class="col-md-4">
-              <label class="form-label fw-semibold"><i class="bi bi-map-fill me-2 text-primary"></i>Provincia <span class="text-danger">*</span></label>
-              <select class="form-select" name="Provincia" id="edit_provincia" required></select>
-            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold"><i class="bi bi-map-fill me-2 text-primary"></i>Provincia <span class="text-danger">*</span></label>
+                                <select class="form-select" name="Provincia" id="edit_provincia" required></select>
+                            </div>
 
-            <div class="col-md-4">
-              <label class="form-label fw-semibold"><i class="bi bi-pin-map-fill me-2 text-primary"></i>Distrito <span class="text-danger">*</span></label>
-              <select class="form-select" name="Distrito" id="edit_distrito" required></select>
-            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold"><i class="bi bi-pin-map-fill me-2 text-primary"></i>Distrito <span class="text-danger">*</span></label>
+                                <select class="form-select" name="Distrito" id="edit_distrito" required></select>
+                            </div>
 
-            <div class="col-md-4">
-              <label class="form-label fw-semibold"><i class="bi bi-building-fill me-2 text-primary"></i>Ciudad <span class="text-danger">*</span></label>
-              <select class="form-select" name="Ciudad" id="edit_ciudad" required></select>
-            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold"><i class="bi bi-building-fill me-2 text-primary"></i>Ciudad <span class="text-danger">*</span></label>
+                                <select class="form-select" name="Ciudad" id="edit_ciudad" required></select>
+                            </div>
 
-            <div class="col-md-6">
-              <label class="form-label fw-semibold"><i class="bi bi-calendar-event me-2 text-primary"></i>Fecha Inicio <span class="text-danger">*</span></label>
-              <input type="date" class="form-control" name="Fecha_Destino" id="edit_Fecha_Destino" required>
-            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold"><i class="bi bi-calendar-event me-2 text-primary"></i>Fecha Inicio <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" name="Fecha_Destino" id="edit_Fecha_Destino" required>
+                            </div>
 
-            <div class="col-md-6">
-              <label class="form-label fw-semibold"><i class="bi bi-calendar-check-fill me-2 text-primary"></i>Fecha Fin</label>
-              <input type="date" class="form-control" name="Fecha_Fin_Destino" id="edit_Fecha_Fin_Destino">
-            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold"><i class="bi bi-calendar-check-fill me-2 text-primary"></i>Fecha Fin</label>
+                                <input type="date" class="form-control" name="Fecha_Fin_Destino" id="edit_Fecha_Fin_Destino">
+                            </div>
 
-            <div class="col-md-6">
-              <label class="form-label fw-semibold"><i class="bi bi-telephone me-2 text-primary"></i>Teléfono</label>
-              <input type="text" class="form-control" name="Telefono_Destino" id="edit_Telefono_Destino">
-            </div>
-          </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold"><i class="bi bi-telephone me-2 text-primary"></i>Teléfono</label>
+                                <input type="text" class="form-control" name="Telefono_Destino" id="edit_Telefono_Destino">
+                            </div>
+                        </div>
 
-          <div class="mt-4 d-flex justify-content-end">
-            <button type="submit" class="btn btn-primary">
-              <i class="bi bi-save me-2"></i>Guardar Cambios
-            </button>
-          </div>
-        </form>
-      </div>
+                        <div class="mt-4 d-flex justify-content-end mb-3">
+                            <button type="submit" class="btn btn-warning">
+                                <i class="bi bi-save me-2"></i>Guardar Cambios
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
 
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-  const provinciasDistritosCiudades = {
-    "Bioko Norte": { "Malabo": ["Malabo", "Baney", "Basupu"] },
-    "Bioko Sur": { "Luba": ["Luba", "Batete"] },
-    "Litoral": { "Bata": ["Bata", "Mbini", "Kogo"] },
-    "Centro Sur": { "Evinayong": ["Evinayong", "Ncue"] },
-    "Kie Ntem": { "Ebebiyin": ["Ebebiyin", "Mikomeseng"] },
-    "Wele Nzas": { "Mongomo": ["Mongomo", "Akonibe"] },
-    "Annobón": { "San Antonio de Palé": ["San Antonio de Palé"] }
-  };
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const provinciasDistritosCiudades = {
+                "Bioko Norte": {
+                    "Malabo": ["Malabo", "Baney", "Basupu"]
+                },
+                "Bioko Sur": {
+                    "Luba": ["Luba", "Batete"]
+                },
+                "Litoral": {
+                    "Bata": ["Bata", "Mbini", "Kogo"]
+                },
+                "Centro Sur": {
+                    "Evinayong": ["Evinayong", "Ncue"]
+                },
+                "Kie Ntem": {
+                    "Ebebiyin": ["Ebebiyin", "Mikomeseng"]
+                },
+                "Wele Nzas": {
+                    "Mongomo": ["Mongomo", "Akonibe"]
+                },
+                "Annobón": {
+                    "San Antonio de Palé": ["San Antonio de Palé"]
+                }
+            };
 
-  const provincia = document.getElementById("edit_provincia");
-  const distrito = document.getElementById("edit_distrito");
-  const ciudad = document.getElementById("edit_ciudad");
+            const provincia = document.getElementById("edit_provincia");
+            const distrito = document.getElementById("edit_distrito");
+            const ciudad = document.getElementById("edit_ciudad");
 
-  function cargarProvincias() {
-    provincia.innerHTML = '<option value="">Seleccione Provincia</option>';
-    for (const prov in provinciasDistritosCiudades) {
-      provincia.innerHTML += `<option value="${prov}">${prov}</option>`;
-    }
-  }
+            function cargarProvincias() {
+                provincia.innerHTML = '<option value="">Seleccione Provincia</option>';
+                for (const prov in provinciasDistritosCiudades) {
+                    provincia.innerHTML += `<option value="${prov}">${prov}</option>`;
+                }
+            }
 
-  function cargarDistritos(prov) {
-    distrito.innerHTML = '<option value="">Seleccione Distrito</option>';
-    ciudad.innerHTML = '<option value="">Seleccione Ciudad</option>';
-    if (prov && provinciasDistritosCiudades[prov]) {
-      for (const dist in provinciasDistritosCiudades[prov]) {
-        distrito.innerHTML += `<option value="${dist}">${dist}</option>`;
-      }
-    }
-  }
+            function cargarDistritos(prov) {
+                distrito.innerHTML = '<option value="">Seleccione Distrito</option>';
+                ciudad.innerHTML = '<option value="">Seleccione Ciudad</option>';
+                if (prov && provinciasDistritosCiudades[prov]) {
+                    for (const dist in provinciasDistritosCiudades[prov]) {
+                        distrito.innerHTML += `<option value="${dist}">${dist}</option>`;
+                    }
+                }
+            }
 
-  function cargarCiudades(prov, dist) {
-    ciudad.innerHTML = '<option value="">Seleccione Ciudad</option>';
-    if (prov && dist && provinciasDistritosCiudades[prov][dist]) {
-      provinciasDistritosCiudades[prov][dist].forEach(ciud => {
-        ciudad.innerHTML += `<option value="${ciud}">${ciud}</option>`;
-      });
-    }
-  }
+            function cargarCiudades(prov, dist) {
+                ciudad.innerHTML = '<option value="">Seleccione Ciudad</option>';
+                if (prov && dist && provinciasDistritosCiudades[prov][dist]) {
+                    provinciasDistritosCiudades[prov][dist].forEach(ciud => {
+                        ciudad.innerHTML += `<option value="${ciud}">${ciud}</option>`;
+                    });
+                }
+            }
 
-  cargarProvincias();
+            cargarProvincias();
 
-  provincia.addEventListener("change", function () {
-    cargarDistritos(this.value);
-  });
+            provincia.addEventListener("change", function() {
+                cargarDistritos(this.value);
+            });
 
-  distrito.addEventListener("change", function () {
-    cargarCiudades(provincia.value, this.value);
-  });
+            distrito.addEventListener("change", function() {
+                cargarCiudades(provincia.value, this.value);
+            });
 
-  document.querySelectorAll(".btn-editar-destino").forEach(button => {
-    button.addEventListener("click", function () {
-      document.getElementById("edit_ID_Destino").value = this.dataset.id;
-      document.getElementById("edit_Nombre_Destino").value = this.dataset.nombre;
-      document.getElementById("edit_Tipo_Destino").value = this.dataset.tipo;
-      document.getElementById("edit_Direccion_Destino").value = this.dataset.direccion;
-      document.getElementById("edit_Fecha_Destino").value = this.dataset.fechainicio;
-      document.getElementById("edit_Fecha_Fin_Destino").value = this.dataset.fechafin;
-      document.getElementById("edit_Telefono_Destino").value = this.dataset.telefono;
+            document.querySelectorAll(".btn-editar-destino").forEach(button => {
+                button.addEventListener("click", function() {
+                    document.getElementById("edit_ID_Destino").value = this.dataset.id;
+                    document.getElementById("edit_Nombre_Destino").value = this.dataset.nombre;
+                    document.getElementById("edit_Tipo_Destino").value = this.dataset.tipo;
+                    document.getElementById("edit_Direccion_Destino").value = this.dataset.direccion;
+                    document.getElementById("edit_Fecha_Destino").value = this.dataset.fechainicio;
+                    document.getElementById("edit_Fecha_Fin_Destino").value = this.dataset.fechafin;
+                    document.getElementById("edit_Telefono_Destino").value = this.dataset.telefono;
 
-      cargarProvincias();
-      provincia.value = this.dataset.provincia;
-      cargarDistritos(this.dataset.provincia);
-      distrito.value = this.dataset.distrito;
-      cargarCiudades(this.dataset.provincia, this.dataset.distrito);
-      ciudad.value = this.dataset.ciudad;
+                    cargarProvincias();
+                    provincia.value = this.dataset.provincia;
+                    cargarDistritos(this.dataset.provincia);
+                    distrito.value = this.dataset.distrito;
+                    cargarCiudades(this.dataset.provincia, this.dataset.distrito);
+                    ciudad.value = this.dataset.ciudad;
 
-      const modal = new bootstrap.Modal(document.getElementById("editDestinoModal"));
-      modal.show();
-    });
-  });
-});
-</script>
-
-
-
-
-
-
-
+                    const modal = new bootstrap.Modal(document.getElementById("editDestinoModal"));
+                    modal.show();
+                });
+            });
+        });
+    </script>
 
 
 
@@ -569,16 +531,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             });
 
-            // Function for refreshing data (example)
-            window.refreshData = function() {
-                const refreshBtn = document.querySelector('.btn-refresh');
-                refreshBtn.classList.add('refreshing');
-                // Simulate data fetching
-                setTimeout(() => {
-                    alert('Datos actualizados!');
-                    refreshBtn.classList.remove('refreshing');
-                }, 1000);
-            };
+
 
 
 
@@ -677,6 +630,85 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 
+
+    <!-- Modal de confirmacion de eliminar destino -->
+    <script>
+        function confirmarEliminacionDestino(idDestino, nombreDestino) {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                html: `¡Vas a eliminar el destino de: </br>
+                   <strong style="color: #007bff; font-size: 1.1em;">${nombreDestino}</strong>! 
+                   <br><br>
+                   <span style="color: red;">
+                        Esta acción es irreversible
+                   </span>`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#5a5d5fff',
+                cancelButtonText: '<i class="bi bi-x-circle"></i> Cancelar',
+                confirmButtonText: '<i class="bi bi-trash"></i> Sí, Eliminar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Envío del formulario dinámico por POST
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    // RUTA CRÍTICA: Ajusta la acción al archivo PHP que elimina destinos
+                    form.action = '../api/eliminar_destino.php';
+
+                    const idField = document.createElement('input');
+                    idField.type = 'hidden';
+                    idField.name = 'id'; // La clave esperada por el PHP para el ID
+                    idField.value = idDestino;
+
+                    form.appendChild(idField);
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
+        }
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+
+            const deleteButtons = document.querySelectorAll('.btn-eliminar-destino');
+
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    // Obtiene los datos de los atributos data-* del botón
+                    const destinoId = this.getAttribute('data-id');
+                    const destinoNombre = this.getAttribute('data-descripcion');
+
+
+                    confirmarEliminacionDestino(destinoId, destinoNombre);
+                });
+            });
+        });
+    </script>
+
+
+
+    <!-- Script para que se abra el modal de destinos desde el dashboard -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('action') === 'register') {
+                const modalElement = document.getElementById('addDestinoModal');
+                if (modalElement && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                    new bootstrap.Modal(modalElement).show();
+                    // Limpiar URL
+                    if (history.replaceState) {
+                        const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+                        window.history.replaceState({
+                            path: cleanUrl
+                        }, '', cleanUrl);
+                    }
+                }
+            }
+        });
+    </script>
 
 
 

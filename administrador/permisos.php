@@ -13,53 +13,7 @@ include_once '../includes/header.php';
 
 
             <div class="main-content" id="mainContent">
-                <div class="top-navbar">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <button class="btn btn-outline-secondary d-md-none me-2 menu-toggle" id="sidebarToggle">
-                            <i class="bi bi-list"></i>
-                        </button>
-                        <div>
-                            <nav aria-label="breadcrumb">
-                                <ol class="breadcrumb breadcrumb-custom mb-0">
-                                    <li class="breadcrumb-item"><a href="#" class="text-decoration-none">Inicio</a></li>
-                                    <li class="breadcrumb-item active">Dashboard</li>
-                                </ol>
-                            </nav>
-                        </div>
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="input-group" style="width: 300px;">
-                                <span class="input-group-text bg-light border-end-0">
-                                    <i class="bi bi-search text-muted"></i>
-                                </span>
-                                <input type="text" class="form-control border-start-0"
-                                    placeholder="Buscar funcionario...">
-                            </div>
-                            <button class="btn btn-outline-primary btn-refresh" onclick="refreshData()">
-                                <i class="bi bi-arrow-clockwise me-1"></i> Actualizar
-                            </button>
-                            <div class="dropdown">
-                                <button class="btn btn-outline-secondary dropdown-toggle" type="button"
-                                    data-bs-toggle="dropdown">
-                                    <i class="bi bi-person-circle me-1"></i> <?= $nombre_usuario; ?>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Mi Perfil</a>
-                                    </li>
-                                    <li><a class="dropdown-item" href="#"><i
-                                                class="bi bi-gear me-2"></i>Configuración</a></li>
-                                    <li>
-                                        <hr class="dropdown-divider">
-                                    </li>
-                                    <li>
-                                        <button class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#logoutModal">
-                                            <i class="bi bi-box-arrow-right me-1"></i> Cerrar Sesión
-                                        </button>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+
 
                 <div class="header-section">
                     <div class="row align-items-center">
@@ -79,6 +33,8 @@ include_once '../includes/header.php';
                         </div>
                     </div>
                 </div>
+
+
 
 
 
@@ -104,7 +60,7 @@ include_once '../includes/header.php';
                 <div class="container-fluid px-4">
                     <div class="table-custom mb-4 p-4">
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5 class="mb-0 fw-semibold">Listado de Funcionarios</h5>
+                            <h5 class="mb-0 fw-semibold">Listado de Permisos Aprobados</h5>
                         </div>
                         <div class="table-responsive">
 
@@ -120,8 +76,8 @@ include_once '../includes/header.php';
 
                             // Consulta base
                             $sql = "SELECT p.*, f.Nombres, f.Apellidos, f.DNI_Pasaporte, f.Fotografia 
-        FROM tbl_permisos p
-        JOIN tbl_funcionarios f ON p.ID_Funcionario = f.ID_Funcionario";
+                            FROM tbl_permisos p
+                            JOIN tbl_funcionarios f ON p.ID_Funcionario = f.ID_Funcionario";
 
                             // Si el rol es Administrador, filtra por token=1
                             if ($rol === 'Administrador') {
@@ -204,11 +160,6 @@ include_once '../includes/header.php';
                                                 <div class="d-flex gap-2">
 
 
-
-
-
-
-
                                                     <?php if ($_SESSION['Rol_Usuario'] !== 'Usuario'): ?>
 
                                                         <?php if (
@@ -242,38 +193,55 @@ include_once '../includes/header.php';
 
 
 
-                                                       
-
-
 
 
                                                         <?php if ($_SESSION['Rol_Usuario'] !== 'Jefe Personal'): ?>
 
-                                                            <button class="btn btn-sm btn-danger" title="Eliminar"><i class="bi bi-trash"></i></button>
+                                                            <!-- <button class="btn btn-sm btn-danger" title="Eliminar"><i class="bi bi-trash"></i></button> -->
 
                                                         <?php endif; ?>
 
                                                     <?php endif; ?>
 
 
-                                                     <button class="btn btn-sm btn-info btn-detalles-permiso"
-                                                            data-id="<?= $permiso['ID_Permiso'] ?>"
-                                                            data-funcionario="<?= htmlspecialchars($permiso['Nombres'] . ' ' . $permiso['Apellidos']) ?>"
-                                                            data-dni="<?= htmlspecialchars($permiso['DNI_Pasaporte']) ?>"
-                                                            data-tipo="<?= htmlspecialchars($permiso['Tipo_Permiso']) ?>"
-                                                            data-fechasolicitud="<?= htmlspecialchars($permiso['Fecha_Solicitud']) ?>"
-                                                            data-fechainicio="<?= htmlspecialchars($permiso['Fecha_Inicio_Permiso']) ?>"
-                                                            data-fechafin="<?= htmlspecialchars($permiso['Fecha_Fin_Permiso']) ?>"
-                                                            data-estado="<?= htmlspecialchars($permiso['Estado_Permiso']) ?>"
-                                                            data-token="<?= htmlspecialchars($permiso['token']) ?>"
-                                                            data-motivo="<?= htmlspecialchars($permiso['Motivo']) ?>"
-                                                            data-observaciones="<?= htmlspecialchars($permiso['Observaciones']) ?>"
-                                                            data-docsoporte="<?= htmlspecialchars($permiso['Documento_Soporte_URL']) ?>"
-                                                            data-docrespuesta="<?= htmlspecialchars($permiso['documento_permiso']) ?>"
-                                                            data-fotografia="<?= htmlspecialchars('../api/' . $permiso['Fotografia']) ?>"
-                                                            title="Ver Detalles">
-                                                            <i class="bi bi-eye"></i>
-                                                        </button>
+                                                    <button class="btn btn-sm btn-info btn-detalles-permiso"
+                                                        data-id="<?= $permiso['ID_Permiso'] ?>"
+                                                        data-funcionario="<?= htmlspecialchars($permiso['Nombres'] . ' ' . $permiso['Apellidos']) ?>"
+                                                        data-dni="<?= htmlspecialchars($permiso['DNI_Pasaporte']) ?>"
+                                                        data-tipo="<?= htmlspecialchars($permiso['Tipo_Permiso']) ?>"
+                                                        data-fechasolicitud="<?= htmlspecialchars($permiso['Fecha_Solicitud']) ?>"
+                                                        data-fechainicio="<?= htmlspecialchars($permiso['Fecha_Inicio_Permiso']) ?>"
+                                                        data-fechafin="<?= htmlspecialchars($permiso['Fecha_Fin_Permiso']) ?>"
+                                                        data-estado="<?= htmlspecialchars($permiso['Estado_Permiso']) ?>"
+                                                        data-token="<?= htmlspecialchars($permiso['token']) ?>"
+                                                        data-motivo="<?= htmlspecialchars($permiso['Motivo']) ?>"
+                                                        data-observaciones="<?= htmlspecialchars($permiso['Observaciones']) ?>"
+                                                        data-docsoporte="<?= htmlspecialchars($permiso['Documento_Soporte_URL']) ?>"
+                                                        data-docrespuesta="<?= htmlspecialchars($permiso['documento_permiso']) ?>"
+                                                        data-fotografia="<?= htmlspecialchars('../api/' . $permiso['Fotografia']) ?>"
+                                                        title="Ver Detalles">
+                                                        <i class="bi bi-eye"></i>
+                                                    </button>
+
+
+                                                    <button class="btn btn-sm btn-success btn-aprobar-permiso"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#modalAceptarPermiso"
+                                                        data-id="<?= $permiso['ID_Permiso'] ?>"
+                                                        data-funcionario="<?= htmlspecialchars($permiso['Nombres'] . ' ' . $permiso['Apellidos']) ?>"
+                                                        title="Aprobar Permiso">
+                                                        <i class="bi bi-check-lg"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-danger btn-denegar-permiso"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#modalDenegarPermiso"
+                                                        data-id="<?= $permiso['ID_Permiso'] ?>"
+                                                        data-funcionario="<?= htmlspecialchars($permiso['Nombres'] . ' ' . $permiso['Apellidos']) ?>"
+                                                        title="Denegar Permiso">
+                                                        <i class="bi bi-x-lg"></i>
+                                                    </button>
+
+
 
 
                                                 </div>
@@ -301,6 +269,9 @@ include_once '../includes/header.php';
 
 
                 </div>
+
+
+
                 <footer class="footer bg-white shadow-sm py-3 mt-auto">
                     <div class="container-fluid text-center">
                         <span class="text-muted">© 2024 Themis | Ministerio de Justicia. Todos los derechos
@@ -413,7 +384,7 @@ include_once '../includes/header.php';
                         </div>
 
                         <!-- Botón enviar -->
-                        <div class="mt-4 d-flex justify-content-end">
+                        <div class="mt-4 d-flex justify-content-end mb-3">
                             <button type="submit" class="btn btn-success">
                                 <i class="bi bi-save me-2"></i>Registrar Permiso
                             </button>
@@ -427,10 +398,65 @@ include_once '../includes/header.php';
 
 
 
+    <!-- Modal para Aceptar Permiso -->
+    <div class="modal fade" id="modalAceptarPermiso" tabindex="-1" aria-labelledby="modalAceptarPermisoLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <form action="tu_script_de_procesamiento.php" method="POST">
+                <div class="modal-content">
+                    <div class="modal-header bg-success text-white">
+                        <h5 class="modal-title" id="modalAceptarPermisoLabel">Aprobar Permiso</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body mt-2">
+                        <p>¿Estás seguro de que deseas APROBAR este permiso? <strong id="funcionarioAprobar"></strong>?</p>
+                        <div class="mb-3">
+                            <label for="observacionesAceptar" class="form-label">Observaciones (Opcional):</label>
+                            <textarea class="form-control" id="observacionesAceptar" name="observaciones" rows="3"></textarea>
+                        </div>
+                        <input type="hidden" name="id_permiso" id="idPermisoAprobar">
+                        <input type="hidden" name="accion" value="aprobar">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success"> <i class="bi bi-check-circle me-1"></i>Confirmar Aprobacion</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
 
 
 
-    <!-- Modal Editar Permiso -->
+    <!-- Modal para Denegar Permiso -->
+    <div class="modal fade" id="modalDenegarPermiso" tabindex="-1" aria-labelledby="modalDenegarPermisoLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <form action="tu_script_de_procesamiento.php" method="POST">
+                <div class="modal-content">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title" id="modalDenegarPermisoLabel">Denegar Permiso</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body mt-2">
+                        <p>¿Estás seguro de que deseas DENEGAR este permiso <strong id="funcionarioDenegar"></strong>?</p>
+                        <div class="mb-3">
+                            <label for="observacionesDenegar" class="form-label">Motivo de Denegación (Requerido):</label>
+                            <textarea class="form-control" id="observacionesDenegar" name="observaciones" rows="3" required></textarea>
+                        </div>
+                        <input type="hidden" name="id_permiso" id="idPermisoDenegar">
+                        <input type="hidden" name="accion" value="denegar">
+                    </div>
+                    <div class="modal-footer">
+                        <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button> -->
+                        <button type="submit" class="btn btn-danger"> <i class="bi bi-check-circle me-1"></i> Confirmar Denegación</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+
+
+
     <!-- Modal Editar Permiso -->
     <div class="modal fade" id="editPermisoModal" tabindex="-1" aria-labelledby="editPermisoModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
@@ -558,7 +584,7 @@ include_once '../includes/header.php';
                         </div>
 
                         <!-- Botón -->
-                        <div class="mt-4 d-flex justify-content-end">
+                        <div class="mt-4 d-flex justify-content-end mb-3">
                             <button type="submit" class="btn btn-warning">
                                 <i class="bi bi-save2 me-2"></i>Guardar Cambios
                             </button>
@@ -603,7 +629,7 @@ include_once '../includes/header.php';
 
 
 
-
+    <!-- Modal Detalles del permiso -->
     <div class="modal fade" id="detallesPermisoModal" tabindex="-1" aria-labelledby="detallesPermisoModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
             <div class="modal-content border-primary shadow">
@@ -693,76 +719,75 @@ include_once '../includes/header.php';
 
     <script>
         // datos del modal de seguimiento
-       document.querySelectorAll('.btn-detalles-permiso').forEach(button => {
-  button.addEventListener('click', () => {
-    const modal = new bootstrap.Modal(document.getElementById('detallesPermisoModal'));
+        document.querySelectorAll('.btn-detalles-permiso').forEach(button => {
+            button.addEventListener('click', () => {
+                const modal = new bootstrap.Modal(document.getElementById('detallesPermisoModal'));
 
-    document.getElementById('modalFuncionario').textContent = button.dataset.funcionario;
-    document.getElementById('modalDNI').textContent = button.dataset.dni;
-    document.getElementById('modalTipo').textContent = button.dataset.tipo;
-    document.getElementById('modalFechaSolicitud').textContent = button.dataset.fechasolicitud;
-    document.getElementById('modalFechaInicio').textContent = button.dataset.fechainicio;
-    document.getElementById('modalFechaFin').textContent = button.dataset.fechafin;
+                document.getElementById('modalFuncionario').textContent = button.dataset.funcionario;
+                document.getElementById('modalDNI').textContent = button.dataset.dni;
+                document.getElementById('modalTipo').textContent = button.dataset.tipo;
+                document.getElementById('modalFechaSolicitud').textContent = button.dataset.fechasolicitud;
+                document.getElementById('modalFechaInicio').textContent = button.dataset.fechainicio;
+                document.getElementById('modalFechaFin').textContent = button.dataset.fechafin;
 
-    // Estado con color
-    const estado = button.dataset.estado;
-    const estadoSpan = document.getElementById('modalEstado');
-    estadoSpan.textContent = estado;
-    estadoSpan.className = 'badge fs-6 ' + ({
-      'Aprobado': 'bg-success',
-      'Denegado': 'bg-danger',
-      'Cancelado': 'bg-secondary',
-      'Disfrutado': 'bg-info',
-      'Pendiente': 'bg-warning'
-    }[estado] || 'bg-secondary');
+                // Estado con color
+                const estado = button.dataset.estado;
+                const estadoSpan = document.getElementById('modalEstado');
+                estadoSpan.textContent = estado;
+                estadoSpan.className = 'badge fs-6 ' + ({
+                    'Aprobado': 'bg-success',
+                    'Denegado': 'bg-danger',
+                    'Cancelado': 'bg-secondary',
+                    'Disfrutado': 'bg-info',
+                    'Pendiente': 'bg-warning'
+                } [estado] || 'bg-secondary');
 
-    // Token con color
-    const token = button.dataset.token;
-    const tokenSpan = document.getElementById('modalToken');
-    if (token === '0') {
-      tokenSpan.textContent = 'No procesado';
-      tokenSpan.className = 'badge bg-warning text-dark fs-6';
-    } else if (token === '1') {
-      tokenSpan.textContent = 'Procesado';
-      tokenSpan.className = 'badge bg-success fs-6';
-    } else {
-      tokenSpan.textContent = 'Desconocido';
-      tokenSpan.className = 'badge bg-secondary fs-6';
-    }
+                // Token con color
+                const token = button.dataset.token;
+                const tokenSpan = document.getElementById('modalToken');
+                if (token === '0') {
+                    tokenSpan.textContent = 'No procesado';
+                    tokenSpan.className = 'badge bg-warning text-dark fs-6';
+                } else if (token === '1') {
+                    tokenSpan.textContent = 'Procesado';
+                    tokenSpan.className = 'badge bg-success fs-6';
+                } else {
+                    tokenSpan.textContent = 'Desconocido';
+                    tokenSpan.className = 'badge bg-secondary fs-6';
+                }
 
-    document.getElementById('modalMotivo').textContent = button.dataset.motivo || '-';
-    document.getElementById('modalObservaciones').textContent = button.dataset.observaciones || '-';
+                document.getElementById('modalMotivo').textContent = button.dataset.motivo || '-';
+                document.getElementById('modalObservaciones').textContent = button.dataset.observaciones || '-';
 
-    // Foto perfil
-    const fotoPerfil = button.dataset.fotografia || 'https://via.placeholder.com/50?text=No+Foto';
-    document.getElementById('modalFotoPerfil').src = fotoPerfil;
+                // Foto perfil
+                const fotoPerfil = button.dataset.fotografia || 'https://via.placeholder.com/50?text=No+Foto';
+                document.getElementById('modalFotoPerfil').src = fotoPerfil;
 
-    // Documento Soporte
-    const docSoporteUrl = button.dataset.docsoporte;
-    const docSoporteContainer = document.getElementById('modalDocSoporteContainer');
-    if (docSoporteUrl) {
-      docSoporteContainer.innerHTML = `<a href="../${docSoporteUrl}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="bi bi-file-earmark-text me-1"></i> Descargar Documento Soporte</a>`;
-    } else {
-      docSoporteContainer.textContent = 'Ninguno';
-    }
+                // Documento Soporte
+                const docSoporteUrl = button.dataset.docsoporte;
+                const docSoporteContainer = document.getElementById('modalDocSoporteContainer');
+                if (docSoporteUrl) {
+                    docSoporteContainer.innerHTML = `<a href="../${docSoporteUrl}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="bi bi-file-earmark-text me-1"></i> Descargar Documento Soporte</a>`;
+                } else {
+                    docSoporteContainer.textContent = 'Ninguno';
+                }
 
-    // Documento Respuesta
-    const docRespuestaUrl = button.dataset.docrespuesta;
-    const docRespuestaContainer = document.getElementById('modalDocRespuestaContainer');
-    if (docRespuestaUrl) {
-      docRespuestaContainer.innerHTML = `<a href="../${docRespuestaUrl}" target="_blank" class="btn btn-sm btn-outline-success"><i class="bi bi-file-earmark-arrow-down me-1"></i> Descargar Documento Respuesta</a>`;
-    } else {
-      docRespuestaContainer.textContent = 'Ninguno';
-    }
+                // Documento Respuesta
+                const docRespuestaUrl = button.dataset.docrespuesta;
+                const docRespuestaContainer = document.getElementById('modalDocRespuestaContainer');
+                if (docRespuestaUrl) {
+                    docRespuestaContainer.innerHTML = `<a href="../${docRespuestaUrl}" target="_blank" class="btn btn-sm btn-outline-success"><i class="bi bi-file-earmark-arrow-down me-1"></i> Descargar Documento Respuesta</a>`;
+                } else {
+                    docRespuestaContainer.textContent = 'Ninguno';
+                }
 
-    modal.show();
-  });
-});
-
+                modal.show();
+            });
+        });
     </script>
 
+
     <!-- Script para buscar y seleccionar funcionario -->
-    <!-- Agrega este script justo antes de </body> -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const searchInput = document.getElementById('searchFuncionario');
@@ -857,23 +882,6 @@ include_once '../includes/header.php';
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Sidebar toggle for mobile
@@ -910,17 +918,6 @@ include_once '../includes/header.php';
                     }
                 }
             });
-
-            // Function for refreshing data (example)
-            window.refreshData = function() {
-                const refreshBtn = document.querySelector('.btn-refresh');
-                refreshBtn.classList.add('refreshing');
-                // Simulate data fetching
-                setTimeout(() => {
-                    alert('Datos actualizados!');
-                    refreshBtn.classList.remove('refreshing');
-                }, 1000);
-            };
 
 
 
@@ -1023,18 +1020,6 @@ include_once '../includes/header.php';
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.btn-editar-funcionario').forEach(button => {
@@ -1065,6 +1050,27 @@ include_once '../includes/header.php';
                     modal.show();
                 });
             });
+        });
+    </script>
+
+
+    <!-- Script para que se abra el modal de permisos desde el dashboard -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('action') === 'register') {
+                const modalElement = document.getElementById('addPermisoModal');
+                if (modalElement && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                    new bootstrap.Modal(modalElement).show();
+                    // Limpiar URL
+                    if (history.replaceState) {
+                        const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+                        window.history.replaceState({
+                            path: cleanUrl
+                        }, '', cleanUrl);
+                    }
+                }
+            }
         });
     </script>
 
