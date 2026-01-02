@@ -147,8 +147,13 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
         <?php if ($_SESSION['Rol_Usuario'] === 'Administrador' || $_SESSION['Rol_Usuario'] === 'Jefe Personal'): ?>
             <a class="nav-link <?php echo ($current_page === 'categorias.php') ? 'active' : ''; ?>" href="categorias.php">
-                <i class="bi bi-diagram-3 me-3"></i> categorias
+                <i class="bi bi-diagram-3 me-3"></i> Categorias
             </a>
+
+             <a class="nav-link <?php echo ($current_page === 'direcciones.php') ? 'active' : ''; ?>" href="direcciones.php">
+                <i class="bi bi-diagram-3 me-3"></i> Dirrecciones
+            </a>
+
             <a class="nav-link <?php echo ($current_page === 'destinos.php') ? 'active' : ''; ?>" href="destinos.php">
                 <i class="bi bi-geo-alt me-3"></i> Destinos
                 <span class="badge bg-secondary ms-auto" id="totalDestinosSidebar">
