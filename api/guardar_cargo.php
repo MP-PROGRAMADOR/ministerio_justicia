@@ -1,46 +1,68 @@
 <?php
 session_start();
-require_once '../includes/conexion.php'; // Ajusta la ruta según tu estructura
+require_once '../includes/conexion.php';
 
-// Verificar sesión activa (opcional, si usas sistema de login)
-if (!isset($_SESSION['ID_Usuario'])) {
-    $_SESSION['error'] = "Sesión expirada. Por favor, inicia sesión nuevamente.";
-    header("Location: ../index.php");
-    exit;
-}
+$accion = $_GET['accion'] ?? '';
 
-try {
+$redirectTo = "../administrador/cargo.php";
+
+// Validar que se haya enviado información por POST si es crear o actualizar
+if (($_SERVER['REQUEST_METHOD'] === 'POST') || $accion === 'eliminar') {
+
+    try {
     $pdo = new PDO($dsn, $user, $pass, $options);
 
-    // Recoger datos POST y limpiar
-    $Nombre_Cargo = trim($_POST['Nombre_Cargo'] ?? '');
-    $Descripcion_Cargo = trim($_POST['Descripcion_Cargo'] ?? '');
-    $Nivel_Jerarquico = $_POST['Nivel_Jerarquico'] ?? null;
-    $ID_Usuario_Creador = $_SESSION['ID_Usuario'];
+        if ($accion == 'crear') {
+            // Validar campos obligatorios
+            if (empty($_POST['nombre']) || empty($_POST['nivel'])) {
+                throw new Exception("El nombre y el nivel son obligatorios.");
+            }
 
-    // Validaciones básicas
-    if (empty($Nombre_Cargo) || empty($Nivel_Jerarquico) || !is_numeric($Nivel_Jerarquico)) {
-        $_SESSION['error'] = "Por favor, complete todos los campos obligatorios correctamente.";
-        header("Location: ../administrador/cargo.php"); // Ajusta la ruta
-        exit;
+            // AJUSTE: Basado en tu CREATE TABLE cargos (Id_cargo, Nombre, Nivel_jerarquico)
+            $sql = "INSERT INTO cargos (Nombre, Nivel_jerarquico) VALUES (?, ?)";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([
+                trim($_POST['nombre']), 
+                trim($_POST['nivel'])
+            ]);
+            
+            $_SESSION['exito'] = "Cargo registrado con éxito.";
+
+        } elseif ($accion == 'actualizar') {
+            if (empty($_POST['id']) || empty($_POST['nombre'])) {
+                throw new Exception("Faltan datos para actualizar el cargo.");
+            }
+
+            $sql = "UPDATE cargos SET Nombre = ?, Nivel_jerarquico = ? WHERE Id_cargo = ?";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([
+                trim($_POST['nombre']), 
+                trim($_POST['nivel']), 
+                $_POST['id']
+            ]);
+
+            $_SESSION['exito'] = "Cargo actualizado correctamente.";
+
+        } elseif ($accion == 'eliminar') {
+            if (empty($_GET['id'])) {
+                throw new Exception("ID no válido para eliminar.");
+            }
+
+            $sql = "DELETE FROM cargos WHERE Id_cargo = ?";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([$_GET['id']]);
+
+            $_SESSION['exito'] = "Cargo eliminado correctamente.";
+        }
+
+    } catch (PDOException $e) {
+        // Error específico de Base de Datos
+        $_SESSION['error'] = "Error en la base de datos: " . $e->getMessage();
+    } catch (Exception $e) {
+        // Error general (validaciones)
+        $_SESSION['error'] = $e->getMessage();
     }
-
-    // Insertar en la BD
-    $sql = "INSERT INTO tbl_cargos (Nombre_Cargo, Descripcion_Cargo, Nivel_Jerarquico, ID_Usuario_Creador) 
-            VALUES (:nombre, :descripcion, :nivel, :usuario)";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([
-        ':nombre' => $Nombre_Cargo,
-        ':descripcion' => $Descripcion_Cargo ?: null,
-        ':nivel' => (int)$Nivel_Jerarquico,
-        ':usuario' => $ID_Usuario_Creador,
-    ]);
-
-    $_SESSION['exito'] = "Cargo registrado correctamente.";
-} catch (PDOException $e) {
-    $_SESSION['error'] = "Error al guardar el cargo: " . $e->getMessage();
 }
 
-// Redireccionar a la página de cargos (ajusta la ruta según tu proyecto)
-header("Location: ../administrador/cargo.php");
-exit;
+header("Location: $redirectTo");
+exit();
