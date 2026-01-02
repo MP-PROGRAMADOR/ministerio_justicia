@@ -22,7 +22,7 @@ include_once '../includes/silebar_admin.php';
                                 class="d-flex justify-content-md-end align-items-center gap-2 flex-wrap justify-content-center">
                                 <!-- Botón para abrir modal de registrar asignación -->
                                 <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addDireccionModal">
-                                    <i class="bi bi-plus-circle me-2"></i> Nueva Direccion
+                                    <i class="bi bi-plus-circle me-2"></i> Nueva Seccion
                                 </button>
 
                                 <div class="input-group" style="width: auto;">
@@ -59,84 +59,81 @@ include_once '../includes/silebar_admin.php';
                 <div class="container-fluid px-4">
                     <div class="table-custom mb-4 p-4">
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5 class="mb-0 fw-semibold">Listado de Direcciones</h5>
+                            <h5 class="mb-0 fw-semibold">Listado de Secciones</h5>
                         </div>
+   
                         <div class="table-responsive">
-                            <?php
-                            try {
-                                $pdo = new PDO($dsn, $user, $pass, $options);
-                            } catch (PDOException $e) {
-                                die("Error de conexión: " . $e->getMessage());
-                            }
+<?php
+try {
+    $pdo = new PDO($dsn, $user, $pass, $options);
+} catch (PDOException $e) {
+    die("Error de conexión: " . $e->getMessage());
+}
 
-                            // Consulta para obtener direcciones
-                            $sql = "SELECT Id_direccion, nombre, ubicacion, distrito, provincia, region
-            FROM direcciones
-            ORDER BY Id_direccion DESC";
+// Consulta para obtener secciones
+$sql = "SELECT Id_seccion, Id_direccion, nombre
+        FROM secciones
+        ORDER BY Id_seccion DESC";
 
-                            $stmt = $pdo->prepare($sql);
-                            $stmt->execute();
-                            $direcciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                            ?>
+$stmt = $pdo->prepare($sql);
+$stmt->execute();
+$secciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
+?>
 
-                            <table class="table table-hover align-middle mb-0" id="funcionariosTable">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Nombre</th>
-                                        <th>Ubicación</th>
-                                        <th>Distrito</th>
-                                        <th>Provincia</th>
-                                        <th>Región</th>
-                                        <th class="text-center">Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="funcionariosTableBody">
-                                    <?php if ($direcciones): ?>
-                                        <?php foreach ($direcciones as $direccion): ?>
-                                            <tr>
-                                                <td><?= htmlspecialchars($direccion['Id_direccion']) ?></td>
-                                                <td class="fw-semibold"><?= htmlspecialchars($direccion['nombre']) ?></td>
-                                                <td><?= htmlspecialchars($direccion['ubicacion'] ?? '—') ?></td>
-                                                <td><?= htmlspecialchars($direccion['distrito'] ?? '—') ?></td>
-                                                <td><?= htmlspecialchars($direccion['provincia'] ?? '—') ?></td>
-                                                <td><?= htmlspecialchars($direccion['region'] ?? '—') ?></td>
-                                                <td class="text-center">
-                                                    <div class="d-flex justify-content-center gap-2">
+<table class="table table-hover align-middle mb-0" id="seccionesTable">
+    <thead class="table-light">
+        <tr>
+            <th>ID Sección</th>
+            <th>ID Dirección</th>
+            <th>Nombre Sección</th>
+            <th class="text-center">Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php if ($secciones): ?>
+            <?php foreach ($secciones as $seccion): ?>
+                <tr>
+                    <td><?= htmlspecialchars($seccion['Id_seccion']) ?></td>
+                    <td><?= htmlspecialchars($seccion['Id_direccion']) ?></td>
+                    <td><?= htmlspecialchars($seccion['nombre']) ?></td>
+                    <td class="text-center">
+                        <div class="d-flex justify-content-center gap-2">
+                            <!-- EDITAR SECCIÓN -->
+                            <button
+                                class="btn btn-sm btn-warning btn-editar-seccion"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalEditarSeccion"
+                                data-id="<?= $seccion['Id_seccion'] ?>"
+                                data-direccion-id="<?= $seccion['Id_direccion'] ?>"
+                                data-nombre="<?= htmlspecialchars($seccion['nombre']) ?>"
+                                title="Editar sección">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
 
-                                                        <!-- EDITAR -->
-                                                        <button
-                                                            class="btn btn-sm btn-warning btn-editar-direccion"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#modalEditarDireccion"
-                                                            data-id="<?= $direccion['Id_direccion'] ?>"
-                                                            data-nombre="<?= htmlspecialchars($direccion['nombre']) ?>"
-                                                            data-ubicacion="<?= htmlspecialchars($direccion['ubicacion']) ?>"
-                                                            data-distrito="<?= htmlspecialchars($direccion['distrito']) ?>"
-                                                            data-provincia="<?= htmlspecialchars($direccion['provincia']) ?>"
-                                                            data-region="<?= htmlspecialchars($direccion['region']) ?>"
-                                                            title="Editar dirección">
-                                                            <i class="bi bi-pencil-square"></i>
-                                                        </button>
-
-
-
-
-
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    <?php else: ?>
-                                        <tr>
-                                            <td colspan="7" class="text-center text-muted">
-                                                No hay direcciones registradas
-                                            </td>
-                                        </tr>
-                                    <?php endif; ?>
-                                </tbody>
-                            </table>
+                            <!-- ELIMINAR SECCIÓN -->
+                            <button
+                                class="btn btn-sm btn-danger btn-eliminar-seccion"
+                                data-id="<?= $seccion['Id_seccion'] ?>"
+                                title="Eliminar sección">
+                                <i class="bi bi-trash"></i>
+                            </button>
                         </div>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <tr>
+                <td colspan="4" class="text-center text-muted">
+                    No hay secciones registradas
+                </td>
+            </tr>
+        <?php endif; ?>
+    </tbody>
+</table>
+</div>
+
+
+
 
 
                         <nav aria-label="Page navigation example" class="mt-3">
