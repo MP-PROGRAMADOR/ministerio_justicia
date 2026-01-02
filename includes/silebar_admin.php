@@ -146,8 +146,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
         <?php endif; ?>
 
         <?php if ($_SESSION['Rol_Usuario'] === 'Administrador' || $_SESSION['Rol_Usuario'] === 'Jefe Personal'): ?>
-            <a class="nav-link <?php echo ($current_page === 'asignaciones.php') ? 'active' : ''; ?>" href="asignaciones.php">
-                <i class="bi bi-diagram-3 me-3"></i> Asignaciones
+            <a class="nav-link <?php echo ($current_page === 'categorias.php') ? 'active' : ''; ?>" href="categorias.php">
+                <i class="bi bi-diagram-3 me-3"></i> categorias
             </a>
             <a class="nav-link <?php echo ($current_page === 'destinos.php') ? 'active' : ''; ?>" href="destinos.php">
                 <i class="bi bi-geo-alt me-3"></i> Destinos

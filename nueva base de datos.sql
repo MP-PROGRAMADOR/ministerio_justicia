@@ -39,6 +39,17 @@ CREATE TABLE tbl_usuarios (
     Activo TINYINT(1) DEFAULT 1
 ) ENGINE=InnoDB;
 
+
+INSERT INTO `tbl_usuarios` (`ID_Usuario`, `Nombre_Usuario`, `Contrasena_Hash`, `Rol_Usuario`, `Email_Contacto`, `Fecha_Creacion`, `Ultimo_Acceso`, `Activo`) VALUES
+(2, 'Mh123', '$2y$10$3JOO3f.29T7kwjCl7W/jZO59mHHNjRXbAgl1oMlz9QzJsO38gaAoq', 'Administrador', 'salvadormete2@gmail.com', '2025-06-27 13:10:33', '2025-11-07 15:32:31', 1),
+(4, 'Usuario', '$2y$10$9UJOCVre0YY9XcJtAZKm6OgKpBojscaagh63HQYMsIe.shI33qLXu', 'Usuario', 'minerva@prueba.com', '2025-08-11 14:55:04', '2025-08-12 13:29:53', 1),
+(5, 'JPersonal', '$2y$10$Jo7ciXxrQG9Albdw0jQLaudjhHpPU4stWXxwQ00xU2t/dAe1Pp5k2', 'Jefe Personal', 'jefepersonal@gmail.com', '2025-08-12 08:56:16', '2025-08-18 10:26:09', 1);
+
+
+
+
+
+
 /* =========================================================
    TABLAS ESTRUCTURALES
    ========================================================= */
