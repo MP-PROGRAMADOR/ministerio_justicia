@@ -21,8 +21,8 @@ include_once '../includes/silebar_admin.php';
                             <div
                                 class="d-flex justify-content-md-end align-items-center gap-2 flex-wrap justify-content-center">
                                 <!-- Botón para abrir modal de registrar asignación -->
-                                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addCategoriaModal">
-                                    <i class="bi bi-plus-circle me-2"></i> Nueva Categoria
+                                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addDireccionModal">
+                                    <i class="bi bi-plus-circle me-2"></i> Nueva Direccion
                                 </button>
 
                                 <div class="input-group" style="width: auto;">
@@ -59,7 +59,7 @@ include_once '../includes/silebar_admin.php';
                 <div class="container-fluid px-4">
                     <div class="table-custom mb-4 p-4">
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5 class="mb-0 fw-semibold">Listado de Categorias</h5>
+                            <h5 class="mb-0 fw-semibold">Listado de Direcciones</h5>
                         </div>
                         <div class="table-responsive">
                             <?php
@@ -69,14 +69,14 @@ include_once '../includes/silebar_admin.php';
                                 die("Error de conexión: " . $e->getMessage());
                             }
 
-                            // Consulta para obtener categorías
-                            $sql = "SELECT Id_categoria, nombre, descripcion 
-            FROM categorias 
-            ORDER BY Id_categoria DESC";
+                            // Consulta para obtener direcciones
+                            $sql = "SELECT Id_direccion, nombre, ubicacion, distrito, provincia, region
+            FROM direcciones
+            ORDER BY Id_direccion DESC";
 
                             $stmt = $pdo->prepare($sql);
                             $stmt->execute();
-                            $categorias = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                            $direcciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             ?>
 
                             <table class="table table-hover align-middle mb-0" id="funcionariosTable">
@@ -84,35 +84,46 @@ include_once '../includes/silebar_admin.php';
                                     <tr>
                                         <th>ID</th>
                                         <th>Nombre</th>
-                                        <th>Descripción</th>
+                                        <th>Ubicación</th>
+                                        <th>Distrito</th>
+                                        <th>Provincia</th>
+                                        <th>Región</th>
                                         <th class="text-center">Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody id="funcionariosTableBody">
-                                    <?php if ($categorias): ?>
-                                        <?php foreach ($categorias as $categoria): ?>
+                                    <?php if ($direcciones): ?>
+                                        <?php foreach ($direcciones as $direccion): ?>
                                             <tr>
-                                                <td><?= htmlspecialchars($categoria['Id_categoria']) ?></td>
-                                                <td class="fw-semibold">
-                                                    <?= htmlspecialchars($categoria['nombre']) ?>
-                                                </td>
-                                                <td>
-                                                    <?= htmlspecialchars($categoria['descripcion'] ?? '—') ?>
-                                                </td>
+                                                <td><?= htmlspecialchars($direccion['Id_direccion']) ?></td>
+                                                <td class="fw-semibold"><?= htmlspecialchars($direccion['nombre']) ?></td>
+                                                <td><?= htmlspecialchars($direccion['ubicacion'] ?? '—') ?></td>
+                                                <td><?= htmlspecialchars($direccion['distrito'] ?? '—') ?></td>
+                                                <td><?= htmlspecialchars($direccion['provincia'] ?? '—') ?></td>
+                                                <td><?= htmlspecialchars($direccion['region'] ?? '—') ?></td>
                                                 <td class="text-center">
                                                     <div class="d-flex justify-content-center gap-2">
 
                                                         <!-- EDITAR -->
+                                                        <!-- EDITAR -->
+                                                        <!-- EDITAR DIRECCIÓN -->
                                                         <button
-                                                            class="btn btn-sm btn-warning btn-editar-categoria"
-                                                            data-id="<?= $categoria['Id_categoria'] ?>"
-                                                            data-nombre="<?= htmlspecialchars($categoria['nombre']) ?>"
-                                                            data-descripcion="<?= htmlspecialchars($categoria['descripcion']) ?>"
-                                                            title="Editar categoría">
+                                                            class="btn btn-sm btn-warning btn-editar-direccion"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#addDireccionModal2"
+                                                            data-id="<?= $direccion['Id_direccion'] ?>"
+                                                            data-nombre="<?= htmlspecialchars($direccion['nombre']) ?>"
+                                                            data-ubicacion="<?= htmlspecialchars($direccion['ubicacion']) ?>"
+                                                            data-distrito="<?= htmlspecialchars($direccion['distrito']) ?>"
+                                                            data-provincia="<?= htmlspecialchars($direccion['provincia']) ?>"
+                                                            data-region="<?= htmlspecialchars($direccion['region']) ?>"
+                                                            title="Editar dirección">
                                                             <i class="bi bi-pencil-square"></i>
                                                         </button>
 
-                                                      
+
+
+
 
                                                     </div>
                                                 </td>
@@ -120,14 +131,15 @@ include_once '../includes/silebar_admin.php';
                                         <?php endforeach; ?>
                                     <?php else: ?>
                                         <tr>
-                                            <td colspan="4" class="text-center text-muted">
-                                                No hay categorías registradas
+                                            <td colspan="7" class="text-center text-muted">
+                                                No hay direcciones registradas
                                             </td>
                                         </tr>
                                     <?php endif; ?>
                                 </tbody>
                             </table>
                         </div>
+
 
                         <nav aria-label="Page navigation example" class="mt-3">
                             <ul class="pagination justify-content-center" id="paginationControls">
@@ -159,136 +171,260 @@ include_once '../includes/silebar_admin.php';
 
 
 
-   
 
-    <!-- Modal para Registrar categoria -->
-<div class="modal fade" id="addCategoriaModal" tabindex="-1" aria-labelledby="addCategoriaModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content shadow">
 
-            <!-- HEADER -->
-            <div class="modal-header bg-success text-white">
-                <h5 class="modal-title" id="addCategoriaModalLabel">
-                    <i class="bi bi-tags-fill me-2"></i>Registrar Categoría
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                    aria-label="Cerrar"></button>
+    <!-- Modal para Registrar Dirección -->
+    <div class="modal fade" id="addDireccionModal" tabindex="-1" aria-labelledby="addDireccionModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content shadow">
+
+                <!-- HEADER -->
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="addDireccionModalLabel">
+                        <i class="bi bi-geo-alt-fill me-2"></i>Registrar Dirección
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Cerrar"></button>
+                </div>
+
+                <!-- BODY -->
+                <div class="modal-body">
+                    <form method="POST" action="../api/guardar_direccion.php" id="formDireccion">
+
+                        <div class="row g-3">
+                            <!-- Nombre -->
+                            <div class="col-md-12">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-geo-alt text-success me-2"></i>Nombre
+                                </label>
+                                <input type="text" name="nombre" class="form-control"
+                                    placeholder="Ej. Sede Central" required>
+                            </div>
+
+                            <!-- Ubicación -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-map text-success me-2"></i>Ubicación
+                                </label>
+                                <input type="text" name="ubicacion" class="form-control"
+                                    placeholder="Ej. Avenida Principal, Nº 123">
+                            </div>
+
+                            <!-- Distrito -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-building text-success me-2"></i>Distrito
+                                </label>
+                                <select name="distrito" class="form-select" required>
+                                    <option value="" selected disabled>Seleccione un distrito</option>
+                                    <!-- Distritos de Guinea Ecuatorial -->
+                                    <option value="Bata">Bata</option>
+                                    <option value="Mbini">Mbini</option>
+                                    <option value="Evinayong">Evinayong</option>
+                                    <option value="Micomeseng">Micomeseng</option>
+                                    <option value="Mongomo">Mongomo</option>
+                                    <option value="Mongomo">Mengomeyén</option>
+                                    <option value="Nsok">Nsok</option>
+                                    <option value="Aconibe">Aconibe</option>
+                                    <option value="Riaba">Riaba</option>
+                                    <option value="Luba">Luba</option>
+                                    <option value="Malabo">Malabo</option>
+                                    <option value="Baney">Baney</option>
+                                    <option value="Rebola">Rebola</option>
+                                    <option value="Bikok">Bikok</option>
+                                    <!-- Agrega el resto según sea necesario -->
+                                </select>
+                            </div>
+
+                            <!-- Provincia -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-flag text-success me-2"></i>Provincia
+                                </label>
+                                <select name="provincia" class="form-select" required>
+                                    <option value="" selected disabled>Seleccione una provincia</option>
+                                    <!-- Provincias de Guinea Ecuatorial -->
+                                    <option value="Litoral">Litoral</option>
+                                    <option value="Centro Sur">Centro Sur</option>
+                                    <option value="Kié-Ntem">Kié-Ntem</option>
+                                    <option value="Wele-Nzas">Wele-Nzas</option>
+                                    <option value="Annobón">Annobón</option>
+                                    <option value="Bioko Norte">Bioko Norte</option>
+                                    <option value="Bioko Sur">Bioko Sur</option>
+                                </select>
+                            </div>
+
+
+
+
+                            <!-- Provincia -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-flag text-success me-2"></i>Región
+                                </label>
+                                <select name="region" class="form-select" required>
+                                    <option value="" selected disabled>Seleccione una Región</option>
+                                    <!-- Provincias de Guinea Ecuatorial -->
+                                    <option value="Region Continental">Region Continental</option>
+                                    <option value="Region Insular">Region Insular</option>
+                                </select>
+                            </div>
+
+                            <!-- FOOTER -->
+                            <div class="mt-4 d-flex justify-content-end gap-2">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                    <i class="bi bi-x-circle me-1"></i>Cancelar
+                                </button>
+                                <button type="submit" class="btn btn-success">
+                                    <i class="bi bi-save me-1"></i>Guardar Dirección
+                                </button>
+                            </div>
+
+                    </form>
+                </div>
+
             </div>
-
-            <!-- BODY -->
-            <div class="modal-body">
-                <form method="POST" action="../api/guardar_categoria.php" id="formCategoria">
-
-                    <div class="row g-3">
-                        <!-- Nombre -->
-                        <div class="col-md-12">
-                            <label class="form-label fw-semibold">
-                                <i class="bi bi-tag text-success me-2"></i>Nombre de la categoría
-                            </label>
-                            <input type="text" name="nombre" class="form-control"
-                                placeholder="Ej. Material Médico" required>
-                        </div>
-
-                        <!-- Descripción -->
-                        <div class="col-md-12">
-                            <label class="form-label fw-semibold">
-                                <i class="bi bi-card-text text-success me-2"></i>Descripción
-                            </label>
-                            <textarea name="descripcion" class="form-control" rows="4"
-                                placeholder="Descripción opcional de la categoría..."></textarea>
-                        </div>
-                    </div>
-
-                    <!-- FOOTER -->
-                    <div class="mt-4 d-flex justify-content-end gap-2">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                            <i class="bi bi-x-circle me-1"></i>Cancelar
-                        </button>
-                        <button type="submit" class="btn btn-success">
-                            <i class="bi bi-save me-1"></i>Guardar Categoría
-                        </button>
-                    </div>
-
-                </form>
-            </div>
-
         </div>
     </div>
-</div>
-
-   
 
 
 
-<div class="modal fade" id="editCategoriaModal" tabindex="-1" aria-labelledby="editCategoriaModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content shadow">
 
-            <!-- HEADER -->
-            <div class="modal-header bg-warning text-dark">
-                <h5 class="modal-title" id="editCategoriaModalLabel">
-                    <i class="bi bi-pencil-square me-2"></i>Editar Categoría
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                    aria-label="Cerrar"></button>
+
+    <!-- Modal para Editar Dirección -->
+    <div class="modal fade" id="addDireccionModal2" tabindex="-1" aria-labelledby="addDireccionModal2Label" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content shadow">
+
+                <!-- HEADER -->
+                <div class="modal-header bg-warning text-white">
+                    <h5 class="modal-title" id="addDireccionModal2Label">
+                        <i class="bi bi-geo-alt-fill me-2"></i><span id="modalTitle2">Editar Dirección</span>
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Cerrar"></button>
+                </div>
+
+                <!-- BODY -->
+                <div class="modal-body">
+                    <form method="POST" action="../api/actualizar_direccion.php" id="formDireccion2">
+                        <input type="hidden" name="Id_direccion" id="Id_direccion2">
+
+                        <div class="row g-3">
+                            <div class="col-md-12">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-geo-alt text-success me-2"></i>Nombre
+                                </label>
+                                <input type="text" name="nombre" id="nombre2" class="form-control" required>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-map text-success me-2"></i>Ubicación
+                                </label>
+                                <input type="text" name="ubicacion" id="ubicacion2" class="form-control">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-building text-success me-2"></i>Distrito
+                                </label>
+                                <select name="distrito" id="distrito2" class="form-select" required>
+                                    <option value="" selected disabled>Seleccione un distrito</option>
+                                    <option value="Bata">Bata</option>
+                                    <option value="Mbini">Mbini</option>
+                                    <option value="Evinayong">Evinayong</option>
+                                    <option value="Micomeseng">Micomeseng</option>
+                                    <option value="Mongomo">Mongomo</option>
+                                    <option value="Mengomeyén">Mengomeyén</option>
+                                    <option value="Nsok">Nsok</option>
+                                    <option value="Aconibe">Aconibe</option>
+                                    <option value="Riaba">Riaba</option>
+                                    <option value="Luba">Luba</option>
+                                    <option value="Malabo">Malabo</option>
+                                    <option value="Baney">Baney</option>
+                                    <option value="Rebola">Rebola</option>
+                                    <option value="Bikok">Bikok</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-flag text-success me-2"></i>Provincia
+                                </label>
+                                <select name="provincia" id="provincia2" class="form-select" required>
+                                    <option value="" selected disabled>Seleccione una provincia</option>
+                                    <option value="Litoral">Litoral</option>
+                                    <option value="Centro Sur">Centro Sur</option>
+                                    <option value="Kié-Ntem">Kié-Ntem</option>
+                                    <option value="Wele-Nzas">Wele-Nzas</option>
+                                    <option value="Annobón">Annobón</option>
+                                    <option value="Bioko Norte">Bioko Norte</option>
+                                    <option value="Bioko Sur">Bioko Sur</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-globe text-success me-2"></i>Región
+                                </label>
+                                <select name="region" id="region2" class="form-select" required>
+                                    <option value="" selected disabled>Seleccione una Región</option>
+                                    <option value="Region Continental">Región Continental</option>
+                                    <option value="Region Insular">Región Insular</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 d-flex justify-content-end gap-2">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                <i class="bi bi-x-circle me-1"></i>Cancelar
+                            </button>
+                            <button type="submit" class="btn btn-warning">
+                                <i class="bi bi-save me-1"></i><span id="btnText2">Actualizar Dirección</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
             </div>
-
-            <!-- BODY -->
-            <div class="modal-body">
-                <form method="POST" action="../api/actualizar_categoria.php" id="formEditarCategoria">
-
-                    <input type="hidden" name="Id_categoria" id="editIdCategoria">
-
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">
-                            <i class="bi bi-tag me-2 text-warning"></i>Nombre de la categoría
-                        </label>
-                        <input type="text" name="nombre" id="editNombreCategoria"
-                            class="form-control" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">
-                            <i class="bi bi-card-text me-2 text-warning"></i>Descripción
-                        </label>
-                        <textarea name="descripcion" id="editDescripcionCategoria"
-                            class="form-control" rows="4"></textarea>
-                    </div>
-
-                    <!-- FOOTER -->
-                    <div class="d-flex justify-content-end gap-2">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                            <i class="bi bi-x-circle me-1"></i>Cancelar
-                        </button>
-                        <button type="submit" class="btn btn-warning">
-                            <i class="bi bi-save me-1"></i>Actualizar
-                        </button>
-                    </div>
-
-                </form>
-            </div>
-
         </div>
     </div>
-</div>
 
+    <script>
+        var direccionModal2 = document.getElementById('addDireccionModal2');
 
+        function setSelectByText(selectId, text) {
+            var select = document.getElementById(selectId);
+            if (!text) return;
+            for (var i = 0; i < select.options.length; i++) {
+                if (select.options[i].text.trim() === text.trim()) {
+                    select.selectedIndex = i;
+                    break;
+                }
+            }
+        }
 
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const editModal = new bootstrap.Modal(document.getElementById('editCategoriaModal'));
+        direccionModal2.addEventListener('show.bs.modal', function(event) {
+            var button = event.relatedTarget;
 
-    document.querySelectorAll('.btn-editar-categoria').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.getElementById('editIdCategoria').value = btn.dataset.id;
-            document.getElementById('editNombreCategoria').value = btn.dataset.nombre;
-            document.getElementById('editDescripcionCategoria').value = btn.dataset.descripcion || '';
-
-            editModal.show();
+            document.getElementById('Id_direccion2').value = button.getAttribute('data-id') || '';
+            document.getElementById('nombre2').value = button.getAttribute('data-nombre') || '';
+            document.getElementById('ubicacion2').value = button.getAttribute('data-ubicacion') || '';
+            setSelectByText('distrito2', button.getAttribute('data-distrito'));
+            setSelectByText('provincia2', button.getAttribute('data-provincia'));
+            setSelectByText('region2', button.getAttribute('data-region'));
         });
-    });
-});
-</script>
+
+        direccionModal2.addEventListener('hidden.bs.modal', function() {
+            document.getElementById('formDireccion2').reset();
+            document.getElementById('Id_direccion2').value = '';
+        });
+    </script>
+
+
+
+
 
 
 
