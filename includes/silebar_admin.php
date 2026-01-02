@@ -157,6 +157,11 @@ $current_page = basename($_SERVER['PHP_SELF']);
             <a class="nav-link <?php echo ($current_page === 'secciones.php') ? 'active' : ''; ?>" href="secciones.php">
                 <i class="bi bi-diagram-3 me-3"></i> Secciones
             </a>
+            
+
+             <a class="nav-link <?php echo ($current_page === 'nombramientos.php') ? 'active' : ''; ?>" href="nombramientos.php">
+                <i class="bi bi-diagram-3 me-3"></i> Nombramientos
+            </a>
 
             <a class="nav-link <?php echo ($current_page === 'destinos.php') ? 'active' : ''; ?>" href="destinos.php">
                 <i class="bi bi-geo-alt me-3"></i> Destinos
@@ -473,7 +478,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
             'reportes': 'Reportes',
             'usuarios': 'Usuarios',
             'destinos': 'Destinos',
-            'cargos': 'Cargos'
+            'cargos': 'Cargos',
+            'nombramientos': 'Nombramientos'
         };
 
         let path = window.location.pathname.toLowerCase();
