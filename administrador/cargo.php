@@ -37,22 +37,24 @@ include_once '../includes/header.php';
 
 
                 <div class="container-fluid px-4">
+                    <div>
+                         <style> .alert.fade {transition: opacity 0.8s linear;} </style>
+                        <?php
+                        if (isset($_SESSION['error'])) {
+                            echo "<div id='mensajeFlash' class='alert alert-danger alert-dismissible fade show' role='alert'>"
+                                . htmlspecialchars($_SESSION['error']);
+                            unset($_SESSION['error']);
+                        }
 
-                    <?php
-                    if (isset($_SESSION['error'])) {
-                        echo "<div id='mensajeFlash' class='alert alert-danger alert-dismissible fade show' role='alert'>"
-                                . htmlspecialchars($_SESSION['error']) .
-                                "<button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
-                              </div>"; unset($_SESSION['error']);
-                    }
+                        if (isset($_SESSION['exito'])) {
+                            echo "<div id='mensajeFlash' class='alert alert-success alert-dismissible fade show' role='alert'>"
+                                . htmlspecialchars($_SESSION['exito']);
+                            unset($_SESSION['exito']);
+                        }
+                        ?>
+                    </div>
 
-                    if (isset($_SESSION['exito'])) {
-                        echo "<div id='mensajeFlash' class='alert alert-success alert-dismissible fade show' role='alert'>"
-                                . htmlspecialchars($_SESSION['exito']) .
-                                "<button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
-                            </div>"; unset($_SESSION['exito']);
-                    }
-                    ?>
+
                     <div class="table-custom mb-4 p-4">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h5 class="mb-0 fw-semibold">Listado de Cargos Registrados</h5>
@@ -120,9 +122,7 @@ include_once '../includes/header.php';
                                     <?php endif; ?>
                                 </tbody>
                             </table>
-
                         </div>
-
                     </div>
 
 
@@ -132,12 +132,7 @@ include_once '../includes/header.php';
                                 reservados.</span>
                         </div>
                     </footer>
-
-
                 </div>
-
-
-
             </div>
         </div>
     </div>
@@ -263,6 +258,22 @@ include_once '../includes/header.php';
             });
         }
     </script>
+
+
+    <!--Script para la Desaparicion de los success o error -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const alertas = document.querySelectorAll('.alert');
+
+            alertas.forEach(function(alerta) {
+                setTimeout(function() {
+                    const bsAlert = new bootstrap.Alert(alerta);
+                    bsAlert.close();
+                }, 3000); 
+            });
+        });
+    </script>
+   
 </body>
 
 </html>
