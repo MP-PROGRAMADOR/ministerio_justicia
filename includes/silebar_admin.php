@@ -160,7 +160,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
             
 
              <a class="nav-link <?php echo ($current_page === 'nombramientos.php') ? 'active' : ''; ?>" href="nombramientos.php">
-                <i class="bi bi-diagram-3 me-3"></i> Nombramientos
+               <i class="bi bi-briefcase"></i> Nombramientos
             </a>
 
             <a class="nav-link <?php echo ($current_page === 'destinos.php') ? 'active' : ''; ?>" href="destinos.php">
