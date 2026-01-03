@@ -130,6 +130,13 @@ CREATE TABLE funcionarios (
     FOREIGN KEY (Usuario_creador) REFERENCES tbl_usuarios(ID_Usuario)
 ) ENGINE=InnoDB;
 
+
+ALTER TABLE funcionarios
+ADD COLUMN Estado_Laboral ENUM('Activo','Baja Temporal','Jubilado','Cesado','Permiso','Vacaciones') 
+DEFAULT 'Activo' AFTER Apellidos;
+
+
+
 /* =========================================================
    NOMBRAMIENTOS
    ========================================================= */

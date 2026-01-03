@@ -1,159 +1,165 @@
 <?php
 session_start();
-// Asegúrate de que este archivo 'conexion.php' contenga la configuración de $dsn, $user, $pass, $options.
-require_once '../includes/conexion.php'; 
+require_once '../includes/conexion.php';
+
+function getIP() {
+    return $_SERVER['REMOTE_ADDR'] ?? 'Desconocida';
+}
+
+function getDispositivo() {
+    return $_SERVER['HTTP_USER_AGENT'] ?? 'Desconocido';
+}
 
 if (!isset($_SESSION['ID_Usuario'])) {
-    $_SESSION['error'] = "Sesión expirada. Vuelve a iniciar sesión.";
+    $_SESSION['error'] = "Sesión expirada.";
     header("Location: ../administrador/funcionarios.php");
     exit;
-}
-
-$pdo = new PDO($dsn, $user, $pass, $options);
-
-// Recoger datos
-$idFuncionario   = $_POST['ID_Funcionario'] ?? null;
-$nombres         = trim($_POST['Nombres'] ?? '');
-$apellidos       = trim($_POST['Apellidos'] ?? '');
-$dni             = trim($_POST['DNI_Pasaporte'] ?? '');
-$fechaNacimiento = $_POST['Fecha_Nacimiento'] ?? null;
-$genero          = $_POST['Genero'] ?? null;
-$nacionalidad    = trim($_POST['Nacionalidad'] ?? '');
-$direccion       = trim($_POST['Direccion_Residencia'] ?? '');
-$telefono        = trim($_POST['Telefono_Contacto'] ?? '');
-$email           = trim($_POST['Email_Oficial'] ?? '');
-$fechaIngreso    = $_POST['Fecha_Ingreso'] ?? null;
-$estadoLaboral   = $_POST['Estado_Laboral'] ?? 'Activo';
-
-// Validación y Sanitización Básica (se omiten validaciones de campo vacíos para mantener el foco en la foto)
-if (empty($idFuncionario) || !is_numeric($idFuncionario)) {
-    $_SESSION['error'] = "ID de funcionario inválido.";
-    header("Location: ../administrador/funcionarios.php");
-    exit;
-}
-
-// Validar edad (Bloque sin cambios)
-if ($fechaNacimiento) {
-    $edad = date_diff(date_create($fechaNacimiento), date_create('today'))->y;
-    if ($edad < 18) {
-        $_SESSION['error'] = "El funcionario debe tener al menos 18 años.";
-        header("Location: ../administrador/funcionarios.php");
-        exit;
-    }
-}
-
-// 1. Obtener foto actual de la base de datos
-$sqlFoto = "SELECT Fotografia FROM tbl_funcionarios WHERE ID_Funcionario = ?";
-$stmtFoto = $pdo->prepare($sqlFoto);
-$stmtFoto->execute([$idFuncionario]);
-$fotoActual = $stmtFoto->fetchColumn(); // Ruta relativa almacenada en la DB (e.g., 'funcionarios/func_xyz.png')
-$fotoNombre = $fotoActual; // Inicialmente, mantenemos la foto actual
-
-$nuevaFotoSubida = false;
-$directorio_base = realpath(__DIR__ . '/..'); // Define la ruta base del proyecto
-$directorio_fotos = $directorio_base . '/api/funcionarios'; // Asumiendo que las fotos se guardan en '/api/funcionarios'
-
-// 2. Si se sube una nueva foto
-if (isset($_FILES['Fotografia']) && $_FILES['Fotografia']['error'] === UPLOAD_ERR_OK) {
-    
-    // Crear el directorio si no existe
-    if (!is_dir($directorio_fotos)) {
-        mkdir($directorio_fotos, 0777, true);
-    }
-
-    $extension = pathinfo($_FILES['Fotografia']['name'], PATHINFO_EXTENSION);
-    $nombreArchivo = uniqid('func_') . '.' . strtolower($extension);
-    $rutaCompletaDestino = $directorio_fotos . '/' . $nombreArchivo;
-
-    if (move_uploaded_file($_FILES['Fotografia']['tmp_name'], $rutaCompletaDestino)) {
-        // La subida fue exitosa
-        $fotoNombre = 'funcionarios/' . $nombreArchivo; // Ruta relativa para la DB
-        $nuevaFotoSubida = true;
-        
-        // --- LÓGICA DE ELIMINACIÓN DE LA FOTO ANTERIOR ---
-        if ($fotoActual && $fotoActual !== $fotoNombre) {
-            // Construye la ruta completa de la foto antigua
-            $rutaAntiguaCompleta = $directorio_base . '/api/' . $fotoActual; 
-            
-            // Verifica que el archivo exista y no sea un directorio antes de eliminarlo
-            if (file_exists($rutaAntiguaCompleta) && !is_dir($rutaAntiguaCompleta)) {
-                if (!unlink($rutaAntiguaCompleta)) {
-                    // Opcional: Registrar un error si la eliminación falla, pero permitir la actualización de la DB
-                    error_log("Fallo al eliminar la foto antigua: " . $rutaAntiguaCompleta);
-                }
-            }
-        }
-        // --- FIN LÓGICA DE ELIMINACIÓN ---
-
-    } else {
-        $_SESSION['error'] = "Error al subir la nueva fotografía.";
-        header("Location: ../administrador/funcionarios.php");
-        exit;
-    }
 }
 
 try {
-    // 3. Preparar la consulta de ACTUALIZACIÓN
-    $sql = "UPDATE tbl_funcionarios SET
-                Nombres = :nombres,
-                Apellidos = :apellidos,
-                DNI_Pasaporte = :dni,
-                Fecha_Nacimiento = :fecha_nac,
-                Genero = :genero,
-                Nacionalidad = :nacionalidad,
-                Direccion_Residencia = :direccion,
-                Telefono_Contacto = :telefono,
-                Email_Oficial = :email,
-                Fecha_Ingreso = :fecha_ingreso,
-                Estado_Laboral = :estado,
-                ID_Usuario_Ultima_Modificacion = :usuario_modificador,
-                Fecha_Ultima_Modificacion = NOW()";
+    $pdo = new PDO($dsn, $user, $pass, $options);
+    $pdo->beginTransaction();
 
-    // Solo añadir el campo Fotografia si se subió una nueva
-    if ($nuevaFotoSubida) {
-        $sql .= ", Fotografia = :foto";
+    /* ================= DATOS ================= */
+    $Id_funcionario = $_POST['Id_funcionario'] ?? null;
+    if (!$Id_funcionario) {
+        throw new Exception("Funcionario no válido.");
     }
 
-    $sql .= " WHERE ID_Funcionario = :id";
+    $data = [
+        'Nombre'      => $_POST['Nombre'] ?? null,
+        'Apellidos'   => $_POST['Apellidos'] ?? null,
+        'Dip_Pasaporte' => $_POST['Dip_Pasaporte'] ?? null,
+        'Sexo'        => $_POST['Sexo'] ?? null,
+        'Fecha_nacimiento' => $_POST['Fecha_nacimiento'] ?? null,
+        'Lugar_nacimiento' => $_POST['Lugar_nacimiento'] ?? null,
+        'Nacionalidad' => $_POST['Nacionalidad'] ?? null,
+        'Telefono'    => $_POST['Telefono'] ?? null,
+        'Correo'      => $_POST['Correo'] ?? null,
+        'Domicilio'   => $_POST['Domicilio'] ?? null,
+        'Num_carnet_fun' => $_POST['Num_carnet_fun'] ?? null,
 
-    $stmt = $pdo->prepare($sql);
+        'Fecha_nombramiento' => $_POST['Fecha_nombramiento'] ?? null,
+        'Fecha_posesion'     => $_POST['Fecha_posesion'] ?? null,
 
-    // 4. Parámetros para la ejecución
-    $params = [
-        ':nombres'              => $nombres,
-        ':apellidos'            => $apellidos,
-        ':dni'                  => $dni,
-        ':fecha_nac'            => $fechaNacimiento ?: null,
-        ':genero'               => $genero ?: null,
-        ':nacionalidad'         => $nacionalidad ?: null,
-        ':direccion'            => $direccion ?: null,
-        ':telefono'             => $telefono ?: null,
-        ':email'                => $email ?: null,
-        ':fecha_ingreso'        => $fechaIngreso,
-        ':estado'               => $estadoLaboral,
-        ':usuario_modificador'  => $_SESSION['ID_Usuario'],
-        ':id'                   => $idFuncionario
+        'Id_seccion'  => $_POST['Id_seccion'] ?? null,
+        'Funcion'     => $_POST['Funcion'] ?? null,
+        'Id_categoria'=> $_POST['Id_categoria'] ?? null,
+
+        'Profesion'   => $_POST['Profesion'] ?? null,
+        'Maximo_nivel_estudios' => $_POST['Maximo_nivel_estudios'] ?? null,
+        'Titulacion_academica'  => $_POST['Titulacion_academica'] ?? null,
+        'Universidad_centro_formacion' => $_POST['Universidad_centro_formacion'] ?? null,
+        'Fecha_graduacion' => $_POST['Fecha_graduacion'] ?? null,
+
+        'Estado_Laboral' => $_POST['Estado_Laboral'] ?? 'Activo'
     ];
 
-    if ($nuevaFotoSubida) {
-        $params[':foto'] = $fotoNombre;
+    /* ========= OBTENER ARCHIVOS ACTUALES ========= */
+    $stmt = $pdo->prepare("SELECT * FROM funcionarios WHERE Id_funcionario = ?");
+    $stmt->execute([$Id_funcionario]);
+    $actual = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$actual) {
+        throw new Exception("Funcionario no encontrado.");
     }
 
-    $stmt->execute($params);
+    /* ========= MANEJO DE ARCHIVOS ========= */
+    $basePath = realpath(__DIR__ . '/../api/');
+    $uploadPath = $basePath . '/funcionarios/';
+    if (!is_dir($uploadPath)) mkdir($uploadPath, 0777, true);
 
-    // 5. Redirección de éxito
+    $fileFields = [
+        'Foto',
+        'Dip_pass_copia',
+        'Copia_doc_nomb',
+        'Copia_carnet_func',
+        'Copia_doc_tom_posesion',
+        'Copia_doc_academicos'
+    ];
+
+    foreach ($fileFields as $field) {
+        if (!empty($_FILES[$field]['name'])) {
+            $ext = pathinfo($_FILES[$field]['name'], PATHINFO_EXTENSION);
+            $newName = uniqid($field . '_') . '.' . strtolower($ext);
+            $destino = $uploadPath . $newName;
+
+            if (!move_uploaded_file($_FILES[$field]['tmp_name'], $destino)) {
+                throw new Exception("Error al subir $field");
+            }
+
+            // eliminar archivo anterior
+            if (!empty($actual[$field])) {
+                $old = $basePath . '/' . $actual[$field];
+                if (file_exists($old)) unlink($old);
+            }
+
+            $data[$field] = 'funcionarios/' . $newName;
+        } else {
+            $data[$field] = $actual[$field]; // conservar
+        }
+    }
+
+    /* ========= UPDATE ========= */
+    $sql = "UPDATE funcionarios SET
+        Nombre = :Nombre,
+        Apellidos = :Apellidos,
+        Dip_Pasaporte = :Dip_Pasaporte,
+        Sexo = :Sexo,
+        Fecha_nacimiento = :Fecha_nacimiento,
+        Lugar_nacimiento = :Lugar_nacimiento,
+        Nacionalidad = :Nacionalidad,
+        Telefono = :Telefono,
+        Correo = :Correo,
+        Domicilio = :Domicilio,
+        Num_carnet_fun = :Num_carnet_fun,
+
+        Fecha_nombramiento = :Fecha_nombramiento,
+        Fecha_posesion = :Fecha_posesion,
+
+        Id_seccion = :Id_seccion,
+        Funcion = :Funcion,
+        Id_categoria = :Id_categoria,
+
+        Profesion = :Profesion,
+        Maximo_nivel_estudios = :Maximo_nivel_estudios,
+        Titulacion_academica = :Titulacion_academica,
+        Universidad_centro_formacion = :Universidad_centro_formacion,
+        Fecha_graduacion = :Fecha_graduacion,
+
+        Foto = :Foto,
+        Dip_pass_copia = :Dip_pass_copia,
+        Copia_doc_nomb = :Copia_doc_nomb,
+        Copia_carnet_func = :Copia_carnet_func,
+        Copia_doc_tom_posesion = :Copia_doc_tom_posesion,
+        Copia_doc_academicos = :Copia_doc_academicos,
+
+        Estado_Laboral = :Estado_Laboral
+        WHERE Id_funcionario = :Id_funcionario";
+
+    $data['Id_funcionario'] = $Id_funcionario;
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($data);
+
+    /* ========= LOG ========= */
+    $log = $pdo->prepare("
+        INSERT INTO logs (Usuario_id, Tabla_afectada, Accion, Registro_id, IP, Dispositivo)
+        VALUES (?, 'funcionarios', 'UPDATE', ?, ?, ?)
+    ");
+    $log->execute([
+        $_SESSION['ID_Usuario'],
+        $Id_funcionario,
+        getIP(),
+        getDispositivo()
+    ]);
+
+    $pdo->commit();
     $_SESSION['exito'] = "Funcionario actualizado correctamente.";
-    header("Location: ../administrador/funcionarios.php");
-    exit;
 
-} catch (PDOException $e) {
-    // En caso de error de DB, intentar eliminar la foto recién subida para limpiar
-    if ($nuevaFotoSubida && file_exists($rutaCompletaDestino)) {
-        unlink($rutaCompletaDestino);
-    }
-    
-    $_SESSION['error'] = "Error al actualizar: " . $e->getMessage();
-    header("Location: ../administrador/funcionarios.php");
-    exit;
+} catch (Exception $e) {
+    if ($pdo->inTransaction()) $pdo->rollBack();
+    $_SESSION['error'] = $e->getMessage();
 }
-?>
+
+header("Location: ../administrador/funcionarios.php");
+exit;

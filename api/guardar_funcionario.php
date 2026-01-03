@@ -1,13 +1,11 @@
 <?php
 session_start();
-
-// Mostrar errores durante desarrollo
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
-// Conexión PDO (ajusta tus variables)
-require_once '../includes/conexion.php'; // aquí debe definirse $pdo correctamente
- $pdo = new PDO($dsn, $user, $pass, $options);
+require_once '../includes/conexion.php'; // Debe definir $pdo correctamente
+
+$pdo = new PDO($dsn, $user, $pass, $options);
 
 if (!isset($_SESSION['ID_Usuario'])) {
     $_SESSION['error'] = "Sesión expirada. Vuelve a iniciar sesión.";
@@ -15,28 +13,33 @@ if (!isset($_SESSION['ID_Usuario'])) {
     exit;
 }
 
-// FUNCIONES
+// Función para generar código
 function generarCodigo($nombre) {
     $prefijo = strtoupper(substr(preg_replace('/[^A-Za-z]/', '', $nombre), 0, 3));
     $sufijo = strtoupper(substr(md5(uniqid()), 0, 5));
     return $prefijo . $sufijo;
 }
 
-// CAPTURAR DATOS
-$nombres       = trim($_POST['Nombres'] ?? '');
-$apellidos     = trim($_POST['Apellidos'] ?? '');
-$dni           = trim($_POST['DNI_Pasaporte'] ?? '');
-$fechaNacimiento = $_POST['Fecha_Nacimiento'] ?? null;
-$genero        = $_POST['Genero'] ?? null;
-$nacionalidad  = trim($_POST['Nacionalidad'] ?? '');
-$direccion     = trim($_POST['Direccion_Residencia'] ?? '');
-$telefono      = trim($_POST['Telefono_Contacto'] ?? '');
-$email         = trim($_POST['Email_Oficial'] ?? '');
-$fechaIngreso  = $_POST['Fecha_Ingreso'] ?? null;
-$estadoLaboral = $_POST['Estado_Laboral'] ?? 'Activo';
-$fotoNombre    = null;
+// Capturar POST
+$campos = [
+    'Nombre','Apellidos','Dip_Pasaporte','Sexo','Fecha_nacimiento','Lugar_nacimiento',
+    'Nacionalidad','Telefono','Correo','Domicilio','Num_carnet_fun','Fecha_nombramiento',
+    'Fecha_posesion','Id_seccion','Funcion','Id_categoria','Profesion','Maximo_nivel_estudios',
+    'Titulacion_academica','Universidad_centro_formacion','Fecha_graduacion','Estado_Laboral'
+];
 
-// VALIDACIÓN DE EDAD
+
+
+foreach ($campos as $campo) {
+    if (empty($_POST[$campo])) {
+        $_SESSION['error'] = "El campo '$campo' es obligatorio.";
+        header("Location: ../administrador/funcionarios.php");
+        exit;
+    }
+}
+
+// Validar fecha de nacimiento
+$fechaNacimiento = $_POST['Fecha_nacimiento'];
 if ($fechaNacimiento) {
     $edad = date_diff(date_create($fechaNacimiento), date_create('today'))->y;
     if ($edad < 18) {
@@ -46,67 +49,64 @@ if ($fechaNacimiento) {
     }
 }
 
-// FOTOGRAFÍA
-if (isset($_FILES['Fotografia']) && $_FILES['Fotografia']['error'] === UPLOAD_ERR_OK) {
-    $directorio = __DIR__ . '/funcionarios';
-    if (!is_dir($directorio)) {
-        mkdir($directorio, 0777, true);
-    }
+// Archivos
+$archivos = ['Foto','Dip_pass_copia','Copia_doc_nomb','Copia_carnet_func','Copia_doc_tom_posesion','Copia_doc_academicos'];
+$archivosGuardados = [];
 
-    $extension = pathinfo($_FILES['Fotografia']['name'], PATHINFO_EXTENSION);
-    $nombreArchivo = uniqid('func_') . '.' . strtolower($extension);
-    $rutaCompleta = $directorio . '/' . $nombreArchivo;
-
-    if (move_uploaded_file($_FILES['Fotografia']['tmp_name'], $rutaCompleta)) {
-        $fotoNombre = 'funcionarios/' . $nombreArchivo;
-    } else {
-        $_SESSION['error'] = "Error al subir la fotografía.";
+foreach ($archivos as $file) {
+    if (!isset($_FILES[$file]) || $_FILES[$file]['error'] !== UPLOAD_ERR_OK) {
+        $_SESSION['error'] = "El archivo '$file' es obligatorio.";
         header("Location: ../administrador/funcionarios.php");
         exit;
     }
+    $dir = __DIR__ . '/funcionarios';
+    if (!is_dir($dir)) mkdir($dir, 0777, true);
+
+    $ext = pathinfo($_FILES[$file]['name'], PATHINFO_EXTENSION);
+    $nombreArchivo = uniqid($file.'_') . '.' . strtolower($ext);
+    $rutaCompleta = $dir . '/' . $nombreArchivo;
+
+    if (!move_uploaded_file($_FILES[$file]['tmp_name'], $rutaCompleta)) {
+        $_SESSION['error'] = "Error al subir el archivo '$file'.";
+        header("Location: ../administrador/funcionarios.php");
+        exit;
+    }
+    $archivosGuardados[$file] = 'funcionarios/' . $nombreArchivo;
 }
 
-// GENERAR CÓDIGO
-$codigoFuncionario = generarCodigo($nombres);
+// Generar código
+$codigoFuncionario = generarCodigo($_POST['Nombre']);
 
-// GUARDAR EN BD
+// Insert en BD
 try {
-    $sql = "INSERT INTO tbl_funcionarios (
-                Codigo_Funcionario, Nombres, Apellidos, DNI_Pasaporte,
-                Fecha_Nacimiento, Genero, Nacionalidad, Direccion_Residencia,
-                Telefono_Contacto, Email_Oficial, Fecha_Ingreso,
-                Estado_Laboral, Fotografia, ID_Usuario_Creador
-            ) VALUES (
-                :codigo, :nombres, :apellidos, :dni,
-                :fecha_nac, :genero, :nacionalidad, :direccion,
-                :telefono, :email, :fecha_ingreso,
-                :estado, :foto, :usuario_id
-            )";
+    $sql = "INSERT INTO funcionarios (
+        CODIGO, Nombre, Apellidos, Dip_Pasaporte, Sexo, Fecha_nacimiento, Lugar_nacimiento,
+        Nacionalidad, Telefono, Correo, Domicilio, Num_carnet_fun,
+        Fecha_nombramiento, Fecha_posesion, Id_seccion, Funcion, Id_categoria,
+        Profesion, Maximo_nivel_estudios, Titulacion_academica, Universidad_centro_formacion,
+        Fecha_graduacion, Estado_Laboral, Foto, Dip_pass_copia, Copia_doc_nomb,
+        Copia_carnet_func, Copia_doc_tom_posesion, Copia_doc_academicos,
+        Usuario_creador
+    ) VALUES (
+        :CODIGO, :Nombre, :Apellidos, :Dip_Pasaporte, :Sexo, :Fecha_nacimiento, :Lugar_nacimiento,
+        :Nacionalidad, :Telefono, :Correo, :Domicilio, :Num_carnet_fun,
+        :Fecha_nombramiento, :Fecha_posesion, :Id_seccion, :Funcion, :Id_categoria,
+        :Profesion, :Maximo_nivel_estudios, :Titulacion_academica, :Universidad_centro_formacion,
+        :Fecha_graduacion, :Estado_Laboral, :Foto, :Dip_pass_copia, :Copia_doc_nomb,
+        :Copia_carnet_func, :Copia_doc_tom_posesion, :Copia_doc_academicos,
+        :Usuario_creador
+    )";
 
     $stmt = $pdo->prepare($sql);
-    $stmt->execute([
-        'codigo'        => $codigoFuncionario,
-        'nombres'       => $nombres,
-        'apellidos'     => $apellidos,
-        'dni'           => $dni,
-        'fecha_nac'     => $fechaNacimiento ?: null,
-        'genero'        => $genero ?: null,
-        'nacionalidad'  => $nacionalidad ?: null,
-        'direccion'     => $direccion ?: null,
-        'telefono'      => $telefono ?: null,
-        'email'         => $email ?: null,
-        'fecha_ingreso' => $fechaIngreso,
-        'estado'        => $estadoLaboral,
-        'foto'          => $fotoNombre,
-        'usuario_id'    => $_SESSION['ID_Usuario']
-    ]);
+
+    $stmt->execute(array_merge($_POST, $archivosGuardados, ['CODIGO'=>$codigoFuncionario, 'Usuario_creador'=>$_SESSION['ID_Usuario']]));
 
     $_SESSION['exito'] = "Funcionario registrado correctamente.";
     header("Location: ../administrador/funcionarios.php");
     exit;
 
 } catch (PDOException $e) {
-    $_SESSION['error'] = "Error en la base de datos: " . $e->getMessage();
+    $_SESSION['error'] = "Error en la base de datos: ".$e->getMessage();
     header("Location: ../administrador/funcionarios.php");
     exit;
 }

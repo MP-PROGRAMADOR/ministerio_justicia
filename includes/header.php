@@ -1079,6 +1079,65 @@ try {
             /* Un valor de z-index más alto que el valor predeterminado de Bootstrap (1055) */
             z-index: 1060 !important;
         }
+
+
+
+    /* Estilos para el spinner de carga */
+    .spinner-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(255, 255, 255, 0.9); /* Fondo semi-transparente */
+        z-index: 1050; /* Mayor que el contenido del modal pero menor que otros elementos de Bootstrap */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: opacity 0.3s ease-in-out;
+    }
+
+    /* Oculta el contenido mientras se carga */
+    .spinner-overlay.d-flex + .spinner-overlay-content {
+        opacity: 0.3;
+        pointer-events: none;
+    }
+
+    /* Estilo para el contenedor del cuerpo (para animar el contenido) */
+    .modal-body-content {
+        transition: opacity 0.5s ease-in-out;
+    }
+
+    /* Estilo para las tarjetas de contenido */
+    .detail-card {
+        border: 1px solid rgba(0, 0, 0, 0.08); /* Borde sutil */
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .detail-card:hover {
+        /* box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important; */
+        transform: translateY(-2px); /* Pequeño efecto 3D al pasar el ratón */
+    }
+
+    /* Estilo para las cabeceras de sección dentro de las tarjetas */
+    .section-header {
+        border-bottom: 2px solid #0d6efd; /* Un color de acento, por ejemplo, Primary */
+        padding-bottom: 0.5rem;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    /* Estilo para el perfil del funcionario */
+    .profile-img {
+        border: 4px solid #f8f9fa; /* Borde blanco alrededor de la imagen */
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+
+
+
+
     </style>
 
 
