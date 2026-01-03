@@ -106,7 +106,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
     <div class="logo-section">
         <div class="d-flex align-items-center justify-content-center mb-3">
             <div class="bg-primary bg-opacity-10 rounded-3 p-3 me-3">
-                <i class="fas fa-balance-scale fa-2x text-primary"></i>
+                <!-- Icono actualizado a Bootstrap Icon -->
+                <i class="bi bi-scale2 fs-2 text-primary"></i>
             </div>
             <div class="text-start">
                 <h5 class="mb-0 text-white">THEMIS</h5>
@@ -123,89 +124,91 @@ $current_page = basename($_SERVER['PHP_SELF']);
     </div>
 
     <nav class="nav flex-column px-2">
+        <!-- Dashboard -->
         <a class="nav-link <?php echo ($current_page === 'index.php') ? 'active' : ''; ?>" href="index.php">
-            <i class="bi bi-speedometer2 me-3"></i> Dashboard
+            <i class="bi bi-speedometer2 me-3 fs-5"></i> Dashboard
         </a>
 
-        <?php if ($_SESSION['Rol_Usuario'] === 'Administrador' || $_SESSION['Rol_Usuario'] === 'Usuario' || $_SESSION['Rol_Usuario'] === 'Jefe Personal'): ?>
+        <?php if (in_array($_SESSION['Rol_Usuario'], ['Administrador','Usuario','Jefe Personal'])): ?>
+            <!-- Funcionarios -->
             <a class="nav-link <?php echo ($current_page === 'funcionarios.php') ? 'active' : ''; ?>" href="funcionarios.php">
-                <i class="bi bi-people me-3"></i> Funcionarios
+                <i class="bi bi-people me-3 fs-5"></i> Funcionarios
                 <span class="badge bg-primary ms-auto" id="totalFuncionariosSidebar">
-                    <?php echo $dashboardData['totalFuncionarios'] ?? 'N/A'; ?>
+                    <?= $dashboardData['totalFuncionarios'] ?? 'N/A'; ?>
                 </span>
             </a>
 
+            <!-- Permisos -->
             <a class="nav-link position-relative <?php echo ($current_page === 'permisos.php') ? 'active' : ''; ?>" href="permisos.php">
-                <i class="bi bi-calendar-check me-3"></i> Permisos
-                <span class="notification-dot" id="permisosNotifDot"
-                    style="display: <?php echo ($dashboardData['permisosPendientes'] ?? 0) > 0 ? 'block' : 'none'; ?>;"></span>
-                <span class="badge bg-danger ms-auto" id="permisosPendientesSidebar">
-                    <?php echo $dashboardData['permisosPendientes'] ?? 'N/A'; ?>
-                </span>
+                <i class="bi bi-calendar-check me-3 fs-5"></i> Permisos
+                <span class="notification-dot" id="permisosNotifDot" style="display: <?= ($dashboardData['permisosPendientes'] ?? 0) > 0 ? 'block' : 'none'; ?>;"></span>
+                <span class="badge bg-danger ms-auto"><?= $dashboardData['permisosPendientes'] ?? 'N/A'; ?></span>
             </a>
         <?php endif; ?>
 
-        <?php if ($_SESSION['Rol_Usuario'] === 'Administrador' || $_SESSION['Rol_Usuario'] === 'Jefe Personal'): ?>
+        <?php if (in_array($_SESSION['Rol_Usuario'], ['Administrador','Jefe Personal'])): ?>
+            <!-- Categorias / Direcciones / Secciones -->
             <a class="nav-link <?php echo ($current_page === 'categorias.php') ? 'active' : ''; ?>" href="categorias.php">
-                <i class="bi bi-diagram-3 me-3"></i> Categorias
+                <i class="bi bi-diagram-3 me-3 fs-5"></i> Categorias
             </a>
-
-             <a class="nav-link <?php echo ($current_page === 'direcciones.php') ? 'active' : ''; ?>" href="direcciones.php">
-                <i class="bi bi-diagram-3 me-3"></i> Dirrecciones
+            <a class="nav-link <?php echo ($current_page === 'direcciones.php') ? 'active' : ''; ?>" href="direcciones.php">
+                <i class="bi bi-diagram-3 me-3 fs-5"></i> Direcciones
             </a>
-
             <a class="nav-link <?php echo ($current_page === 'secciones.php') ? 'active' : ''; ?>" href="secciones.php">
-                <i class="bi bi-diagram-3 me-3"></i> Secciones
-            </a>
-            
-
-             <a class="nav-link <?php echo ($current_page === 'nombramientos.php') ? 'active' : ''; ?>" href="nombramientos.php">
-               <i class="bi bi-briefcase"></i> Nombramientos
+                <i class="bi bi-diagram-3 me-3 fs-5"></i> Secciones
             </a>
 
+            <!-- Nombramientos -->
+            <a class="nav-link <?php echo ($current_page === 'nombramientos.php') ? 'active' : ''; ?>" href="nombramientos.php">
+                <i class="bi bi-briefcase me-3 fs-5"></i> Nombramientos
+            </a>
+
+            <!-- Destinos -->
             <a class="nav-link <?php echo ($current_page === 'destinos.php') ? 'active' : ''; ?>" href="destinos.php">
-                <i class="bi bi-geo-alt me-3"></i> Destinos
-                <span class="badge bg-secondary ms-auto" id="totalDestinosSidebar">
-                    <?php echo $dashboardData['destinosActivos'] ?? 'N/A'; ?>
-                </span>
+                <i class="bi bi-geo-alt me-3 fs-5"></i> Destinos
+                <span class="badge bg-secondary ms-auto"><?= $dashboardData['destinosActivos'] ?? 'N/A'; ?></span>
             </a>
+
+            <!-- Departamentos / Cargos -->
             <a class="nav-link <?php echo ($current_page === 'departamentos.php') ? 'active' : ''; ?>" href="departamentos.php">
-                <i class="bi bi-building-fill me-3"></i> Departamentos
+                <i class="bi bi-building-fill me-3 fs-5"></i> Departamentos
             </a>
             <a class="nav-link <?php echo ($current_page === 'cargo.php') ? 'active' : ''; ?>" href="cargo.php">
-                <i class="bi bi-briefcase me-3"></i> Cargos
+                <i class="bi bi-briefcase me-3 fs-5"></i> Cargos
             </a>
+
+            <!-- Formación / Capacitaciones / Cursos -->
             <a class="nav-link <?php echo ($current_page === 'formacion_academica.php') ? 'active' : ''; ?>" href="formacion_academica.php">
-                <i class="bi bi-mortarboard me-3"></i> Formación
+                <i class="bi bi-mortarboard me-3 fs-5"></i> Formación
             </a>
             <a class="nav-link <?php echo ($current_page === 'capacitaciones.php') ? 'active' : ''; ?>" href="capacitaciones.php">
-                <i class="bi bi-award me-3"></i> Capacitaciones Externas
+                <i class="bi bi-award me-3 fs-5"></i> Capacitaciones Externas
             </a>
             <a class="nav-link d-flex align-items-center <?php echo ($current_page === 'cursos_ministerio.php') ? 'active' : ''; ?>" href="cursos_ministerio.php">
-                <i class="bi bi-award fs-5 me-3"></i> Cursos del Ministerio
+                <i class="bi bi-award me-3 fs-5"></i> Cursos del Ministerio
             </a>
 
+            <!-- Instrucciones Diarias / Reportes -->
             <a class="nav-link <?php echo ($current_page === 'instrucciones_diarias.php') ? 'active' : ''; ?>" href="instrucciones_diarias.php">
-                <i class="bi bi-file-earmark-text me-3"></i> Instrucciones Diarias
+                <i class="bi bi-file-earmark-text me-3 fs-5"></i> Instrucciones Diarias
             </a>
-
             <a class="nav-link <?php echo ($current_page === 'reportes.php') ? 'active' : ''; ?>" href="reportes.php">
-                <i class="bi bi-file-earmark-text me-3"></i> Reportes
+                <i class="bi bi-file-earmark-text me-3 fs-5"></i> Reportes
             </a>
         <?php endif; ?>
 
-
         <?php if ($_SESSION['Rol_Usuario'] === 'Administrador'): ?>
+            <!-- Usuarios / Auditoría -->
             <a class="nav-link <?php echo ($current_page === 'usuarios.php') ? 'active' : ''; ?>" href="usuarios.php">
-                <i class="bi bi-person me-3"></i> Usuarios
+                <i class="bi bi-person me-3 fs-5"></i> Usuarios
             </a>
-
-            <a class="nav-link" href="#auditoria">
-                <i class="bi bi-shield-check me-3"></i> Auditoría
+            <a class="nav-link <?php echo ($current_page === 'auditoria.php') ? 'active' : ''; ?>" href="auditoria.php">
+                <i class="bi bi-clipboard-data me-3 fs-5"></i> Auditoría
             </a>
         <?php endif; ?>
     </nav>
 </div>
+
 
 
 
