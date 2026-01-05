@@ -19,7 +19,7 @@ try {
 
     // --- 1. Obtener estadísticas de tarjetas (Statistics Cards) ---
     // Total Funcionarios
-    $stmt = $pdo->query("SELECT COUNT(*) AS total FROM tbl_funcionarios");
+    $stmt = $pdo->query("SELECT COUNT(*) AS total FROM funcionarios");
     $dashboardData['totalFuncionarios'] = $stmt->fetchColumn();
 
     // Funcionarios Activos
