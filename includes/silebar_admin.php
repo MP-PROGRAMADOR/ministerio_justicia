@@ -163,11 +163,6 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 <i class="bi bi-briefcase me-3 fs-5"></i> Nombramientos
             </a>
 
-            <!-- Destinos -->
-            <a class="nav-link <?php echo ($current_page === 'destinos.php') ? 'active' : ''; ?>" href="destinos.php">
-                <i class="bi bi-geo-alt me-3 fs-5"></i> Destinos
-                <span class="badge bg-secondary ms-auto"><?= $dashboardData['destinosActivos'] ?? 'N/A'; ?></span>
-            </a>
 
           
             <a class="nav-link <?php echo ($current_page === 'cargo.php') ? 'active' : ''; ?>" href="cargo.php">
