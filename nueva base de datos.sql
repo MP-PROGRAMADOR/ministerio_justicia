@@ -128,7 +128,7 @@ CREATE TABLE funcionarios (
     FOREIGN KEY (Id_seccion) REFERENCES secciones(Id_seccion),
     FOREIGN KEY (Id_categoria) REFERENCES categorias(Id_categoria),
     FOREIGN KEY (Usuario_creador) REFERENCES tbl_usuarios(ID_Usuario)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB; 
 
 
 ALTER TABLE funcionarios
