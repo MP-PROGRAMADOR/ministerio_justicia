@@ -274,3 +274,67 @@ CREATE TABLE logs (
 
     FOREIGN KEY (Usuario_id) REFERENCES tbl_usuarios(ID_Usuario)
 ) ENGINE=InnoDB;
+
+
+CREATE TABLE tbl_formacion_academica (
+    ID_Formacion INT AUTO_INCREMENT PRIMARY KEY,
+    ID_Funcionario INT NOT NULL,
+
+    Titulo_Obtenido VARCHAR(200) NOT NULL,
+    Institucion_Educativa TEXT NOT NULL,
+    Fecha_Graduacion DATE DEFAULT NULL,
+    Nivel_Educativo ENUM(
+        'Bachiller','Grado','Postgrado',
+        'Maestria','Doctorado','Otro'
+    ) NOT NULL,
+
+    ID_Usuario_Creador INT NOT NULL,
+    Fecha_Creacion_Registro DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+    ID_Usuario_Ultima_Modificacion INT DEFAULT NULL,
+    Fecha_Ultima_Modificacion DATETIME DEFAULT NULL
+        ON UPDATE CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (ID_Funcionario)
+        REFERENCES funcionarios(Id_funcionario)
+        ON DELETE CASCADE,
+
+    FOREIGN KEY (ID_Usuario_Creador)
+        REFERENCES tbl_usuarios(ID_Usuario),
+
+    FOREIGN KEY (ID_Usuario_Ultima_Modificacion)
+        REFERENCES tbl_usuarios(ID_Usuario)
+) ENGINE=InnoDB
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_unicode_ci;
+
+
+CREATE TABLE tbl_capacitaciones (
+    ID_Capacitacion INT AUTO_INCREMENT PRIMARY KEY,
+    ID_Funcionario INT NOT NULL,
+
+    Nombre_Curso VARCHAR(200) NOT NULL,
+    Institucion_Organizadora VARCHAR(200) NOT NULL,
+    Fecha_Inicio_Curso DATE DEFAULT NULL,
+    Fecha_Fin_Curso DATE DEFAULT NULL,
+    Certificado_URL VARCHAR(255) DEFAULT NULL,
+
+    ID_Usuario_Creador INT NOT NULL,
+    Fecha_Creacion_Registro DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+    ID_Usuario_Ultima_Modificacion INT DEFAULT NULL,
+    Fecha_Ultima_Modificacion DATETIME DEFAULT NULL
+        ON UPDATE CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (ID_Funcionario)
+        REFERENCES funcionarios(Id_funcionario)
+        ON DELETE CASCADE,
+
+    FOREIGN KEY (ID_Usuario_Creador)
+        REFERENCES tbl_usuarios(ID_Usuario),
+
+    FOREIGN KEY (ID_Usuario_Ultima_Modificacion)
+        REFERENCES tbl_usuarios(ID_Usuario)
+) ENGINE=InnoDB
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_unicode_ci;

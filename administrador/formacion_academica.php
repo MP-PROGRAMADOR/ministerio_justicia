@@ -68,9 +68,9 @@ include_once '../includes/header.php';
                             }
 
                             // Obtener formación académica con datos del funcionario
-                            $sql = "SELECT f.*, fu.Nombres, fu.Apellidos, fu.DNI_Pasaporte 
+                            $sql = "SELECT f.*, fu.Nombre, fu.Apellidos, fu.Dip_Pasaporte 
                             FROM tbl_formacion_academica f
-                            JOIN tbl_funcionarios fu ON f.ID_Funcionario = fu.ID_Funcionario
+                            JOIN funcionarios fu ON f.ID_Funcionario = fu.ID_Funcionario
                             ORDER BY f.ID_Formacion DESC";
                             $stmt = $pdo->query($sql);
                             $formaciones = $stmt->fetchAll();
