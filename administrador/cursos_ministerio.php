@@ -511,10 +511,10 @@ include_once '../includes/header.php';
                         data.forEach(func => {
                             const tr = document.createElement('tr');
                             tr.innerHTML = `<td>${func.ID_Funcionario}</td>
-                                    <td>${func.Nombres}</td>
+                                    <td>${func.Nombre}</td>
                                     <td>${func.Apellidos}</td>
-                                    <td>${func.Codigo_Funcionario}</td>
-                                    <td>${func.DNI_Pasaporte}</td>`;
+                                    <td>${func.CODIGO}</td>
+                                    <td>${func.Dip_Pasaporte}</td>`;
                             tbody.appendChild(tr);
                         });
                     });
@@ -615,7 +615,7 @@ include_once '../includes/header.php';
                         data.forEach(func => {
                             const div = document.createElement('div');
                             div.className = 'list-group-item list-group-item-action';
-                            div.textContent = `${func.Nombres} ${func.Apellidos}`;
+                            div.textContent = `${func.Nombre} ${func.Apellidos}`;
                             div.style.cursor = 'pointer';
                             div.addEventListener('click', () => agregarASeleccionados(func));
                             lista.appendChild(div);

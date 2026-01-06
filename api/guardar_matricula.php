@@ -41,7 +41,7 @@ try {
     $stmtInsert = $pdo->prepare($sqlInsert);
 
     // Consulta para obtener nombre del funcionario
-    $stmtNombre = $pdo->prepare("SELECT Nombres, Apellidos FROM tbl_funcionarios WHERE ID_Funcionario = :id");
+    $stmtNombre = $pdo->prepare("SELECT Nombre, Apellidos FROM funcionarios WHERE ID_Funcionario = :id");
 
     $inscritos = [];
     $noInscritos = [];
@@ -52,7 +52,7 @@ try {
         // Obtener nombre del funcionario
         $stmtNombre->execute([':id' => $idFuncionario]);
         $funcionarioData = $stmtNombre->fetch(PDO::FETCH_ASSOC);
-        $nombreCompleto = $funcionarioData ? $funcionarioData['Nombres'] . ' ' . $funcionarioData['Apellidos'] : "ID $idFuncionario";
+        $nombreCompleto = $funcionarioData ? $funcionarioData['Nombre'] . ' ' . $funcionarioData['Apellidos'] : "ID $idFuncionario";
 
         // Verificar duplicado
         $stmtVerificar = $pdo->prepare("SELECT 1 FROM tbl_cursos_funcionarios WHERE ID_Curso = :curso AND ID_Funcionario = :funcionario");
