@@ -42,14 +42,16 @@ try {
                 <div class="px-4 mt-3">
                     <?php if (isset($_SESSION['error'])): ?>
                         <div id="mensajeFlash" class="alert alert-danger alert-dismissible fade show" role="alert">
-                            <?= htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?>
+                            <?= htmlspecialchars($_SESSION['error']);
+                            unset($_SESSION['error']); ?>
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
                     <?php endif; ?>
 
                     <?php if (isset($_SESSION['exito'])): ?>
                         <div id="mensajeFlash" class="alert alert-success alert-dismissible fade show" role="alert">
-                            <?= htmlspecialchars($_SESSION['exito']); unset($_SESSION['exito']); ?>
+                            <?= htmlspecialchars($_SESSION['exito']);
+                            unset($_SESSION['exito']); ?>
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
                     <?php endif; ?>
@@ -88,52 +90,63 @@ try {
 
                                     if (count($rows) > 0):
                                         foreach ($rows as $row): ?>
+                                            <tr>
+                                                <td>#<?= $row['Id_nombramiento'] ?></td>
+                                                <td class="fw-semibold"><?= htmlspecialchars($row['Funcionario']) ?></td>
+                                                <td>
+                                                    <small class="d-block text-dark fw-medium"><?= htmlspecialchars($row['Cargo']) ?></small>
+                                                    <small class="text-muted"><?= htmlspecialchars($row['Categoria'] ?? '—') ?></small>
+                                                </td>
+                                                <td>
+                                                    <small class="d-block"><strong>Dir:</strong> <?= htmlspecialchars($row['Direccion'] ?? 'N/A') ?></small>
+                                                    <small class="d-block text-muted"><strong>Sec:</strong> <?= htmlspecialchars($row['Seccion'] ?? 'N/A') ?></small>
+                                                </td>
+                                                <td style="font-size: 0.85rem;">
+                                                    <div class="mb-1"><i class="bi bi-calendar-check text-success me-1"></i><?= $row['Fecha_nombramiento'] ?></div>
+                                                    <div><i class="bi bi-geo-alt text-primary me-1"></i><?= $row['Fecha_toma_posesion'] ?: 'Pendiente' ?></div>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex gap-1">
+                                                        <?php if ($row['Copia_doc_nomb']): ?>
+                                                            <a href="../uploads/<?= $row['Copia_doc_nomb'] ?>" target="_blank" class="btn btn-sm btn-outline-success" title="Nombramiento"><i class="bi bi-file-pdf"></i></a>
+                                                        <?php endif; ?>
+                                                        <?php if ($row['Copia_doc_tom_posesion']): ?>
+                                                            <a href="../uploads/<?= $row['Copia_doc_tom_posesion'] ?>" target="_blank" class="btn btn-sm btn-outline-primary" title="Posesión"><i class="bi bi-file-pdf"></i></a>
+                                                        <?php endif; ?>
+                                                    </div>
+                                                </td>
+                                                <td class="text-center">
+                                                    <button class="btn btn-sm btn-warning btn-edit"
+                                                        data-id="<?= $row['Id_nombramiento'] ?>"
+                                                        data-id_func="<?= $row['Id_funcionario'] ?>"
+                                                        data-id_cargo="<?= $row['Id_cargo'] ?>"
+                                                        data-fecha_n="<?= $row['Fecha_nombramiento'] ?>"
+                                                        data-fecha_p="<?= $row['Fecha_toma_posesion'] ?>"
+                                                        data-id_dir="<?= $row['Id_direccion'] ?>"
+                                                        data-id_sec="<?= $row['Id_seccion'] ?>"
+                                                        data-id_cat="<?= $row['Id_categoria'] ?>">
+                                                        <i class="bi bi-pencil-square"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach;
+                                    else: ?>
                                         <tr>
-                                            <td>#<?= $row['Id_nombramiento'] ?></td>
-                                            <td class="fw-semibold"><?= htmlspecialchars($row['Funcionario']) ?></td>
-                                            <td>
-                                                <small class="d-block text-dark fw-medium"><?= htmlspecialchars($row['Cargo']) ?></small>
-                                                <small class="text-muted"><?= htmlspecialchars($row['Categoria'] ?? '—') ?></small>
-                                            </td>
-                                            <td>
-                                                <small class="d-block"><strong>Dir:</strong> <?= htmlspecialchars($row['Direccion'] ?? 'N/A') ?></small>
-                                                <small class="d-block text-muted"><strong>Sec:</strong> <?= htmlspecialchars($row['Seccion'] ?? 'N/A') ?></small>
-                                            </td>
-                                            <td style="font-size: 0.85rem;">
-                                                <div class="mb-1"><i class="bi bi-calendar-check text-success me-1"></i><?= $row['Fecha_nombramiento'] ?></div>
-                                                <div><i class="bi bi-geo-alt text-primary me-1"></i><?= $row['Fecha_toma_posesion'] ?: 'Pendiente' ?></div>
-                                            </td>
-                                            <td>
-                                                <div class="d-flex gap-1">
-                                                    <?php if ($row['Copia_doc_nomb']): ?>
-                                                        <a href="../uploads/<?= $row['Copia_doc_nomb'] ?>" target="_blank" class="btn btn-sm btn-outline-success" title="Nombramiento"><i class="bi bi-file-pdf"></i></a>
-                                                    <?php endif; ?>
-                                                    <?php if ($row['Copia_doc_tom_posesion']): ?>
-                                                        <a href="../uploads/<?= $row['Copia_doc_tom_posesion'] ?>" target="_blank" class="btn btn-sm btn-outline-primary" title="Posesión"><i class="bi bi-file-pdf"></i></a>
-                                                    <?php endif; ?>
-                                                </div>
-                                            </td>
-                                            <td class="text-center">
-                                                <button class="btn btn-sm btn-warning btn-edit" 
-                                                    data-id="<?= $row['Id_nombramiento'] ?>"
-                                                    data-id_func="<?= $row['Id_funcionario'] ?>"
-                                                    data-id_cargo="<?= $row['Id_cargo'] ?>"
-                                                    data-fecha_n="<?= $row['Fecha_nombramiento'] ?>"
-                                                    data-fecha_p="<?= $row['Fecha_toma_posesion'] ?>"
-                                                    data-id_dir="<?= $row['Id_direccion'] ?>"
-                                                    data-id_sec="<?= $row['Id_seccion'] ?>"
-                                                    data-id_cat="<?= $row['Id_categoria'] ?>">
-                                                    <i class="bi bi-pencil-square"></i>
-                                                </button>
-                                            </td>
+                                            <td colspan="7" class="text-center py-4 text-muted">No se encontraron registros.</td>
                                         </tr>
-                                    <?php endforeach; else: ?>
-                                        <tr><td colspan="7" class="text-center py-4 text-muted">No se encontraron registros.</td></tr>
                                     <?php endif; ?>
                                 </tbody>
                             </table>
                         </div>
                     </div>
+                    <nav aria-label="Page navigation example" class="mt-3">
+                        <ul class="pagination justify-content-center" id="paginationControls">
+                            <li class="page-item disabled"><a class="page-link" href="#" tabindex="-1"
+                                    aria-disabled="true">Anterior</a></li>
+                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item"><a class="page-link" href="#">Siguiente</a></li>
+                        </ul>
+                    </nav>
                 </div>
 
                 <footer class="footer bg-white shadow-sm py-3 mt-auto">
