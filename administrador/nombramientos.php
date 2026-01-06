@@ -1,17 +1,10 @@
 <?php
 include_once '../includes/header.php';
-
-try {
-    // Consultas para llenar los selectores del Modal 
-    $funcionarios_list = $pdo->query("SELECT Id_funcionario, Nombre, Apellidos FROM funcionarios ORDER BY Nombre ASC")->fetchAll(PDO::FETCH_ASSOC);
-    $cargos_list       = $pdo->query("SELECT Id_cargo, Nombre FROM cargos ORDER BY Nombre ASC")->fetchAll(PDO::FETCH_ASSOC);
-    $direcciones_list  = $pdo->query("SELECT Id_direccion, nombre FROM direcciones ORDER BY nombre ASC")->fetchAll(PDO::FETCH_ASSOC);
-    $secciones_list    = $pdo->query("SELECT Id_seccion, nombre FROM secciones ORDER BY nombre ASC")->fetchAll(PDO::FETCH_ASSOC);
-    $categorias_list   = $pdo->query("SELECT Id_categoria, nombre FROM categorias ORDER BY nombre ASC")->fetchAll(PDO::FETCH_ASSOC);
-} catch (PDOException $e) {
-    die("Error al conectar con la base de datos: " . $e->getMessage());
-}
 ?>
+<?php
+include_once '../includes/silebar_admin.php';
+?>
+
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -20,9 +13,10 @@ try {
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
     <div class="container-fluid p-0">
         <div class="row g-0">
-            <?php include_once '../includes/silebar_admin.php'; ?>
+
 
             <div class="main-content" id="mainContent">
+
                 <div class="header-section">
                     <div class="row align-items-center">
                         <div class="col-md-12 text-md-end mt-3 mt-md-0">
@@ -39,27 +33,41 @@ try {
                     </div>
                 </div>
 
-                <div class="container-fluid px-4">
-                    <div>
-                        <style>
-                            .alert.fade {
-                                transition: opacity 0.8s linear;
-                            }
-                        </style>
-                        <?php
-                        if (isset($_SESSION['error'])) {
-                            echo "<div id='mensajeFlash' class='alert alert-danger alert-dismissible fade show' role='alert'>"
-                                . htmlspecialchars($_SESSION['error']);
-                            unset($_SESSION['error']);
+                <div>
+                    <style>
+                        .alert.fade {
+                            transition: opacity 0.8s linear;
                         }
+                    </style>
+                    <?php
+                    if (isset($_SESSION['error'])) {
+                        echo "<div id='mensajeFlash' class='alert alert-danger alert-dismissible fade show' role='alert'>"
+                            . htmlspecialchars($_SESSION['error']);
+                        unset($_SESSION['error']);
+                    }
 
-                        if (isset($_SESSION['exito'])) {
-                            echo "<div id='mensajeFlash' class='alert alert-success alert-dismissible fade show' role='alert'>"
-                                . htmlspecialchars($_SESSION['exito']);
-                            unset($_SESSION['exito']);
-                        }
-                        ?>
-                    </div>
+                    if (isset($_SESSION['exito'])) {
+                        echo "<div id='mensajeFlash' class='alert alert-success alert-dismissible fade show' role='alert'>"
+                            . htmlspecialchars($_SESSION['exito']);
+                        unset($_SESSION['exito']);
+                    }
+                    ?>
+                </div>
+                <div class="container-fluid px-4">
+                    <?php
+
+                    try {
+                        // Consultas para llenar los selectores del Modal 
+                        $funcionarios_list = $pdo->query("SELECT Id_funcionario, Nombre, Apellidos FROM funcionarios ORDER BY Nombre ASC")->fetchAll(PDO::FETCH_ASSOC);
+                        $cargos_list       = $pdo->query("SELECT Id_cargo, Nombre FROM cargos ORDER BY Nombre ASC")->fetchAll(PDO::FETCH_ASSOC);
+                        $direcciones_list  = $pdo->query("SELECT Id_direccion, nombre FROM direcciones ORDER BY nombre ASC")->fetchAll(PDO::FETCH_ASSOC);
+                        $secciones_list    = $pdo->query("SELECT Id_seccion, nombre FROM secciones ORDER BY nombre ASC")->fetchAll(PDO::FETCH_ASSOC);
+                        $categorias_list   = $pdo->query("SELECT Id_categoria, nombre FROM categorias ORDER BY nombre ASC")->fetchAll(PDO::FETCH_ASSOC);
+                    } catch (PDOException $e) {
+                        die("Error al conectar con la base de datos: " . $e->getMessage());
+                    }
+                    ?>
+
                     <div class="table-custom mb-4 p-4">
                         <h5 class="mb-3 fw-semibold">Registro de Nombramientos</h5>
                         <div class="table-responsive">
@@ -97,7 +105,7 @@ try {
                                             <td>#<?= $row['Id_nombramiento'] ?></td>
                                             <td><strong><?= htmlspecialchars($row['Funcionario']) ?></strong></td>
                                             <td>
-                                               
+
                                                 <small class="d-block text-muted"> <?= htmlspecialchars($row['Cargo']) ?></small>
                                                 <small class="d-block text-muted"> <?= htmlspecialchars($row['Categoria'] ?? '') ?></small>
                                             </td>
@@ -142,6 +150,9 @@ try {
             </div>
         </div>
     </div>
+
+
+
 
     <!-- Modal de Añadir y actualizar Nombramientos -->
     <div class="modal fade" id="addNombramientoModal" tabindex="-1" aria-hidden="true">
@@ -289,6 +300,5 @@ try {
         });
     </script>
 
-</body>
 
-</html>
+    <?php include_once '../includes/footer.php'; ?>
