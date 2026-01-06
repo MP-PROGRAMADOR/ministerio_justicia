@@ -456,13 +456,13 @@ ORDER BY f.Id_funcionario ASC
                                                 <option value="" disabled selected>Selecciona El Cargo</option>
                                                 <?php
                                                 // CONEXIÓN Y CONSULTA PHP para Cargos
-                                                // require_once "../includes/conexion.php";
-                                                // $stmt = $pdo->query("SELECT Id_cargo, nombre FROM cargos ORDER BY nombre ASC");
-                                                // while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                                                //     echo '<option value="' . $row['Id_cargo'] . '">' . htmlspecialchars($row['nombre']) . '</option>';
-                                                // }
+                                                 require_once "../includes/conexion.php";
+                                                 $stmt = $pdo->query("SELECT Id_cargo, nombre FROM cargos ORDER BY nombre ASC");
+                                                 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                                                    echo '<option value="' . $row['Id_cargo'] . '">' . htmlspecialchars($row['nombre']) . '</option>';
+                                                 }
                                                 ?>
-                                                <option value="1">Ej. Director</option>
+                                              
                                             </select>
                                         </div>
                                         <div class="col-md-12">
@@ -471,13 +471,13 @@ ORDER BY f.Id_funcionario ASC
                                                 <option value="" disabled selected>Selecciona sección</option>
                                                 <?php
                                                 // CONEXIÓN Y CONSULTA PHP para Secciones
-                                                // require_once "../includes/conexion.php";
-                                                // $stmt = $pdo->query("SELECT s.Id_seccion,s.nombre AS nombre_seccion,s.Id_direccion,d.nombre AS nombre_direccion FROM secciones s LEFT JOIN direcciones d ON s.Id_direccion = d.Id_direccion ORDER BY s.nombre ASC");
-                                                // while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                                                //     echo '<option value="' . $row['Id_seccion'] . '">' . htmlspecialchars($row['nombre_seccion']) . ' ' . htmlspecialchars($row['nombre_direccion']) . '</option>';
-                                                // }
+                                                 require_once "../includes/conexion.php";
+                                                 $stmt = $pdo->query("SELECT s.Id_seccion,s.nombre AS nombre_seccion,s.Id_direccion,d.nombre AS nombre_direccion FROM secciones s LEFT JOIN direcciones d ON s.Id_direccion = d.Id_direccion ORDER BY s.nombre ASC");
+                                                 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                                                    echo '<option value="' . $row['Id_seccion'] . '">' . htmlspecialchars($row['nombre_seccion']) . ' ' . htmlspecialchars($row['nombre_direccion']) . '</option>';
+                                                }
                                                 ?>
-                                                <option value="1">Ej. RRHH</option>
+                                               
                                             </select>
                                         </div>
                                         <div class="col-md-6">
@@ -486,12 +486,11 @@ ORDER BY f.Id_funcionario ASC
                                                 <option value="" disabled selected>Selecciona categoría</option>
                                                 <?php
                                                 // CONEXIÓN Y CONSULTA PHP para Categorías
-                                                // $stmt = $pdo->query("SELECT Id_categoria, nombre, descripcion FROM categorias ORDER BY nombre ASC");
-                                                // while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                                                //     echo '<option value="' . $row['Id_categoria'] . '">' . htmlspecialchars($row['nombre']) . ' ' . htmlspecialchars($row['descripcion']) . '</option>';
-                                                // }
+                                                 $stmt = $pdo->query("SELECT Id_categoria, nombre, descripcion FROM categorias ORDER BY nombre ASC");
+                                                 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                                                     echo '<option value="' . $row['Id_categoria'] . '">' . htmlspecialchars($row['nombre']) . ' ' . htmlspecialchars($row['descripcion']) . '</option>';
+                                                 }
                                                 ?>
-                                                <option value="1">Ej. A1</option>
                                             </select>
                                         </div>
                                         <div class="col-md-6">
