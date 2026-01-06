@@ -70,9 +70,9 @@ include_once '../includes/header.php';
                             }
 
                             // Consulta de instrucciones con datos del funcionario
-                            $sql = "SELECT i.*, f.Nombres, f.Apellidos, f.DNI_Pasaporte, f.Fotografia
+                            $sql = "SELECT i.*, f.Nombre, f.Apellidos, f.Dip_Pasaporte, f.Foto
                             FROM tbl_instrucciones i
-                            JOIN tbl_funcionarios f ON i.ID_Funcionario = f.ID_Funcionario
+                            JOIN funcionarios f ON i.ID_Funcionario = f.ID_Funcionario
                             ORDER BY i.ID_Instruccion DESC";
 
                             $stmt = $pdo->query($sql);

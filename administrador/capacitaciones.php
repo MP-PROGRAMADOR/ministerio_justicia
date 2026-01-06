@@ -71,9 +71,9 @@ include_once '../includes/header.php';
 
                             // Consulta para obtener capacitaciones con datos del funcionario
                             $sql = "SELECT c.ID_Capacitacion, c.Nombre_Curso, c.Institucion_Organizadora, c.Fecha_Inicio_Curso, c.Fecha_Fin_Curso, c.Certificado_URL,
-                                f.Nombres, f.Apellidos, f.DNI_Pasaporte
+                                f.Nombre, f.Apellidos, f.Dip_Pasaporte
                             FROM tbl_capacitaciones c
-                            JOIN tbl_funcionarios f ON c.ID_Funcionario = f.ID_Funcionario
+                            JOIN funcionarios f ON c.ID_Funcionario = f.ID_Funcionario
                             ORDER BY c.ID_Capacitacion DESC";
                             $stmt = $pdo->query($sql);
                             $capacitaciones = $stmt->fetchAll();
