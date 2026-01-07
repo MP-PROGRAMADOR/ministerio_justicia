@@ -75,14 +75,11 @@ include_once '../includes/header.php';
                             $rol = $_SESSION['Rol_Usuario'] ?? ''; // Por ejemplo: "Administrador"
 
                             // Consulta base
-                            $sql = "SELECT p.*, f.Nombres, f.Apellidos, f.DNI_Pasaporte, f.Fotografia 
+                            $sql = "SELECT p.*, f.Nombre, f.Apellidos, f.Dip_Pasaporte, f.Foto
                             FROM tbl_permisos p
-                            JOIN tbl_funcionarios f ON p.ID_Funcionario = f.ID_Funcionario";
+                            JOIN funcionarios f ON p.ID_Funcionario = f.ID_Funcionario";
 
-                            // Si el rol es Administrador, filtra por token=1
-                            if ($rol === 'Administrador') {
-                                $sql .= " WHERE p.token = 1";
-                            }
+                         
 
                             // Orden final
                             $sql .= " ORDER BY p.ID_Permiso DESC";
@@ -114,7 +111,7 @@ include_once '../includes/header.php';
                                     <?php foreach ($permisos as $permiso): ?>
                                         <tr>
                                             <td><?= htmlspecialchars($permiso['ID_Permiso']) ?></td>
-                                            <td><?= htmlspecialchars($permiso['Nombres'] . ' ' . $permiso['Apellidos']) ?></td>
+                                            <td><?= htmlspecialchars($permiso['Nombre'] . ' ' . $permiso['Apellidos']) ?></td>
                                             <td><?= htmlspecialchars($permiso['DNI_Pasaporte']) ?></td>
                                             <td><?= htmlspecialchars($permiso['Tipo_Permiso']) ?></td>
                                             <td><?= htmlspecialchars($permiso['Fecha_Solicitud']) ?></td>
@@ -168,7 +165,7 @@ include_once '../includes/header.php';
                                                         ): ?>
                                                             <button class="btn btn-sm btn-warning btn-editar-permiso"
                                                                 data-id="<?= $permiso['ID_Permiso'] ?>"
-                                                                data-funcionario="<?= htmlspecialchars($permiso['Nombres'] . ' ' . $permiso['Apellidos']) ?>"
+                                                                data-funcionario="<?= htmlspecialchars($permiso['Nombre'] . ' ' . $permiso['Apellidos']) ?>"
                                                                 data-tipo="<?= $permiso['Tipo_Permiso'] ?>"
                                                                 data-estado="<?= $permiso['Estado_Permiso'] ?>"
                                                                 data-inicio="<?= $permiso['Fecha_Inicio_Permiso'] ?>"
@@ -185,7 +182,7 @@ include_once '../includes/header.php';
                                                         <?php if ($_SESSION['Rol_Usuario'] === 'Jefe Personal' && $permiso['token'] == 0): ?>
                                                             <button class="btn btn-sm btn-success btn-token"
                                                                 data-id="<?= $permiso['ID_Permiso'] ?>"
-                                                                data-funcionario="<?= htmlspecialchars($permiso['Nombres'] . ' ' . $permiso['Apellidos']) ?>"
+                                                                data-funcionario="<?= htmlspecialchars($permiso['Nombre'] . ' ' . $permiso['Apellidos']) ?>"
                                                                 title="Enviar Documentos">
                                                                 <i class="bi bi-send"></i>
                                                             </button>
@@ -206,8 +203,8 @@ include_once '../includes/header.php';
 
                                                     <button class="btn btn-sm btn-info btn-detalles-permiso"
                                                         data-id="<?= $permiso['ID_Permiso'] ?>"
-                                                        data-funcionario="<?= htmlspecialchars($permiso['Nombres'] . ' ' . $permiso['Apellidos']) ?>"
-                                                        data-dni="<?= htmlspecialchars($permiso['DNI_Pasaporte']) ?>"
+                                                        data-funcionario="<?= htmlspecialchars($permiso['Nombre'] . ' ' . $permiso['Apellidos']) ?>"
+                                                        data-dni="<?= htmlspecialchars($permiso['Dip_Pasaporte']) ?>"
                                                         data-tipo="<?= htmlspecialchars($permiso['Tipo_Permiso']) ?>"
                                                         data-fechasolicitud="<?= htmlspecialchars($permiso['Fecha_Solicitud']) ?>"
                                                         data-fechainicio="<?= htmlspecialchars($permiso['Fecha_Inicio_Permiso']) ?>"
@@ -228,7 +225,7 @@ include_once '../includes/header.php';
                                                         data-bs-toggle="modal"
                                                         data-bs-target="#modalAceptarPermiso"
                                                         data-id="<?= $permiso['ID_Permiso'] ?>"
-                                                        data-funcionario="<?= htmlspecialchars($permiso['Nombres'] . ' ' . $permiso['Apellidos']) ?>"
+                                                        data-funcionario="<?= htmlspecialchars($permiso['Nombre'] . ' ' . $permiso['Apellidos']) ?>"
                                                         title="Aprobar Permiso">
                                                         <i class="bi bi-check-lg"></i>
                                                     </button>
@@ -236,7 +233,7 @@ include_once '../includes/header.php';
                                                         data-bs-toggle="modal"
                                                         data-bs-target="#modalDenegarPermiso"
                                                         data-id="<?= $permiso['ID_Permiso'] ?>"
-                                                        data-funcionario="<?= htmlspecialchars($permiso['Nombres'] . ' ' . $permiso['Apellidos']) ?>"
+                                                        data-funcionario="<?= htmlspecialchars($permiso['Nombre'] . ' ' . $permiso['Apellidos']) ?>"
                                                         title="Denegar Permiso">
                                                         <i class="bi bi-x-lg"></i>
                                                     </button>
@@ -819,10 +816,10 @@ include_once '../includes/header.php';
                             const item = document.createElement('button');
                             item.type = 'button';
                             item.className = 'list-group-item list-group-item-action';
-                            item.textContent = `${f.Nombres} ${f.Apellidos} - ${f.DNI_Pasaporte}`;
+                            item.textContent = `${f.Nombre} ${f.Apellidos} - ${f.Dip_Pasaporte}`;
                             item.addEventListener('click', () => {
                                 idFuncionarioInput.value = f.ID_Funcionario;
-                                nombreFuncionarioSpan.textContent = `${f.Nombres} ${f.Apellidos} - DOCUMENTO: ${f.DNI_Pasaporte}`;
+                                nombreFuncionarioSpan.textContent = `${f.Nombre} ${f.Apellidos} - DOCUMENTO: ${f.Dip_Pasaporte}`;
                                 seleccionadoDiv.classList.remove('d-none');
                                 listaFuncionarios.innerHTML = '';
                                 searchInput.value = '';
@@ -1029,7 +1026,7 @@ include_once '../includes/header.php';
                     // Llenar el formulario con los valores
                     document.getElementById('editIDFuncionario').value = datos.id;
                     document.getElementById('editCodigoFuncionario').value = datos.codigo;
-                    document.getElementById('editNombres').value = datos.nombres;
+                    document.getElementById('editNombres').value = datos.nombre;
                     document.getElementById('editApellidos').value = datos.apellidos;
                     document.getElementById('editDNI').value = datos.dni;
                     document.getElementById('editFechaNacimiento').value = datos.fechaNacimiento;
