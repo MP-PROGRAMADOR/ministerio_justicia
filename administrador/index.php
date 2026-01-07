@@ -116,26 +116,33 @@ include_once '../includes/header.php';
                                 <div class="stat-icon bg-info bg-opacity-10 text-info">
                                     <i class="bi bi-geo-alt"></i>
                                 </div>
-                                <div class="stat-number text-info" id="statDestinosActivos">
-                                    <?php echo $dashboardData['destinosActivos'] ?? 'N/A'; ?>
-                                </div>
-                                <div class="stat-label">Destinos Activos</div>
-                                <div class="stat-change text-info">
-                                    <i class="bi bi-building"></i> <span id="statJuzgados">
-                                        <?php
-                                        $juzgadosCount = 0;
-                                        if (isset($dashboardData['destinationTypes'])) {
-                                            foreach ($dashboardData['destinationTypes'] as $dest) {
-                                                if ($dest['Tipo_Destino'] === 'Juzgado') {
-                                                    $juzgadosCount = $dest['count'];
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                        echo $juzgadosCount;
-                                        ?>
-                                    </span> Juzgados
-                                </div>
+                               <div class="stat-number text-info" id="statNombramientos">
+    <?php echo $dashboardData['totalNombramientos'] ?? 'N/A'; ?>
+</div>
+
+<div class="stat-label">Nombramientos</div>
+
+<div class="stat-change text-info">
+    <i class="bi bi-building"></i>
+    <span id="statNombramientosJuzgados">
+        <?php
+        $juzgadosCount = 0;
+
+        if (!empty($dashboardData['destinationTypes'])) {
+            foreach ($dashboardData['destinationTypes'] as $dest) {
+                if ($dest['Tipo_Destino'] === 'Juzgado') {
+                    $juzgadosCount = $dest['count'];
+                    break;
+                }
+            }
+        }
+
+        echo $juzgadosCount;
+        ?>
+    </span>
+    en Juzgados
+</div>
+
                             </div>
                         </div>
                     </div>
@@ -202,38 +209,60 @@ include_once '../includes/header.php';
                     <div class="row mb-4">
                         <div class="col-lg-6">
                             <div class="chart-container">
-                                <h5 class="mb-3 fw-semibold">Departamentos con Mayor Personal</h5>
-                                <div id="departmentProgressBars">
-                                    <?php if (!empty($dashboardData['departmentStaff'])): ?>
-                                        <?php
-                                        $totalStaffDepartments = array_reduce($dashboardData['departmentStaff'], function ($sum, $dept) {
-                                            return $sum + ($dept['num_funcionarios'] ?? 0);
-                                        }, 0);
-                                        $progressColors = ['bg-primary', 'bg-success', 'bg-info', 'bg-warning', 'bg-danger', 'bg-secondary'];
-                                        foreach ($dashboardData['departmentStaff'] as $index => $dept):
-                                            $percentage = $totalStaffDepartments > 0 ? number_format((($dept['num_funcionarios'] ?? 0) / $totalStaffDepartments) * 100, 1) : 0;
-                                            $colorClass = $progressColors[$index % count($progressColors)];
-                                        ?>
-                                            <div class="mb-3">
-                                                <div class="d-flex justify-content-between mb-2">
-                                                    <span class="fw-medium">
-                                                        <?php echo htmlspecialchars($dept['Nombre_Departamento'] ?? 'N/A'); ?>
-                                                    </span>
-                                                    <span class="text-<?php echo str_replace('bg-', '', $colorClass); ?> fw-bold">
-                                                        <?php echo htmlspecialchars($dept['num_funcionarios'] ?? 0); ?> funcionarios
-                                                    </span>
-                                                </div>
-                                                <div class="progress progress-custom">
-                                                    <div class="progress-bar <?php echo $colorClass; ?> progress-bar-custom"
-                                                        style="width: <?php echo $percentage; ?>%"></div>
-                                                </div>
-                                            </div>
-                                        <?php endforeach; ?>
-                                    <?php else: ?>
-                                        <div class="text-center text-muted py-4">No hay datos de departamentos disponibles.</div>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
+    <h5 class="mb-3 fw-semibold">Direcciones con Mayor Personal</h5>
+
+    <div id="departmentProgressBars">
+        <?php if (!empty($dashboardData['topDirecciones'])): ?>
+
+            <?php
+            $totalFuncionarios = array_sum(
+                array_column($dashboardData['topDirecciones'], 'num_funcionarios')
+            );
+
+            $progressColors = [
+                'bg-primary',
+                'bg-success',
+                'bg-info',
+                'bg-warning'
+            ];
+            ?>
+
+            <?php foreach ($dashboardData['topDirecciones'] as $index => $dir): ?>
+                <?php
+                $percentage = $totalFuncionarios > 0
+                    ? round(($dir['num_funcionarios'] / $totalFuncionarios) * 100, 1)
+                    : 0;
+
+                $colorClass = $progressColors[$index % count($progressColors)];
+                ?>
+
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="fw-medium">
+                            <?php echo htmlspecialchars($dir['nombre_direccion']); ?>
+                        </span>
+                        <span class="fw-bold text-<?php echo str_replace('bg-', '', $colorClass); ?>">
+                            <?php echo $dir['num_funcionarios']; ?> funcionarios
+                        </span>
+                    </div>
+
+                    <div class="progress progress-custom" style="height: 8px;">
+                        <div class="progress-bar <?php echo $colorClass; ?>"
+                             style="width: <?php echo $percentage; ?>%">
+                        </div>
+                    </div>
+                </div>
+
+            <?php endforeach; ?>
+
+        <?php else: ?>
+            <div class="text-center text-muted py-4">
+                No hay datos de direcciones disponibles.
+            </div>
+        <?php endif; ?>
+    </div>
+</div>
+
                         </div>
                         <div class="col-lg-6">
                             <div class="chart-container">

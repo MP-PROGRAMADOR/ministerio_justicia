@@ -23,7 +23,7 @@ try {
     $dashboardData['totalFuncionarios'] = $stmt->fetchColumn();
 
     // Funcionarios Activos
-    $stmt = $pdo->query("SELECT COUNT(*) AS activos FROM tbl_funcionarios WHERE Estado_Laboral = 'Activo'");
+    $stmt = $pdo->query("SELECT COUNT(*) AS activos FROM funcionarios WHERE Estado_Laboral = 'Activo'");
     $dashboardData['funcionariosActivos'] = $stmt->fetchColumn();
 
     // Permisos Este Mes (contando los solicitados en el mes actual)
@@ -34,17 +34,18 @@ try {
     $stmt = $pdo->query("SELECT COUNT(*) AS pendientes FROM tbl_permisos WHERE Estado_Permiso = 'Pendiente'");
     $dashboardData['permisosPendientes'] = $stmt->fetchColumn();
 
-    // Total Destinos Activos
-    $stmt = $pdo->query("SELECT COUNT(*) AS totalDestinos FROM tbl_destinos");
-    $dashboardData['destinosActivos'] = $stmt->fetchColumn();
+    // Total de nombramientos
+    $stmt = $pdo->query("SELECT COUNT(*) FROM nombramientos");
+    $dashboardData['totalNombramientos'] = $stmt->fetchColumn();
+
 
     // Nuevos Funcionarios este mes (ejemplo)
-    $stmt = $pdo->query("SELECT COUNT(*) FROM tbl_funcionarios WHERE Fecha_Ingreso >= CURDATE() - INTERVAL (DAY(CURDATE())-1) DAY");
+    $stmt = $pdo->query("SELECT COUNT(*) FROM funcionarios WHERE Fecha_nombramiento >= CURDATE() - INTERVAL (DAY(CURDATE())-1) DAY");
     $dashboardData['newFuncionariosThisMonth'] = $stmt->fetchColumn();
 
 
     // --- 2. Distribución de Funcionarios por Estado (Doughnut Chart) ---
-    $stmt = $pdo->query("SELECT Estado_Laboral, COUNT(*) AS count FROM tbl_funcionarios GROUP BY Estado_Laboral");
+    $stmt = $pdo->query("SELECT Estado_Laboral, COUNT(*) AS count FROM funcionarios GROUP BY Estado_Laboral");
     $estadoData = $stmt->fetchAll();
 
     $labels = [];
@@ -60,14 +61,20 @@ try {
 
     // --- 3. Departamentos con Mayor Personal (Progress Bars) ---
     $stmt = $pdo->query("
-            SELECT d.Nombre_Departamento, COUNT(a.ID_Funcionario) AS num_funcionarios
-            FROM tbl_asignaciones a
-            JOIN tbl_departamentos d ON a.ID_Departamento = d.ID_Departamento
-            GROUP BY d.Nombre_Departamento
-            ORDER BY num_funcionarios DESC
-            LIMIT 4
+           SELECT 
+        d.Id_direccion,
+        d.nombre AS nombre_direccion,
+        COUNT(f.Id_funcionario) AS num_funcionarios
+    FROM direcciones d
+    JOIN secciones s ON s.Id_direccion = d.Id_direccion
+    JOIN funcionarios f ON f.Id_seccion = s.Id_seccion
+    WHERE f.Estado_Laboral = 'Activo'
+    GROUP BY d.Id_direccion, d.nombre
+    ORDER BY num_funcionarios DESC
+    LIMIT 4
+
         ");
-    $dashboardData['departmentStaff'] = $stmt->fetchAll();
+    $dashboardData['topDirecciones'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     // --- 4. Tipos de Destinos (Small Cards) ---
     $stmt = $pdo->query("SELECT Tipo_Destino, COUNT(*) AS count FROM tbl_destinos GROUP BY Tipo_Destino");
@@ -77,7 +84,7 @@ try {
     // Últimos funcionarios añadidos
     $stmt = $pdo->query("
             SELECT 'Nuevo Funcionario' as type, Nombres, Apellidos, Fecha_Creacion_Registro as timestamp
-            FROM tbl_funcionarios
+            FROM funcionarios
             ORDER BY Fecha_Creacion_Registro DESC LIMIT 3
         ");
     $recentActivity = $stmt->fetchAll();
@@ -86,7 +93,7 @@ try {
     $stmt = $pdo->query("
             SELECT 'Permiso' as type, f.Nombres, f.Apellidos, p.Tipo_Permiso, p.Estado_Permiso, p.Fecha_Creacion_Registro as timestamp
             FROM tbl_permisos p
-            JOIN tbl_funcionarios f ON p.ID_Funcionario = f.ID_Funcionario
+            JOIN funcionarios f ON p.ID_Funcionario = f.ID_Funcionario
             ORDER BY p.Fecha_Creacion_Registro DESC LIMIT 3
         ");
     $recentActivity = array_merge($recentActivity, $stmt->fetchAll());
@@ -1082,62 +1089,64 @@ try {
 
 
 
-    /* Estilos para el spinner de carga */
-    .spinner-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: rgba(255, 255, 255, 0.9); /* Fondo semi-transparente */
-        z-index: 1050; /* Mayor que el contenido del modal pero menor que otros elementos de Bootstrap */
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        transition: opacity 0.3s ease-in-out;
-    }
+        /* Estilos para el spinner de carga */
+        .spinner-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.9);
+            /* Fondo semi-transparente */
+            z-index: 1050;
+            /* Mayor que el contenido del modal pero menor que otros elementos de Bootstrap */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.3s ease-in-out;
+        }
 
-    /* Oculta el contenido mientras se carga */
-    .spinner-overlay.d-flex + .spinner-overlay-content {
-        opacity: 0.3;
-        pointer-events: none;
-    }
+        /* Oculta el contenido mientras se carga */
+        .spinner-overlay.d-flex+.spinner-overlay-content {
+            opacity: 0.3;
+            pointer-events: none;
+        }
 
-    /* Estilo para el contenedor del cuerpo (para animar el contenido) */
-    .modal-body-content {
-        transition: opacity 0.5s ease-in-out;
-    }
+        /* Estilo para el contenedor del cuerpo (para animar el contenido) */
+        .modal-body-content {
+            transition: opacity 0.5s ease-in-out;
+        }
 
-    /* Estilo para las tarjetas de contenido */
-    .detail-card {
-        border: 1px solid rgba(0, 0, 0, 0.08); /* Borde sutil */
-        transition: transform 0.2s, box-shadow 0.2s;
-    }
+        /* Estilo para las tarjetas de contenido */
+        .detail-card {
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            /* Borde sutil */
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
 
-    .detail-card:hover {
-        /* box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important; */
-        transform: translateY(-2px); /* Pequeño efecto 3D al pasar el ratón */
-    }
+        .detail-card:hover {
+            /* box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important; */
+            transform: translateY(-2px);
+            /* Pequeño efecto 3D al pasar el ratón */
+        }
 
-    /* Estilo para las cabeceras de sección dentro de las tarjetas */
-    .section-header {
-        border-bottom: 2px solid #0d6efd; /* Un color de acento, por ejemplo, Primary */
-        padding-bottom: 0.5rem;
-        margin-bottom: 1rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
+        /* Estilo para las cabeceras de sección dentro de las tarjetas */
+        .section-header {
+            border-bottom: 2px solid #0d6efd;
+            /* Un color de acento, por ejemplo, Primary */
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
 
-    /* Estilo para el perfil del funcionario */
-    .profile-img {
-        border: 4px solid #f8f9fa; /* Borde blanco alrededor de la imagen */
-        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-    }
-
-
-
-
+        /* Estilo para el perfil del funcionario */
+        .profile-img {
+            border: 4px solid #f8f9fa;
+            /* Borde blanco alrededor de la imagen */
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
     </style>
 
 
