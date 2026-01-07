@@ -39,24 +39,25 @@ include_once '../includes/header.php';
 
 
 
-                <?php
-
-                if (isset($_SESSION['error'])) {
-                    echo "<div id='mensajeFlash' class='alert alert-danger'>" . htmlspecialchars($_SESSION['error']) . "</div>";
-                    unset($_SESSION['error']);
-                }
-                if (isset($_SESSION['exito'])) {
-                    echo "<div id='mensajeFlash' class='alert alert-success'>" . htmlspecialchars($_SESSION['exito']) . "</div>";
-                    unset($_SESSION['exito']);
-                }
-                ?>
-
-
-
 
 
                 <div class="container-fluid px-4">
+                    <div>
+                        <?php
+
+                        if (isset($_SESSION['error'])) {
+                            echo "<div id='mensajeFlash' class='alert alert-danger'>" . htmlspecialchars($_SESSION['error']) . "</div>";
+                            unset($_SESSION['error']);
+                        }
+                        if (isset($_SESSION['exito'])) {
+                            echo "<div id='mensajeFlash' class='alert alert-success'>" . htmlspecialchars($_SESSION['exito']) . "</div>";
+                            unset($_SESSION['exito']);
+                        }
+                        ?>
+                    </div>
+
                     <div class="table-custom mb-4 p-4">
+
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h5 class="mb-0 fw-semibold">Listado de Funcionarios con Instrucciones</h5>
                         </div>
@@ -69,11 +70,10 @@ include_once '../includes/header.php';
                                 die("Error de conexión: " . $e->getMessage());
                             }
 
-                            // Consulta de instrucciones con datos del funcionario
-                            $sql = "SELECT i.*, f.Nombre, f.Apellidos, f.Dip_Pasaporte, f.Foto
-                            FROM tbl_instrucciones i
-                            JOIN funcionarios f ON i.ID_Funcionario = f.ID_Funcionario
-                            ORDER BY i.ID_Instruccion DESC";
+                            $sql = "SELECT  i.*, f.Nombre, f.Apellidos, f.Dip_Pasaporte, f.Foto 
+                                    FROM tbl_instrucciones i
+                                    JOIN funcionarios f ON i.ID_Funcionario = f.Id_funcionario 
+                                    ORDER BY i.ID_Instruccion DESC";
 
                             $stmt = $pdo->query($sql);
                             $instrucciones = $stmt->fetchAll();
@@ -96,8 +96,8 @@ include_once '../includes/header.php';
                                     <?php foreach ($instrucciones as $instr): ?>
                                         <tr>
                                             <td><?= htmlspecialchars($instr['ID_Instruccion']) ?></td>
-                                            <td><?= htmlspecialchars($instr['Nombres'] . ' ' . $instr['Apellidos']) ?></td>
-                                            <td><?= htmlspecialchars($instr['DNI_Pasaporte']) ?></td>
+                                            <td><?= htmlspecialchars($instr['Nombre'] . ' ' . $instr['Apellidos']) ?></td>
+                                            <td><?= htmlspecialchars($instr['Dip_Pasaporte']) ?></td>
                                             <td><?= htmlspecialchars($instr['Titulo']) ?></td>
 
                                             <td>
@@ -118,7 +118,7 @@ include_once '../includes/header.php';
                                                         <!-- Botón de editar -->
                                                         <button class="btn btn-sm btn-warning btn-editar-instruccion"
                                                             data-id="<?= $instr['ID_Instruccion'] ?>"
-                                                            data-funcionario="<?= htmlspecialchars($instr['Nombres'] . ' ' . $instr['Apellidos']) ?>"
+                                                            data-funcionario="<?= htmlspecialchars($instr['Nombre'] . ' ' . $instr['Apellidos']) ?>"
                                                             data-titulo="<?= htmlspecialchars($instr['Titulo']) ?>"
                                                             data-mensaje="<?= htmlspecialchars($instr['Mensaje']) ?>"
                                                             data-leido="<?= $instr['Leido'] ?>"
@@ -126,27 +126,20 @@ include_once '../includes/header.php';
                                                             <i class="bi bi-pencil-square"></i>
                                                         </button>
 
-                                                        <!-- Botón eliminar -->
-                                                        <button class="btn btn-sm btn-danger btn-eliminar-instruccion"
-                                                            data-id="<?= $instr['ID_Instruccion'] ?>"
-                                                            data-titulo="<?= htmlspecialchars($instr['Titulo']) ?>"
-                                                            data-funcionario="<?= htmlspecialchars($instr['Nombres'] . ' ' . $instr['Apellidos']) ?>"
-                                                            title="Eliminar Instrucción">
-                                                            <i class="bi bi-trash"></i>
-                                                        </button>
+
                                                     <?php endif; ?>
 
 
                                                     <!-- Botón detalles  -->
                                                     <button class="btn btn-sm btn-info btn-detalles-instruccion"
                                                         data-id="<?= $instr['ID_Instruccion'] ?>"
-                                                        data-funcionario="<?= htmlspecialchars($instr['Nombres'] . ' ' . $instr['Apellidos']) ?>"
-                                                        data-dni="<?= htmlspecialchars($instr['DNI_Pasaporte']) ?>"
+                                                        data-funcionario="<?= htmlspecialchars($instr['Nombre'] . ' ' . $instr['Apellidos']) ?>"
+                                                        data-dni="<?= htmlspecialchars($instr['Dip_Pasaporte']) ?>"
                                                         data-titulo="<?= htmlspecialchars($instr['Titulo']) ?>"
                                                         data-mensaje="<?= htmlspecialchars($instr['Mensaje']) ?>"
                                                         data-fecha="<?= htmlspecialchars($instr['Fecha_Envio']) ?>"
                                                         data-leido="<?= $instr['Leido'] ?>"
-                                                        data-foto="<?= htmlspecialchars($instr['Fotografia']) ?>" title="Ver Detalles">
+                                                        data-foto="<?= htmlspecialchars($instr['Foto']) ?>" title="Ver Detalles">
                                                         <i class="bi bi-eye"></i>
                                                     </button>
                                                 </div>
@@ -192,7 +185,7 @@ include_once '../includes/header.php';
     <div class="modal fade" id="addInstruccionModal" tabindex="-1" aria-labelledby="addInstruccionModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
+                <div class="modal-header bg-success text-white">
                     <h5 class="modal-title" id="addInstruccionModalLabel">
                         <i class="bi bi-clipboard-check me-2"></i>Registrar Instrucción
                     </h5>
@@ -249,7 +242,7 @@ include_once '../includes/header.php';
                         <!-- Botón enviar -->
                         <div class="mt-4 d-flex justify-content-end mb-3">
                             <button type="submit" class="btn btn-success">
-                                <i class="bi bi-save me-2"></i>Registrar Instrucción
+                                <i class="bi bi-save me-2"></i>Guardar Instrucción
                             </button>
                         </div>
                     </form>
@@ -285,8 +278,11 @@ include_once '../includes/header.php';
 
                         <!-- Funcionario -->
                         <div class="mb-3 mt-3">
-                            <label class="form-label fw-semibold"><i class="bi bi-person-badge me-2"></i>Funcionario</label>
-                            <input type="text" id="editFuncionarioNombre" class="form-control" readonly>
+                            <label class="form-label fw-semibold">
+                                <i class="bi bi-person-badge me-2"></i>Funcionario
+                            </label>
+                            <input type="text" id="editFuncionarioNombre" class="form-control bg-light"
+                                readonly tabindex="-1" style="pointer-events: none; cursor: default;">
                         </div>
 
                         <!-- Título -->
@@ -328,18 +324,13 @@ include_once '../includes/header.php';
                         </div>
 
 
-
-
-
-
-
                         <!-- Botones -->
                         <div class="d-flex justify-content-end mb-3">
                             <!-- <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">
                                 <i class="bi bi-x-circle me-1"></i>Cancelar
                             </button> -->
                             <button type="submit" class="btn btn-warning">
-                                <i class="bi bi-save me-1"></i>Guardar Cambios
+                                <i class="bi bi-save me-1"></i>Actualizar Instruccion
                             </button>
                         </div>
                     </form>
@@ -352,140 +343,118 @@ include_once '../includes/header.php';
 
 
 
-
-    <script>
-        // aqui para editar
-        document.querySelectorAll('.btn-editar-instruccion').forEach(button => {
-            button.addEventListener('click', () => {
-                const id = button.dataset.id;
-                const idFuncionario = button.dataset.funcionario; // Podrías pasar el ID real si lo tienes
-                const nombre = button.dataset.funcionario;
-                const titulo = button.dataset.titulo;
-                const mensaje = button.dataset.mensaje;
-                const leido = button.dataset.leido;
-
-                document.getElementById('editID_Instruccion').value = id;
-                document.getElementById('editID_Funcionario').value = idFuncionario;
-                document.getElementById('editFuncionarioNombre').value = nombre;
-                document.getElementById('editTitulo').value = titulo;
-                document.getElementById('editMensaje').value = mensaje;
-                // document.getElementById('editLeido').value = leido;
-
-                const modal = new bootstrap.Modal(document.getElementById('editInstruccionModal'));
-                modal.show();
-            });
-        });
-    </script>
-
-
-    <!-- Script para buscar y seleccionar funcionario -->
-    <script>
-        const listaFuncionarios = document.getElementById('listaFuncionarios');
-        const searchFuncionario = document.getElementById('searchFuncionario');
-        const funcionarioSeleccionado = document.getElementById('funcionarioSeleccionado');
-        const nombreFuncionario = document.getElementById('nombreFuncionario');
-        const ID_Funcionario = document.getElementById('ID_Funcionario');
-        const quitarSeleccion = document.getElementById('quitarSeleccion');
-        const formInstruccion = document.querySelector('#addInstruccionModal form');
-
-        // 1️⃣ Cargar lista de funcionarios desde API
-        let todosFuncionarios = [];
-        fetch('../api/obtener_funcionarios.php')
-            .then(res => res.json())
-            .then(data => {
-                todosFuncionarios = data; // Guardamos todos los funcionarios
-            })
-            .catch(err => console.error('Error al cargar funcionarios:', err));
-
-        // 2️⃣ Buscador dinámico
-        searchFuncionario.addEventListener('input', () => {
-            const filtro = searchFuncionario.value.trim().toLowerCase();
-            listaFuncionarios.innerHTML = ''; // Limpiar lista antes de filtrar
-
-            if (filtro === '') {
-                // Si no hay texto, no mostrar nada
-                return;
-            }
-
-            // Filtrar funcionarios por coincidencia en nombre o apellido
-            const coincidencias = todosFuncionarios.filter(func =>
-                func.Nombres.toLowerCase().includes(filtro) ||
-                func.Apellidos.toLowerCase().includes(filtro)
-            );
-
-            coincidencias.forEach(func => {
-                const item = document.createElement('button');
-                item.type = 'button';
-                item.className = 'list-group-item list-group-item-action';
-                item.textContent = `${func.Nombres} ${func.Apellidos}`;
-                item.dataset.id = func.ID_Funcionario;
-
-                item.addEventListener('click', () => {
-                    ID_Funcionario.value = func.ID_Funcionario;
-                    nombreFuncionario.textContent = `${func.Nombres} ${func.Apellidos}`;
-                    funcionarioSeleccionado.classList.remove('d-none');
-
-                    // Quitar alerta si existía
-                    const alerta = document.getElementById('alertaInstruccion');
-                    if (alerta) alerta.remove();
-                });
-
-                listaFuncionarios.appendChild(item);
-            });
-        });
-
-        // 3️⃣ Quitar selección
-        quitarSeleccion.addEventListener('click', () => {
-            ID_Funcionario.value = '';
-            funcionarioSeleccionado.classList.add('d-none');
-        });
-
-        // 4️⃣ Validación antes de enviar el formulario
-        formInstruccion.addEventListener('submit', function(e) {
-            const titulo = document.getElementById('titulo').value.trim();
-            const mensaje = document.getElementById('mensaje').value.trim();
-
-            if (ID_Funcionario.value === '' || titulo === '' || mensaje === '') {
-                e.preventDefault();
-
-                let alerta = document.getElementById('alertaInstruccion');
-                if (!alerta) {
-                    alerta = document.createElement('div');
-                    alerta.id = 'alertaInstruccion';
-                    alerta.className = 'alert alert-danger mb-3';
-                    alerta.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>Debe seleccionar un funcionario y completar todos los campos antes de enviar.';
-                    formInstruccion.prepend(alerta);
-                }
-            }
-        });
-    </script>
-
-
-
-
-
-
-
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const botonesEditar = document.querySelectorAll('.btn-editar-permiso');
+            const listaFuncionarios = document.getElementById('listaFuncionarios');
+            const searchFuncionario = document.getElementById('searchFuncionario');
+            const funcionarioSeleccionado = document.getElementById('funcionarioSeleccionado');
+            const nombreFuncionario = document.getElementById('nombreFuncionario');
+            const ID_Funcionario = document.getElementById('ID_Funcionario');
+            const quitarSeleccion = document.getElementById('quitarSeleccion');
+            const formInstruccion = document.querySelector('#addInstruccionModal form');
 
-            botonesEditar.forEach(boton => {
-                boton.addEventListener('click', () => {
-                    const modal = new bootstrap.Modal(document.getElementById('editPermisoModal'));
+            let todosFuncionarios = [];
 
-                    // Obtener los datos del botón
-                    document.getElementById('edit_ID_Permiso').value = boton.dataset.id;
-                    document.getElementById('edit_nombreFuncionario').value = boton.dataset.funcionario;
-                    document.getElementById('edit_Tipo_Permiso').value = boton.dataset.tipo;
-                    document.getElementById('edit_Estado_Permiso').value = boton.dataset.estado;
-                    document.getElementById('edit_Fecha_Inicio').value = boton.dataset.inicio;
-                    document.getElementById('edit_Fecha_Fin').value = boton.dataset.fin;
-                    document.getElementById('edit_Motivo').value = boton.dataset.motivo;
-                    document.getElementById('edit_Observaciones').value = boton.dataset.observaciones;
+            // 1️⃣ Cargar lista de funcionarios al iniciar
+            fetch('../api/obtener_funcionarios.php')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.error) {
+                        console.error("Error desde PHP:", data.error);
+                    } else {
+                        todosFuncionarios = data;
+                        console.log("Funcionarios cargados:", todosFuncionarios.length);
+                    }
+                })
+                .catch(err => console.error('Error de conexión:', err));
 
-                    modal.show();
+            // 2️⃣ Buscador dinámico
+            searchFuncionario.addEventListener('input', () => {
+                const filtro = searchFuncionario.value.trim().toLowerCase();
+
+                // Si el campo está vacío, limpiamos la lista y salimos
+                if (filtro === '') {
+                    listaFuncionarios.innerHTML = '';
+                    return;
+                }
+
+                // Filtrar
+                const coincidencias = todosFuncionarios.filter(func => {
+                    const nom = func.Nombre ? func.Nombre.toLowerCase() : '';
+                    const ape = func.Apellidos ? func.Apellidos.toLowerCase() : '';
+                    const cod = func.CODIGO ? func.CODIGO.toLowerCase() : '';
+                    return nom.includes(filtro) || ape.includes(filtro) || cod.includes(filtro);
                 });
+
+                // Dibujar resultados
+                listaFuncionarios.innerHTML = '';
+                coincidencias.forEach(func => {
+                    const item = document.createElement('button');
+                    item.type = 'button';
+                    // Usamos clases de Bootstrap para que sea visible
+                    item.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center';
+                    item.style.zIndex = "1050"; // Asegurar que se vea sobre el modal
+
+                    item.innerHTML = `
+                    <div>
+                        <strong>${func.Nombre} ${func.Apellidos}</strong><br>
+                        <small class="text-muted">${func.CODIGO}</small>
+                    </div>
+                `;
+
+                    item.addEventListener('click', () => {
+                        ID_Funcionario.value = func.Id_funcionario;
+                        nombreFuncionario.textContent = `${func.Nombre} ${func.Apellidos}`;
+                        funcionarioSeleccionado.classList.remove('d-none');
+                        listaFuncionarios.innerHTML = '';
+                        searchFuncionario.value = '';
+                    });
+
+                    listaFuncionarios.appendChild(item);
+                });
+            });
+
+            // 3️⃣ Quitar selección
+            quitarSeleccion.addEventListener('click', () => {
+                ID_Funcionario.value = '';
+                funcionarioSeleccionado.classList.add('d-none');
+            });
+        });
+    </script>
+
+
+
+
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Definimos una variable para el modal
+            let miModalElement = document.getElementById('editInstruccionModal');
+            let bsModal = new bootstrap.Modal(miModalElement);
+
+            document.querySelectorAll('.btn-editar-instruccion').forEach(boton => {
+                boton.addEventListener('click', function() {
+                    const datos = this.dataset;
+
+                    // Llenar campos...
+                    document.getElementById('editID_Instruccion').value = datos.id;
+                    document.getElementById('editFuncionarioNombre').value = datos.funcionario;
+                    document.getElementById('editTitulo').value = datos.titulo;
+                    document.getElementById('editMensaje').value = datos.mensaje;
+
+                    // Mostrar el modal usando la instancia ya creada
+                    bsModal.show();
+                });
+            });
+
+            // ESCUCHAR CUANDO SE CIERRA: Para limpiar cualquier sombra rebelde
+            miModalElement.addEventListener('hidden.bs.modal', function() {
+                const backdrops = document.querySelectorAll('.modal-backdrop');
+                backdrops.forEach(b => b.remove());
+                document.body.classList.remove('modal-open');
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
             });
         });
     </script>
@@ -642,35 +611,40 @@ include_once '../includes/header.php';
 
 
 
-
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.btn-editar-funcionario').forEach(button => {
-                button.addEventListener('click', function() {
+            // 1. Detectar clic en los botones de editar instrucción
+            const botonesEditar = document.querySelectorAll('.btn-editar-instruccion');
+
+            botonesEditar.forEach(boton => {
+                boton.addEventListener('click', function() {
+                    // 2. Extraer datos del dataset del botón
                     const datos = this.dataset;
 
-                    // Llenar el formulario con los valores
-                    document.getElementById('editIDFuncionario').value = datos.id;
-                    document.getElementById('editCodigoFuncionario').value = datos.codigo;
-                    document.getElementById('editNombres').value = datos.nombres;
-                    document.getElementById('editApellidos').value = datos.apellidos;
-                    document.getElementById('editDNI').value = datos.dni;
-                    document.getElementById('editFechaNacimiento').value = datos.fechaNacimiento;
-                    document.getElementById('editGenero').value = datos.genero;
-                    document.getElementById('editNacionalidad').value = datos.nacionalidad;
-                    document.getElementById('editDireccion').value = datos.direccion;
-                    document.getElementById('editTelefono').value = datos.telefono;
-                    document.getElementById('editEmail').value = datos.email;
-                    document.getElementById('editFechaIngreso').value = datos.fechaIngreso;
-                    document.getElementById('editEstadoLaboral').value = datos.estado;
+                    // 3. Mapear datos a los IDs de tu Modal
+                    document.getElementById('editID_Instruccion').value = datos.id;
+                    document.getElementById('editFuncionarioNombre').value = datos.funcionario;
+                    document.getElementById('editTitulo').value = datos.titulo;
+                    document.getElementById('editMensaje').value = datos.mensaje;
 
-                    // Imagen
-                    const rutaFoto = datos.foto && datos.foto !== '' ? `../api/${datos.foto}` : '';
-                    document.getElementById('previewEditFoto').src = rutaFoto;
+                    // 4. Lógica para el estado de lectura (el campo readonly y el hidden)
+                    const inputDisplayLeido = document.getElementById('displayLeido');
+                    const inputHiddenLeido = document.querySelector('input[name="Leido"]');
 
-                    // Mostrar el modal
-                    const modal = new bootstrap.Modal(document.getElementById('editFuncionarioModal'));
+                    if (datos.leido == "1") {
+                        inputDisplayLeido.value = "Sí Leído";
+                        inputDisplayLeido.classList.remove('text-danger');
+                        inputDisplayLeido.classList.add('text-success');
+                        inputHiddenLeido.value = "1";
+                    } else {
+                        inputDisplayLeido.value = "No Leído";
+                        inputDisplayLeido.classList.remove('text-success');
+                        inputDisplayLeido.classList.add('text-danger');
+                        inputHiddenLeido.value = "0";
+                    }
+
+                    // 5. Abrir el modal manualmente
+                    const modal = new bootstrap.Modal(document.getElementById('editInstruccionModal'));
                     modal.show();
                 });
             });
@@ -679,7 +653,6 @@ include_once '../includes/header.php';
 
 
     <!-- Modal de ver instrucciones -->
-
     <script>
         function mostrarDetallesInstruccion(funcionario, dni, titulo, mensaje, fecha, leido, fotoUrl) {
 
@@ -752,9 +725,6 @@ include_once '../includes/header.php';
                 title: '',
                 html: htmlContent,
                 showCloseButton: true,
-                showCancelButton: false,
-                confirmButtonText: '<i class="bi bi-x-circle"></i> Cerrar',
-                confirmButtonColor: '#56585cd5',
                 width: '750px',
                 customClass: {
                     container: 'swal2-wide',
@@ -788,63 +758,7 @@ include_once '../includes/header.php';
 
 
 
-    <!-- Modal de eliminar instrucciones diarias-->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
 
-
-            const deleteButtons = document.querySelectorAll('.btn-eliminar-instruccion');
-
-            deleteButtons.forEach(button => {
-                button.addEventListener('click', function(e) {
-                    e.preventDefault();
-
-                    const id = this.getAttribute('data-id');
-                    const titulo = this.getAttribute('data-titulo');
-                    const funcionario = this.getAttribute('data-funcionario');
-
-                    Swal.fire({
-                        title: '¿Estás seguro?',
-
-                        html: `Se eliminará la instrucción: <strong style="color: #070808ff; font-size: 1.1em; ">${titulo}</strong> <br>
-                    enviada a  <strong style="color: #007bff; font-size: 1.1em;">${funcionario}</strong> . <br><br>
-                    
-                    <br><br>
-                    <span style="color: red; font-weight: bold;">
-                        Esta acción no se puede deshacer
-                    </span>`,
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#dc3545',
-                        cancelButtonColor: '#6c757d',
-                        cancelButtonText: '<i class="bi bi-x-circle"></i> Cancelar',
-                        confirmButtonText: '<i class="bi bi-trash"></i> Sí, Eliminar'
-
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-
-
-                            const form = document.createElement('form');
-                            form.method = 'POST';
-
-                            form.action = '../api/eliminar_instruccion.php';
-
-                            const idField = document.createElement('input');
-                            idField.type = 'hidden';
-
-                            idField.name = 'id_instruccion';
-                            idField.value = id;
-
-                            form.appendChild(idField);
-                            document.body.appendChild(form);
-                            form.submit();
-
-                        }
-                    });
-                });
-            });
-        });
-    </script>
 
 
 
