@@ -11,7 +11,7 @@ try {
         exit;
     }
 
-    /* ================= FUNCIONARIO ================= */
+    /* ================= 1. DATOS DEL FUNCIONARIO ================= */
     $stmt = $pdo->prepare("
         SELECT 
             f.*,
@@ -30,19 +30,47 @@ try {
         exit;
     }
 
-    /* ========= RUTA ABSOLUTA FOTO ========= */
+    // Ruta de la foto
     if (!empty($funcionario['Foto'])) {
         $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
         $funcionario['Foto'] = $protocol . $_SERVER['HTTP_HOST'] . '/ministerio_justicia/api/' . ltrim($funcionario['Foto'], '/');
     }
 
-    /* ================= RESPUESTA ================= */
+    /* ================= 2. FORMACIÓN ACADÉMICA ================= */
+    // Consultamos la tabla tbl_formacion_academica que definiste en el SQL
+    $stmtFormacion = $pdo->prepare("SELECT * FROM tbl_formacion_academica WHERE ID_Funcionario = ? ORDER BY Fecha_Graduacion DESC");
+    $stmtFormacion->execute([$id]);
+    $formacion = $stmtFormacion->fetchAll(PDO::FETCH_ASSOC);
+
+    /* ================= 3. CAPACITACIONES ================= */
+    $stmtCapacitaciones = $pdo->prepare("SELECT * FROM tbl_capacitaciones WHERE ID_Funcionario = ? ORDER BY Fecha_Inicio_Curso DESC");
+    $stmtCapacitaciones->execute([$id]);
+    $capacitaciones = $stmtCapacitaciones->fetchAll(PDO::FETCH_ASSOC);
+
+    /* ================= 4. PERMISOS ================= */
+    $stmtPermisos = $pdo->prepare("SELECT * FROM tbl_permisos WHERE ID_Funcionario = ? ORDER BY Fecha_Inicio_Permiso DESC");
+    $stmtPermisos->execute([$id]);
+    $permisos = $stmtPermisos->fetchAll(PDO::FETCH_ASSOC);
+
+    /* ================= 5. ASIGNACIONES (NOMBRAMIENTOS) ================= */
+    $stmtAsignaciones = $pdo->prepare("
+        SELECT n.*, c.Nombre AS Nombre_Cargo, d.nombre AS Nombre_Destino
+        FROM nombramientos n
+        LEFT JOIN cargos c ON n.Id_cargo = c.Id_cargo
+        LEFT JOIN direcciones d ON n.Id_direccion = d.Id_direccion
+        WHERE n.Id_funcionario = ? 
+        ORDER BY n.Fecha_nombramiento DESC
+    ");
+    $stmtAsignaciones->execute([$id]);
+    $asignaciones = $stmtAsignaciones->fetchAll(PDO::FETCH_ASSOC);
+
+    /* ================= RESPUESTA FINAL ================= */
     echo json_encode([
         'funcionario' => $funcionario,
-        'asignaciones' => [],
-        'formacion_academica' => [],
-        'capacitaciones' => [],
-        'permisos' => []
+        'formacion_academica' => $formacion, // Ahora contiene los datos reales
+        'capacitaciones' => $capacitaciones,
+        'permisos' => $permisos,
+        'asignaciones' => $asignaciones
     ]);
 
 } catch (Exception $e) {
