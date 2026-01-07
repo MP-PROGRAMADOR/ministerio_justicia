@@ -1,41 +1,59 @@
 <?php
-session_start(); // Iniciar sesión para guardar mensajes
+session_start();
 include_once '../includes/conexion.php';
 
-$pdo = new PDO($dsn, $user, $pass, $options);
-
-// Verificar que se hayan recibido los datos
-if (
-    !isset($_POST['ID_Funcionario']) || empty($_POST['ID_Funcionario']) ||
-    !isset($_POST['Titulo']) || trim($_POST['Titulo']) === '' ||
-    !isset($_POST['Mensaje']) || trim($_POST['Mensaje']) === ''
-) {
-    $_SESSION['error'] = "Debe seleccionar un funcionario y completar todos los campos.";
-    header("Location: ../administrador/instrucciones_diarias.php");
-    exit;
-}
-
-$idFuncionario = intval($_POST['ID_Funcionario']);
-$titulo = trim($_POST['Titulo']);
-$mensaje = trim($_POST['Mensaje']);
-
 try {
-    $sql = "INSERT INTO tbl_instrucciones (ID_Funcionario, Titulo, Mensaje) 
-            VALUES (:ID_Funcionario, :Titulo, :Mensaje)";
+    $pdo = new PDO($dsn, $user, $pass, $options);
+
+    // 1. Verificar sesión
+    if (!isset($_SESSION['ID_Usuario'])) {
+        $_SESSION['error'] = "Sesión no encontrada. Inicie sesión nuevamente.";
+        header("Location: ../index.php");
+        exit;
+    }
+
+    $usuarioCreador = $_SESSION['ID_Usuario'];
+
+    // 2. DEPUREMOS: Verificar si el ID del usuario realmente existe en la DB
+    $checkUser = $pdo->prepare("SELECT COUNT(*) FROM tbl_usuarios WHERE ID_Usuario = ?");
+    $checkUser->execute([$usuarioCreador]);
+    if ($checkUser->fetchColumn() == 0) {
+        // Si entra aquí, el ID en la sesión (ej: 5) no existe en tbl_usuarios
+        $_SESSION['error'] = "Error crítico: El ID de usuario ($usuarioCreador) no existe en el sistema. Vuelva a loguearse.";
+        header("Location: ../administrador/instrucciones_diarias.php");
+        exit;
+    }
+
+    // 3. Verificar datos del formulario
+    if (empty($_POST['ID_Funcionario']) || empty($_POST['Titulo']) || empty($_POST['Mensaje'])) {
+        $_SESSION['error'] = "Faltan datos obligatorios.";
+        header("Location: ../administrador/instrucciones_diarias.php");
+        exit;
+    }
+
+    $idFuncionario = intval($_POST['ID_Funcionario']);
+    $titulo = trim($_POST['Titulo']);
+    $mensaje = trim($_POST['Mensaje']);
+
+    // 4. Inserción Final
+    $sql = "INSERT INTO tbl_instrucciones (ID_Funcionario, Titulo, Mensaje, Usuario_creador, Fecha_Envio) 
+            VALUES (:ID_Funcionario, :Titulo, :Mensaje, :Usuario_creador, NOW())";
+
     $stmt = $pdo->prepare($sql);
     $stmt->execute([
-        ':ID_Funcionario' => $idFuncionario,
-        ':Titulo' => $titulo,
-        ':Mensaje' => $mensaje
+        ':ID_Funcionario'  => $idFuncionario,
+        ':Titulo'          => $titulo,
+        ':Mensaje'         => $mensaje,
+        ':Usuario_creador' => $usuarioCreador
     ]);
 
-    // Guardar mensaje de éxito en sesión y redirigir
     $_SESSION['exito'] = "Instrucción registrada correctamente.";
     header("Location: ../administrador/instrucciones_diarias.php");
     exit;
 
 } catch (PDOException $e) {
-    $_SESSION['error'] = "Error en la base de datos: " . $e->getMessage();
+    // Si falla aquí, imprimiremos el error real de SQL para saber qué columna falla
+    $_SESSION['error'] = "Error SQL: " . $e->getMessage();
     header("Location: ../administrador/instrucciones_diarias.php");
     exit;
 }
