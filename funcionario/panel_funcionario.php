@@ -176,32 +176,64 @@ require_once '../includes/conexion.php';
                                             <?php
                                             $idFuncionario = $_SESSION['ID_Funcionario'];
                                             try {
-                                                // Cargo actual
-                                                $stmtCargo = $pdo->prepare("SELECT Nombre_Cargo, Fecha_Creacion_Registro FROM tbl_cargos WHERE ID_Cargo = (SELECT ID_Cargo FROM tbl_funcionarios WHERE ID_Funcionario = :id)");
-                                                $stmtCargo->execute(['id' => $idFuncionario]);
-                                                if ($cargo = $stmtCargo->fetch()) {
+                                                // Último nombramiento
+                                                $stmtNombramiento = $pdo->prepare("
+            SELECT n.Id_nombramiento, n.Fecha_nombramiento, n.Fecha_toma_posesion,
+                   c.Nombre AS Nombre_Cargo,
+                   s.nombre AS Nombre_Seccion,
+                   d.nombre AS Nombre_Direccion
+            FROM nombramientos n
+            LEFT JOIN cargos c ON c.Id_cargo = n.Id_cargo
+            LEFT JOIN secciones s ON s.Id_seccion = n.Id_seccion
+            LEFT JOIN direcciones d ON d.Id_direccion = n.Id_direccion
+            WHERE n.Id_funcionario = :id
+            ORDER BY n.Fecha_nombramiento DESC
+            LIMIT 1
+        ");
+                                                $stmtNombramiento->execute(['id' => $idFuncionario]);
+                                                if ($nombramiento = $stmtNombramiento->fetch(PDO::FETCH_ASSOC)) {
                                                     echo "<tr>
-                                                        <td class='ps-4'><span class='badge bg-light text-dark border'>Cargo</span></td>
-                                                        <td class='fw-500'>{$cargo['Nombre_Cargo']}</td>
-                                                        <td class='text-muted small'>" . date('d/m/Y', strtotime($cargo['Fecha_Creacion_Registro'])) . "</td>
-                                                    </tr>";
+                    <td class='ps-4'><span class='badge bg-light text-dark border'>Nombramiento</span></td>
+                    <td>{$nombramiento['Nombre_Cargo']}</td>
+                    <td class='text-muted small'>" . date('d/m/Y', strtotime($nombramiento['Fecha_nombramiento'])) . "</td>
+                  </tr>";
+
+                                                    // Puedes mostrar sección y dirección si quieres
+                                                    echo "<tr>
+                    <td class='ps-4'><span class='badge bg-light text-dark border'>Sección</span></td>
+                    <td>{$nombramiento['Nombre_Seccion']}</td>
+                    <td class='text-muted small'>-</td>
+                  </tr>";
+
+                                                    echo "<tr>
+                    <td class='ps-4'><span class='badge bg-light text-dark border'>Dirección</span></td>
+                    <td>{$nombramiento['Nombre_Direccion']}</td>
+                    <td class='text-muted small'>-</td>
+                  </tr>";
                                                 }
 
                                                 // Cursos
-                                                $stmtCurso = $pdo->prepare("SELECT cr.Nombre_Curso, cf.Fecha_Matricula FROM tbl_cursos_funcionarios cf INNER JOIN tbl_cursos cr ON cf.ID_Curso = cr.ID_Curso WHERE cf.ID_Funcionario = :id LIMIT 3");
+                                                $stmtCurso = $pdo->prepare("
+            SELECT cr.Nombre_Curso, cf.Fecha_Matricula 
+            FROM tbl_cursos_funcionarios cf 
+            INNER JOIN tbl_cursos cr ON cf.ID_Curso = cr.ID_Curso 
+            WHERE cf.ID_Funcionario = :id 
+            LIMIT 3
+        ");
                                                 $stmtCurso->execute(['id' => $idFuncionario]);
                                                 foreach ($stmtCurso->fetchAll() as $c) {
                                                     echo "<tr>
-                                                        <td class='ps-4'><span class='badge bg-light text-dark border'>Curso</span></td>
-                                                        <td>Inscrito en: <strong>{$c['Nombre_Curso']}</strong></td>
-                                                        <td class='text-muted small'>" . date('d/m/Y', strtotime($c['Fecha_Matricula'])) . "</td>
-                                                    </tr>";
+                    <td class='ps-4'><span class='badge bg-light text-dark border'>Curso</span></td>
+                    <td>Inscrito en: <strong>{$c['Nombre_Curso']}</strong></td>
+                    <td class='text-muted small'>" . date('d/m/Y', strtotime($c['Fecha_Matricula'])) . "</td>
+                  </tr>";
                                                 }
                                             } catch (PDOException $e) {
                                                 echo "<tr><td colspan='3'>Error al cargar datos.</td></tr>";
                                             }
                                             ?>
                                         </tbody>
+
                                     </table>
                                 </div>
                             </div>
@@ -220,7 +252,7 @@ require_once '../includes/conexion.php';
             $instrucciones = $stmtInstrucciones->fetchAll(PDO::FETCH_ASSOC);
 
             // 2. CONSULTA PERMISOS
-            $stmtPermisos = $pdo->prepare("SELECT Motivo, Estado_Permiso, Fecha_Inicio_Permiso, Fecha_Fin_Permiso FROM tbl_permisos WHERE ID_Funcionario = :id ORDER BY Fecha_Ultima_Modificacion DESC LIMIT 1");
+            $stmtPermisos = $pdo->prepare("SELECT Motivo, Estado_Permiso, Fecha_Inicio_Permiso, Fecha_Fin_Permiso FROM tbl_permisos WHERE ID_Funcionario = :id ORDER BY Fecha_registro DESC LIMIT 1");
             $stmtPermisos->execute(['id' => $ID_Funcionario_Sesion]);
             $permisos = $stmtPermisos->fetchAll(PDO::FETCH_ASSOC);
 
@@ -322,103 +354,103 @@ require_once '../includes/conexion.php';
         </div>
 
         <div class="accordion" id="accordionQuejas">
-    <div class="accordion-item shadow-sm border-0">
-        <h2 class="accordion-header" id="headingQuejas">
-            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseQuejas" aria-expanded="false" aria-controls="collapseQuejas">
-                <i class="fas fa-comments text-primary me-2"></i> Comunicación Interna (Quejas y Sugerencias)
-            </button>
-        </h2>
+            <div class="accordion-item shadow-sm border-0">
+                <h2 class="accordion-header" id="headingQuejas">
+                    <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseQuejas" aria-expanded="false" aria-controls="collapseQuejas">
+                        <i class="fas fa-comments text-primary me-2"></i> Comunicación Interna (Quejas y Sugerencias)
+                    </button>
+                </h2>
 
-        <div id="collapseQuejas" class="accordion-collapse collapse" aria-labelledby="headingQuejas" data-bs-parent="#accordionQuejas">
-            <div class="accordion-body p-3">
-                <?php
-                try {
-                    $pagina = isset($_GET['pagina_qs']) ? max(1, intval($_GET['pagina_qs'])) : 1;
-                    $porPagina = 4;
-                    $inicio = ($pagina - 1) * $porPagina;
+                <div id="collapseQuejas" class="accordion-collapse collapse" aria-labelledby="headingQuejas" data-bs-parent="#accordionQuejas">
+                    <div class="accordion-body p-3">
+                        <?php
+                        try {
+                            $pagina = isset($_GET['pagina_qs']) ? max(1, intval($_GET['pagina_qs'])) : 1;
+                            $porPagina = 4;
+                            $inicio = ($pagina - 1) * $porPagina;
 
-                    $totalStmt = $pdo->prepare("SELECT COUNT(*) FROM tbl_quejas_sugerencias");
-                    $totalStmt->execute();
-                    $totalRegistros = $totalStmt->fetchColumn();
-                    $totalPaginas = ceil($totalRegistros / $porPagina);
+                            $totalStmt = $pdo->prepare("SELECT COUNT(*) FROM tbl_quejas_sugerencias");
+                            $totalStmt->execute();
+                            $totalRegistros = $totalStmt->fetchColumn();
+                            $totalPaginas = ceil($totalRegistros / $porPagina);
 
-                    $stmt = $pdo->prepare("SELECT qs.*, f.Nombres, f.Apellidos FROM tbl_quejas_sugerencias qs LEFT JOIN tbl_funcionarios f ON qs.ID_Funcionario = f.ID_Funcionario ORDER BY qs.Fecha_Envio DESC LIMIT :inicio, :porPagina");
-                    $stmt->bindValue(':inicio', $inicio, PDO::PARAM_INT);
-                    $stmt->bindValue(':porPagina', $porPagina, PDO::PARAM_INT);
-                    $stmt->execute();
-                    $quejas = $stmt->fetchAll();
+                            $stmt = $pdo->prepare("SELECT qs.*, f.Nombre, f.Apellidos FROM tbl_quejas_sugerencias qs LEFT JOIN funcionarios f ON qs.ID_Funcionario = f.ID_Funcionario ORDER BY qs.Fecha_Envio DESC LIMIT :inicio, :porPagina");
+                            $stmt->bindValue(':inicio', $inicio, PDO::PARAM_INT);
+                            $stmt->bindValue(':porPagina', $porPagina, PDO::PARAM_INT);
+                            $stmt->execute();
+                            $quejas = $stmt->fetchAll();
 
-                    if ($quejas):
-                        foreach ($quejas as $qs):
-                            $badgeClass = match ($qs['Estado']) {
-                                'pendiente' => 'bg-warning',
-                                'revisado' => 'bg-info',
-                                'resuelto' => 'bg-success',
-                                default => 'bg-secondary'
-                            };
-                            $icon = ($qs['Tipo'] == 'queja') ? 'fa-exclamation-triangle text-danger' : 'fa-lightbulb text-warning';
-                            $nombreDisplay = ($qs['Anonimo'] == 1) ? 'Anónimo' : htmlspecialchars($qs['Nombres'] . ' ' . $qs['Apellidos']);
-                ?>
-                            <div class="queja-card p-3 mb-2 rounded-3 border border-light shadow-0" data-bs-toggle="modal" data-bs-target="#mensajeModal<?= $qs['ID_QS'] ?>" style="cursor:pointer; background-color: #fafafa;">
-                                <div class="row align-items-center">
-                                    <div class="col-auto">
-                                        <i class="fas <?= $icon ?> fa-lg"></i>
-                                    </div>
-                                    <div class="col">
-                                        <div class="d-flex justify-content-between">
-                                            <span class="fw-bold small text-uppercase text-muted"><?= $qs['Tipo'] ?></span>
-                                            <span class="badge <?= $badgeClass ?> rounded-pill" style="font-size: 0.65rem;"><?= $qs['Estado'] ?></span>
-                                        </div>
-                                        <p class="mb-0 text-truncate fw-500" style="max-width: 90%;"><?= htmlspecialchars($qs['Mensaje']) ?></p>
-                                        <small class="text-muted" style="font-size: 0.7rem;">De: <?= $nombreDisplay ?> • <?= date('d/m/Y', strtotime($qs['Fecha_Envio'])) ?></small>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="modal fade" id="mensajeModal<?= $qs['ID_QS'] ?>" tabindex="-1" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered">
-                                    <div class="modal-content border-0 shadow-lg rounded-4">
-                                        <div class="modal-header border-0">
-                                            <h5 class="fw-bold mb-0"><?= ucfirst($qs['Tipo']) ?></h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body p-4 pt-0 text-center">
-                                            <div class="bg-light p-3 rounded-3 mb-3 text-start">
-                                                <p class="mb-0 text-dark"><?= nl2br(htmlspecialchars($qs['Mensaje'])) ?></p>
+                            if ($quejas):
+                                foreach ($quejas as $qs):
+                                    $badgeClass = match ($qs['Estado']) {
+                                        'pendiente' => 'bg-warning',
+                                        'revisado' => 'bg-info',
+                                        'resuelto' => 'bg-success',
+                                        default => 'bg-secondary'
+                                    };
+                                    $icon = ($qs['Tipo'] == 'queja') ? 'fa-exclamation-triangle text-danger' : 'fa-lightbulb text-warning';
+                                    $nombreDisplay = ($qs['Anonimo'] == 1) ? 'Anónimo' : htmlspecialchars($qs['Nombre'] . ' ' . $qs['Apellidos']);
+                        ?>
+                                    <div class="queja-card p-3 mb-2 rounded-3 border border-light shadow-0" data-bs-toggle="modal" data-bs-target="#mensajeModal<?= $qs['ID_QS'] ?>" style="cursor:pointer; background-color: #fafafa;">
+                                        <div class="row align-items-center">
+                                            <div class="col-auto">
+                                                <i class="fas <?= $icon ?> fa-lg"></i>
                                             </div>
-                                            <small class="text-muted d-block">Enviado por: <?= $nombreDisplay ?></small>
-                                            <small class="text-muted d-block"><?= date('d/m/Y H:i', strtotime($qs['Fecha_Envio'])) ?></small>
+                                            <div class="col">
+                                                <div class="d-flex justify-content-between">
+                                                    <span class="fw-bold small text-uppercase text-muted"><?= $qs['Tipo'] ?></span>
+                                                    <span class="badge <?= $badgeClass ?> rounded-pill" style="font-size: 0.65rem;"><?= $qs['Estado'] ?></span>
+                                                </div>
+                                                <p class="mb-0 text-truncate fw-500" style="max-width: 90%;"><?= htmlspecialchars($qs['Mensaje']) ?></p>
+                                                <small class="text-muted" style="font-size: 0.7rem;">De: <?= $nombreDisplay ?> • <?= date('d/m/Y', strtotime($qs['Fecha_Envio'])) ?></small>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                <?php 
-                        endforeach;
-                    else: 
-                ?>
-                        <div class="text-center py-4 text-muted">No hay comunicaciones registradas.</div>
-                <?php 
-                    endif;
-                } catch (PDOException $e) {
-                    echo "<div class='alert alert-danger'>Error al cargar datos.</div>";
-                } 
-                ?>
 
-                <?php if ($totalPaginas > 1): ?>
-                    <nav class="mt-4">
-                        <ul class="pagination pagination-sm justify-content-center">
-                            <?php for ($i = 1; $i <= $totalPaginas; $i++): ?>
-                                <li class="page-item <?= ($i == $pagina) ? 'active' : '' ?>">
-                                    <a class="page-link shadow-0" href="?pagina_qs=<?= $i ?>#headingQuejas"><?= $i ?></a>
-                                </li>
-                            <?php endfor; ?>
-                        </ul>
-                    </nav>
-                <?php endif; ?>
+                                    <div class="modal fade" id="mensajeModal<?= $qs['ID_QS'] ?>" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content border-0 shadow-lg rounded-4">
+                                                <div class="modal-header border-0">
+                                                    <h5 class="fw-bold mb-0"><?= ucfirst($qs['Tipo']) ?></h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body p-4 pt-0 text-center">
+                                                    <div class="bg-light p-3 rounded-3 mb-3 text-start">
+                                                        <p class="mb-0 text-dark"><?= nl2br(htmlspecialchars($qs['Mensaje'])) ?></p>
+                                                    </div>
+                                                    <small class="text-muted d-block">Enviado por: <?= $nombreDisplay ?></small>
+                                                    <small class="text-muted d-block"><?= date('d/m/Y H:i', strtotime($qs['Fecha_Envio'])) ?></small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <?php
+                                endforeach;
+                            else:
+                                ?>
+                                <div class="text-center py-4 text-muted">No hay comunicaciones registradas.</div>
+                        <?php
+                            endif;
+                        } catch (PDOException $e) {
+                            echo "<div class='alert alert-danger'>Error al cargar datos.</div>";
+                        }
+                        ?>
+
+                        <?php if ($totalPaginas > 1): ?>
+                            <nav class="mt-4">
+                                <ul class="pagination pagination-sm justify-content-center">
+                                    <?php for ($i = 1; $i <= $totalPaginas; $i++): ?>
+                                        <li class="page-item <?= ($i == $pagina) ? 'active' : '' ?>">
+                                            <a class="page-link shadow-0" href="?pagina_qs=<?= $i ?>#headingQuejas"><?= $i ?></a>
+                                        </li>
+                                    <?php endfor; ?>
+                                </ul>
+                            </nav>
+                        <?php endif; ?>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-</div>
     </div>
 
     <div class="modal fade" id="instruccionModal" tabindex="-1">

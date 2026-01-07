@@ -87,9 +87,9 @@ session_start();
             $rol = $_SESSION['Rol_Usuario'] ?? '';
 
             // Consulta base
-            $sql = "SELECT p.*, f.Nombres, f.Apellidos, f.DNI_Pasaporte, f.Fotografia 
+            $sql = "SELECT p.*, f.Nombre, f.Apellidos, f.Dip_Pasaporte, f.Foto
             FROM tbl_permisos p
-            JOIN tbl_funcionarios f ON p.ID_Funcionario = f.ID_Funcionario
+            JOIN funcionarios f ON p.ID_Funcionario = f.ID_Funcionario
             WHERE p.ID_Funcionario = :ID_Funcionario_Session";
 
             $sql .= " ORDER BY p.ID_Permiso DESC";
@@ -158,8 +158,8 @@ session_start();
                             <?php if (!empty($permisos)): ?>
                                 <?php foreach ($permisos as $permiso): ?>
                                     <tr>
-                                        <td><?= htmlspecialchars($permiso['Nombres'] . ' ' . $permiso['Apellidos']) ?></td>
-                                        <td><?= htmlspecialchars($permiso['DNI_Pasaporte']) ?></td>
+                                        <td><?= htmlspecialchars($permiso['Nombre'] . ' ' . $permiso['Apellidos']) ?></td>
+                                        <td><?= htmlspecialchars($permiso['Dip_Pasaporte']) ?></td>
                                         <td><?= htmlspecialchars($permiso['Tipo_Permiso']) ?></td>
                                         <td><?= htmlspecialchars($permiso['Fecha_Solicitud']) ?></td>
                                         <td><?= htmlspecialchars($permiso['Fecha_Inicio_Permiso']) ?></td>
@@ -203,8 +203,8 @@ session_start();
                                             <div class="d-flex gap-2">
                                                 <button class="btn btn-sm btn-info btn-detalles-permiso"
                                                     data-id="<?= $permiso['ID_Permiso'] ?>"
-                                                    data-funcionario="<?= htmlspecialchars($permiso['Nombres'] . ' ' . $permiso['Apellidos']) ?>"
-                                                    data-dni="<?= htmlspecialchars($permiso['DNI_Pasaporte']) ?>"
+                                                    data-funcionario="<?= htmlspecialchars($permiso['Nombre'] . ' ' . $permiso['Apellidos']) ?>"
+                                                    data-dni="<?= htmlspecialchars($permiso['Dip_Pasaporte']) ?>"
                                                     data-tipo="<?= htmlspecialchars($permiso['Tipo_Permiso']) ?>"
                                                     data-fechasolicitud="<?= htmlspecialchars($permiso['Fecha_Solicitud']) ?>"
                                                     data-fechainicio="<?= htmlspecialchars($permiso['Fecha_Inicio_Permiso']) ?>"
@@ -333,7 +333,7 @@ session_start();
 
                     <?php
 
-                    $nombre = $_SESSION['Nombres'];
+                    $nombre = $_SESSION['Nombre'];
                     $apellidos = $_SESSION['Apellidos'];
                     ?>
                     <!-- Nombre del usuario -->
