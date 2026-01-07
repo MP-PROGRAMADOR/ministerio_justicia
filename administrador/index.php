@@ -264,51 +264,39 @@ include_once '../includes/header.php';
 </div>
 
                         </div>
-                        <div class="col-lg-6">
-                            <div class="chart-container">
-                                <h5 class="mb-3 fw-semibold">Tipos de Destinos</h5>
-                                <div class="row text-center" id="destinationTypeCards">
-                                    <?php if (!empty($dashboardData['destinationTypes'])): ?>
-                                        <?php
-                                        $iconMap = [
-                                            'Juzgado' => 'bi-bank',
-                                            'Tribunal' => 'bi-building',
-                                            'Fiscalia' => 'bi-shield-check',
-                                            'Sede Central' => 'bi-house-door',
-                                            'Oficina Regional' => 'bi-diagram-3',
-                                            'Otro' => 'bi-geo-alt'
-                                        ];
-                                        $colorMap = [
-                                            'Juzgado' => 'primary',
-                                            'Tribunal' => 'success',
-                                            'Fiscalia' => 'warning',
-                                            'Sede Central' => 'info',
-                                            'Oficina Regional' => 'secondary',
-                                            'Otro' => 'dark'
-                                        ];
-                                        foreach ($dashboardData['destinationTypes'] as $dest):
-                                            $iconClass = $iconMap[$dest['Tipo_Destino']] ?? 'bi-question-circle';
-                                            $colorClass = $colorMap[$dest['Tipo_Destino']] ?? 'secondary';
-                                        ?>
-                                            <div class="col-4 mb-3">
-                                                <div class="stat-icon bg-<?php echo $colorClass; ?> bg-opacity-10 text-<?php echo $colorClass; ?> mx-auto mb-2"
-                                                    style="width: 48px; height: 48px; font-size: 1.1rem;">
-                                                    <i class="bi <?php echo $iconClass; ?>"></i>
-                                                </div>
-                                                <div class="fw-bold text-<?php echo $colorClass; ?> fs-5">
-                                                    <?php echo htmlspecialchars($dest['count'] ?? 0); ?>
-                                                </div>
-                                                <small class="text-muted fw-medium">
-                                                    <?php echo htmlspecialchars($dest['Tipo_Destino'] ?? 'N/A'); ?>
-                                                </small>
-                                            </div>
-                                        <?php endforeach; ?>
-                                    <?php else: ?>
-                                        <div class="text-center text-muted py-4">No hay datos de tipos de destino disponibles.</div>
-                                    <?php endif; ?>
-                                </div>
+                       <div class="col-lg-6">
+    <div class="chart-container">
+        <h5 class="mb-3 fw-semibold">
+            <i class="bi bi-person-badge me-1"></i> Últimos Nombramientos
+        </h5>
+
+        <?php if (!empty($dashboardData['ultimosNombramientos'])): ?>
+            <ul class="list-group list-group-flush">
+                <?php foreach ($dashboardData['ultimosNombramientos'] as $nom): ?>
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="fw-semibold">
+                                <?php echo htmlspecialchars($nom['funcionario']); ?>
                             </div>
+                            <small class="text-muted">
+                                <?php echo htmlspecialchars($nom['cargo']); ?> ·
+                                <?php echo htmlspecialchars($nom['seccion'] ?? 'Sin sección'); ?>
+                            </small>
                         </div>
+                        <span class="badge bg-info-subtle text-info">
+                            <?php echo date('d/m/Y', strtotime($nom['Fecha_nombramiento'])); ?>
+                        </span>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        <?php else: ?>
+            <div class="text-center text-muted py-4">
+                No hay nombramientos recientes.
+            </div>
+        <?php endif; ?>
+    </div>
+</div>
+
                     </div>
 
                     <!-- Reports Section -->
@@ -405,12 +393,12 @@ include_once '../includes/header.php';
                                                 case 'Nuevo Funcionario':
                                                     $activityClass = 'recent';
                                                     $description = 'Departamento de Recursos Humanos';
-                                                    $title = 'Nuevo funcionario añadido: ' . htmlspecialchars($activity['Nombres'] . ' ' . $activity['Apellidos']);
+                                                    $title = 'Nuevo funcionario añadido: ' . htmlspecialchars($activity['Nombre'] . ' ' . $activity['Apellidos']);
                                                     break;
                                                 case 'Permiso':
                                                     $activityClass = ($activity['Estado_Permiso'] === 'Pendiente') ? 'warning' : '';
                                                     $description = 'Permiso por ' . htmlspecialchars($activity['Tipo_Permiso']);
-                                                    $title = 'Permiso ' . htmlspecialchars($activity['Estado_Permiso']) . ' para ' . htmlspecialchars($activity['Nombres'] . ' ' . $activity['Apellidos']);
+                                                    $title = 'Permiso ' . htmlspecialchars($activity['Estado_Permiso']) . ' para ' . htmlspecialchars($activity['Nombre'] . ' ' . $activity['Apellidos']);
                                                     break;
                                                 default:
                                                     $activityClass = '';

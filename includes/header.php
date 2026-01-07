@@ -77,24 +77,38 @@ try {
     $dashboardData['topDirecciones'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     // --- 4. Tipos de Destinos (Small Cards) ---
-    $stmt = $pdo->query("SELECT Tipo_Destino, COUNT(*) AS count FROM tbl_destinos GROUP BY Tipo_Destino");
-    $dashboardData['destinationTypes'] = $stmt->fetchAll();
+ $stmt = $pdo->query("
+    SELECT 
+        n.Id_nombramiento,
+        CONCAT(f.Nombre, ' ', f.Apellidos) AS funcionario,
+        s.nombre AS seccion,
+        c.Nombre AS cargo,
+        n.Fecha_nombramiento
+    FROM nombramientos n
+    JOIN funcionarios f ON f.Id_funcionario = n.Id_funcionario
+    LEFT JOIN secciones s ON s.Id_seccion = n.Id_seccion
+    JOIN cargos c ON c.Id_cargo = n.Id_cargo
+    ORDER BY n.Fecha_registro DESC
+    LIMIT 5
+");
+
+$dashboardData['ultimosNombramientos'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     // --- 5. Actividad Reciente (Recent Activity) ---
     // Últimos funcionarios añadidos
     $stmt = $pdo->query("
-            SELECT 'Nuevo Funcionario' as type, Nombres, Apellidos, Fecha_Creacion_Registro as timestamp
+            SELECT 'Nuevo Funcionario' as type, Nombre, Apellidos, Fecha_registro as timestamp
             FROM funcionarios
-            ORDER BY Fecha_Creacion_Registro DESC LIMIT 3
+            ORDER BY Fecha_registro DESC LIMIT 3
         ");
     $recentActivity = $stmt->fetchAll();
 
     // Últimos permisos solicitados/aprobados
     $stmt = $pdo->query("
-            SELECT 'Permiso' as type, f.Nombres, f.Apellidos, p.Tipo_Permiso, p.Estado_Permiso, p.Fecha_Creacion_Registro as timestamp
+            SELECT 'Permiso' as type, f.Nombre, f.Apellidos, p.Tipo_Permiso, p.Estado_Permiso, p.Fecha_registro as timestamp
             FROM tbl_permisos p
             JOIN funcionarios f ON p.ID_Funcionario = f.ID_Funcionario
-            ORDER BY p.Fecha_Creacion_Registro DESC LIMIT 3
+            ORDER BY p.Fecha_registro DESC LIMIT 3
         ");
     $recentActivity = array_merge($recentActivity, $stmt->fetchAll());
 
