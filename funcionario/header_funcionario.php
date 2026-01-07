@@ -30,7 +30,8 @@ $sql = "
         n.Fecha_toma_posesion,
         c.Nombre AS cargo,
         f.Dip_Pasaporte,
-        f.Nacionalidad
+        f.Nacionalidad,
+        Num_carnet_fun
     FROM funcionarios f
     LEFT JOIN nombramientos n ON n.Id_funcionario = f.Id_funcionario
     LEFT JOIN cargos c ON c.Id_cargo = n.Id_cargo

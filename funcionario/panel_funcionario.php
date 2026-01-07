@@ -137,10 +137,25 @@ require_once '../includes/conexion.php';
                                         <img src="<?= htmlspecialchars($fotoURL) ?>" alt="Avatar" class="rounded-circle shadow-sm border border-3 border-light" style="width: 100px; height: 100px; object-fit: cover;">
                                     </div>
                                     <div class="col-md-5">
-                                        <h4 class="fw-bold mb-1"><?= htmlspecialchars($funcionario['Nombre'] . ' ' . $funcionario['Apellidos']) ?></h4>
-                                        <span class="badge bg-primary-soft text-primary mb-2" style="background: #e8eaff;"><?= htmlspecialchars($funcionario['cargo'] ?? 'Cargo no asignado') ?></span>
-                                        <p class="text-muted small mb-0"><i class="fas fa-hashtag me-1"></i> ID: <?= htmlspecialchars($funcionario['CODIGO']) ?></p>
+                                        <h4 class="fw-bold mb-1">
+                                            <?= htmlspecialchars($funcionario['Nombre'] . ' ' . $funcionario['Apellidos']) ?>
+                                        </h4>
+
+                                        <span class="badge bg-primary-soft text-primary mb-2" style="background: #e8eaff;">
+                                            <?= htmlspecialchars($funcionario['cargo'] ?? 'Cargo no asignado') ?>
+                                        </span>
+
+                                        <p class="text-muted small mb-0">
+                                            <i class="fas fa-hashtag me-1"></i>
+                                            Código: <?= htmlspecialchars($funcionario['CODIGO']) ?>
+                                        </p>
+
+                                        <p class="text-muted small mb-0">
+                                            <i class="fas fa-id-card me-1"></i>
+                                            Nº Funcionario: <?= htmlspecialchars($funcionario['Num_carnet_fun'] ?? 'No asignado') ?>
+                                        </p>
                                     </div>
+
                                     <div class="col-md-5 border-start-md">
                                         <div class="row g-2">
                                             <div class="col-8 small"><i class="fas fa-envelope text-muted me-2"></i><?= htmlspecialchars($funcionario['Correo'] ?? '-') ?></div>
@@ -497,17 +512,17 @@ require_once '../includes/conexion.php';
     </script>
 
     <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const mensaje = document.getElementById('mensajeFlash');
-        if (mensaje) {
-            setTimeout(() => {
-                mensaje.style.transition = 'opacity 0.5s ease';
-                mensaje.style.opacity = '0';
-                setTimeout(() => mensaje.remove(), 500); // elimina después del desvanecimiento
-            }, 5000);
-        }
-    });
-</script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mensaje = document.getElementById('mensajeFlash');
+            if (mensaje) {
+                setTimeout(() => {
+                    mensaje.style.transition = 'opacity 0.5s ease';
+                    mensaje.style.opacity = '0';
+                    setTimeout(() => mensaje.remove(), 500); // elimina después del desvanecimiento
+                }, 5000);
+            }
+        });
+    </script>
 </body>
 
 </html>
