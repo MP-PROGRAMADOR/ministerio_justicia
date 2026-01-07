@@ -177,10 +177,10 @@ CREATE TABLE tbl_quejas_sugerencias (
     Fecha_Envio DATETIME DEFAULT CURRENT_TIMESTAMP,
     Estado ENUM('pendiente','revisado','resuelto') DEFAULT 'pendiente',
     Anonimo TINYINT(1) DEFAULT 0,
-    Usuario_creador INT NOT NULL,
+    
 
-    FOREIGN KEY (ID_Funcionario) REFERENCES funcionarios(Id_funcionario),
-    FOREIGN KEY (Usuario_creador) REFERENCES tbl_usuarios(ID_Usuario)
+    FOREIGN KEY (ID_Funcionario) REFERENCES funcionarios(Id_funcionario)
+   
 ) ENGINE=InnoDB;
 
 /* =========================================================
@@ -268,12 +268,14 @@ CREATE TABLE logs (
     Tabla_afectada VARCHAR(100),
     Accion ENUM('INSERT','UPDATE','DELETE','LOGIN','LOGOUT'),
     Registro_id INT,
+    Descripcion TEXT,              -- Nueva columna para detalles adicionales
     Fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
     IP VARCHAR(45),
     Dispositivo TEXT,
 
     FOREIGN KEY (Usuario_id) REFERENCES tbl_usuarios(ID_Usuario)
 ) ENGINE=InnoDB;
+
 
 
 CREATE TABLE tbl_formacion_academica (

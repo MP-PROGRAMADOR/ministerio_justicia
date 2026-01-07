@@ -71,7 +71,7 @@ $direcciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                         <th class="text-center">Acciones</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody id="funcionariosTableBody">
                                     <?php if ($direcciones): ?>
                                         <?php foreach ($direcciones as $dir): ?>
                                             <tr>

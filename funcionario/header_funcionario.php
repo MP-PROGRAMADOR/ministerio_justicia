@@ -101,6 +101,24 @@ $fotoURL = !empty($funcionario['Foto'])
         </a>
 
         <div class="d-flex align-items-center ms-auto">
+
+
+
+        
+                <?php
+
+                if (isset($_SESSION['error'])) {
+                    echo "<div id='mensajeFlash' class='alert alert-danger'>" . htmlspecialchars($_SESSION['error']) . "</div>";
+                    unset($_SESSION['error']);
+                }
+                if (isset($_SESSION['exito'])) {
+                    echo "<div id='mensajeFlash' class='alert alert-success'>" . htmlspecialchars($_SESSION['exito']) . "</div>";
+                    unset($_SESSION['exito']);
+                }
+                ?>
+
+
+
             <button type="button" class="btn btn-success rounded-pill me-3" data-bs-toggle="modal" data-bs-target="#quejasModal">
                 <i class="fas fa-comment-dots me-2"></i>
                 <span class="d-none d-md-inline">Quejas / Sugerencias</span>
@@ -116,7 +134,7 @@ $fotoURL = !empty($funcionario['Foto'])
                         alt="Avatar" loading="lazy" />
 
                     <strong class="d-none d-sm-block me-1">
-                        <?= htmlspecialchars($funcionario['Nombres'] ?? 'Usuario') ?>
+                        <?= htmlspecialchars($funcionario['Nombre'] ?? 'Usuario') ?>
                     </strong>
                 </a>
 
@@ -149,13 +167,14 @@ $fotoURL = !empty($funcionario['Foto'])
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="complaint-form">
+            <form method="POST" action="../api/guardar_quejas_sujerencias.php">
                     <div class="mb-4">
                         <label for="type" class="form-label fw-bold">Tipo de mensaje</label>
-                        <select class="form-select" id="type" name="type">
+                        <select class="form-select" name="tipo" id="type" name="type">
                             <option value="queja">Queja</option>
                             <option value="sugerencia">Sugerencia</option>
                         </select>
+                         <input class="form-check-input" type="hidden" id="id_funcionario" name="id_funcionario" value="<?= $idFuncionario ?>">
                     </div>
 
                     <div class="mb-4">
@@ -167,12 +186,14 @@ $fotoURL = !empty($funcionario['Foto'])
                         <input class="form-check-input" type="checkbox" id="anonimo" name="anonimo" value="1">
                         <label class="form-check-label" for="anonimo">Enviar como anónimo</label>
                     </div>
+
+                     <div class="modal-footer border-0">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit"  class="btn btn-primary px-4">Enviar Mensaje</button>
+            </div>
                 </form>
             </div>
-            <div class="modal-footer border-0">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
-                <button type="submit" form="complaint-form" class="btn btn-primary px-4">Enviar Mensaje</button>
-            </div>
+           
         </div>
     </div>
 </div>
@@ -191,7 +212,7 @@ $fotoURL = !empty($funcionario['Foto'])
                 <div class="mb-3">
                     <img src="<?= htmlspecialchars($fotoURL) ?>" alt="Avatar" class="rounded-circle shadow-sm" width="70" height="70" style="object-fit: cover;">
                 </div>
-                <p class="fw-bold mb-1">¿Deseas cerrar sesión, <span class="text-primary"><?= htmlspecialchars($funcionario['Nombres'] . " " . $funcionario['Apellidos']) ?></span>?</p>
+                <p class="fw-bold mb-1">¿Deseas cerrar sesión, <span class="text-primary"><?= htmlspecialchars($funcionario['Nombre'] . " " . $funcionario['Apellidos']) ?></span>?</p>
                 <p class="text-muted small">Tendrás que ingresar tus credenciales nuevamente para acceder.</p>
             </div>
             <div class="modal-footer border-0 justify-content-center pb-4">
