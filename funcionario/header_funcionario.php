@@ -8,25 +8,38 @@ require_once '../includes/conexion.php';
 $pdo = new PDO($dsn, $user, $pass, $options);
 
 // Verificar si el funcionario ha iniciado sesión
-if (!isset($_SESSION['Codigo_Funcionario'])) {
+if (!isset($_SESSION['CODIGO'])) {
     header("Location: login.php");
     exit;
 }
 
-$codigoFuncionario = $_SESSION['Codigo_Funcionario'];
+$codigoFuncionario = $_SESSION['CODIGO'];
 $idFuncionario = $_SESSION['ID_Funcionario'];
 
 // Obtener datos del funcionario, su cargo y fotografía
-$sql = "SELECT f.Codigo_Funcionario, f.Nombres, f.Apellidos, f.Email_Oficial, 
-               f.Telefono_Contacto, f.Fotografia, c.Nombre_Cargo, f.DNI_Pasaporte, f.Nacionalidad
-        FROM tbl_funcionarios f
-        LEFT JOIN tbl_cargos c ON c.ID_Cargo = (
-            SELECT ID_Cargo 
-            FROM tbl_cargos 
-            WHERE ID_Funcionario = f.ID_Funcionario 
-            LIMIT 1
-        )
-        WHERE f.ID_Funcionario = :id";
+$sql = "
+    SELECT 
+        f.CODIGO,
+        f.Nombre,
+        f.Apellidos,
+        f.Correo,
+        f.Telefono AS Telefono_Contacto,
+        f.Foto,
+        n.Id_nombramiento,
+        n.Fecha_nombramiento,
+        n.Fecha_toma_posesion,
+        c.Nombre AS cargo,
+        f.Dip_Pasaporte,
+        f.Nacionalidad
+    FROM funcionarios f
+    LEFT JOIN nombramientos n ON n.Id_funcionario = f.Id_funcionario
+    LEFT JOIN cargos c ON c.Id_cargo = n.Id_cargo
+    WHERE f.Id_funcionario = :id
+    ORDER BY n.Fecha_nombramiento DESC
+    LIMIT 1
+";
+
+
 
 $stmt = $pdo->prepare($sql);
 $stmt->execute([':id' => $idFuncionario]);
@@ -38,9 +51,9 @@ if (!$funcionario) {
 }
 
 // Configuración de la URL de la fotografía
-$fotoURL = !empty($funcionario['Fotografia'])
-    ? "../api/" . $funcionario['Fotografia']
-    : "https://placehold.co/80x80/3f51b5/ffffff?text=" . strtoupper(substr($funcionario['Nombres'], 0, 1) . substr($funcionario['Apellidos'], 0, 1));
+$fotoURL = !empty($funcionario['Foto'])
+    ? "../api/" . $funcionario['Foto']
+    : "https://placehold.co/80x80/3f51b5/ffffff?text=" . strtoupper(substr($funcionario['Nombre'], 0, 1) . substr($funcionario['Apellidos'], 0, 1));
 ?>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">

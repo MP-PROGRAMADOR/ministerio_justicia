@@ -38,7 +38,7 @@ try {
     $pdo = new PDO($dsn, $user, $pass, $options);
 
     // Buscar funcionario por código
-    $stmt = $pdo->prepare("SELECT ID_Funcionario, Nombres, Apellidos FROM tbl_funcionarios WHERE Codigo_Funcionario = :codigo LIMIT 1");
+    $stmt = $pdo->prepare("SELECT ID_Funcionario, Nombre, Apellidos FROM funcionarios WHERE CODIGO = :codigo LIMIT 1");
     $stmt->execute([':codigo' => $codigo]);
     $funcionario = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -49,9 +49,9 @@ try {
 
         // Guardar datos en sesión
         $_SESSION['ID_Funcionario'] = $funcionario['ID_Funcionario'];
-        $_SESSION['Nombres'] = $funcionario['Nombres'];
+        $_SESSION['Nombre'] = $funcionario['Nombre'];
         $_SESSION['Apellidos'] = $funcionario['Apellidos'];
-        $_SESSION['Codigo_Funcionario'] = $codigo;
+        $_SESSION['CODIGO'] = $codigo;
 
         header("Location: ../funcionario/panel_funcionario.php");
         exit;

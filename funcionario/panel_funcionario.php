@@ -137,15 +137,15 @@ require_once '../includes/conexion.php';
                                         <img src="<?= htmlspecialchars($fotoURL) ?>" alt="Avatar" class="rounded-circle shadow-sm border border-3 border-light" style="width: 100px; height: 100px; object-fit: cover;">
                                     </div>
                                     <div class="col-md-5">
-                                        <h4 class="fw-bold mb-1"><?= htmlspecialchars($funcionario['Nombres'] . ' ' . $funcionario['Apellidos']) ?></h4>
-                                        <span class="badge bg-primary-soft text-primary mb-2" style="background: #e8eaff;"><?= htmlspecialchars($funcionario['Nombre_Cargo'] ?? 'Cargo no asignado') ?></span>
-                                        <p class="text-muted small mb-0"><i class="fas fa-hashtag me-1"></i> ID: <?= htmlspecialchars($funcionario['Codigo_Funcionario']) ?></p>
+                                        <h4 class="fw-bold mb-1"><?= htmlspecialchars($funcionario['Nombre'] . ' ' . $funcionario['Apellidos']) ?></h4>
+                                        <span class="badge bg-primary-soft text-primary mb-2" style="background: #e8eaff;"><?= htmlspecialchars($funcionario['cargo'] ?? 'Cargo no asignado') ?></span>
+                                        <p class="text-muted small mb-0"><i class="fas fa-hashtag me-1"></i> ID: <?= htmlspecialchars($funcionario['CODIGO']) ?></p>
                                     </div>
                                     <div class="col-md-5 border-start-md">
                                         <div class="row g-2">
-                                            <div class="col-6 small"><i class="fas fa-envelope text-muted me-2"></i><?= htmlspecialchars($funcionario['Email_Oficial'] ?? '-') ?></div>
+                                            <div class="col-8 small"><i class="fas fa-envelope text-muted me-2"></i><?= htmlspecialchars($funcionario['Correo'] ?? '-') ?></div>
                                             <div class="col-6 small"><i class="fas fa-phone text-muted me-2"></i><?= htmlspecialchars($funcionario['Telefono_Contacto'] ?? '-') ?></div>
-                                            <div class="col-6 small"><i class="fas fa-id-badge text-muted me-2"></i><?= htmlspecialchars($funcionario['DNI_Pasaporte'] ?? '-') ?></div>
+                                            <div class="col-8 small"><i class="fas fa-id-badge text-muted me-2"></i><?= htmlspecialchars($funcionario['Dip_Pasaporte'] ?? '-') ?></div>
                                             <div class="col-6 small"><i class="fas fa-globe text-muted me-2"></i><?= htmlspecialchars($funcionario['Nacionalidad'] ?? '-') ?></div>
                                         </div>
                                     </div>
