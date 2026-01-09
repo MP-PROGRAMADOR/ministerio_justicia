@@ -37,17 +37,6 @@ include_once '../includes/header.php';
 
 
 
-                <?php
-
-                if (isset($_SESSION['error'])) {
-                    echo "<div id='mensajeFlash' class='alert alert-danger'>" . htmlspecialchars($_SESSION['error']) . "</div>";
-                    unset($_SESSION['error']);
-                }
-                if (isset($_SESSION['exito'])) {
-                    echo "<div id='mensajeFlash' class='alert alert-success'>" . htmlspecialchars($_SESSION['exito']) . "</div>";
-                    unset($_SESSION['exito']);
-                }
-                ?>
 
 
                 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -57,6 +46,20 @@ include_once '../includes/header.php';
 
 
                 <div class="container-fluid px-4">
+                    <div>
+                        <?php
+
+                        if (isset($_SESSION['error'])) {
+                            echo "<div id='mensajeFlash' class='alert alert-danger'>" . htmlspecialchars($_SESSION['error']) . "</div>";
+                            unset($_SESSION['error']);
+                        }
+                        if (isset($_SESSION['exito'])) {
+                            echo "<div id='mensajeFlash' class='alert alert-success'>" . htmlspecialchars($_SESSION['exito']) . "</div>";
+                            unset($_SESSION['exito']);
+                        }
+                        ?>
+
+                    </div>
                     <div class="table-custom mb-4 p-4">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h5 class="mb-0 fw-semibold">Listado de Capacitaciones Externas </h5>
@@ -97,8 +100,8 @@ include_once '../includes/header.php';
                                     <?php foreach ($capacitaciones as $cap): ?>
                                         <tr>
                                             <td><?= htmlspecialchars($cap['ID_Capacitacion']) ?></td>
-                                            <td><?= htmlspecialchars($cap['Nombres'] . ' ' . $cap['Apellidos']) ?></td>
-                                            <td><?= htmlspecialchars($cap['DNI_Pasaporte']) ?></td>
+                                            <td><?= htmlspecialchars($cap['Nombre'] . ' ' . $cap['Apellidos']) ?></td>
+                                            <td><?= htmlspecialchars($cap['Dip_Pasaporte']) ?></td>
                                             <td><?= htmlspecialchars($cap['Nombre_Curso']) ?></td>
                                             <td><?= htmlspecialchars($cap['Institucion_Organizadora']) ?></td>
                                             <td><?= htmlspecialchars($cap['Fecha_Inicio_Curso']) ?></td>
@@ -116,7 +119,7 @@ include_once '../includes/header.php';
                                                 <!-- boton de editar -->
                                                 <button class="btn btn-sm btn-warning btn-editar-capacitacion"
                                                     data-id="<?= $cap['ID_Capacitacion'] ?>"
-                                                    data-funcionario="<?= htmlspecialchars($cap['Nombres'] . ' ' . $cap['Apellidos']) ?>"
+                                                    data-funcionario="<?= htmlspecialchars($cap['Nombre'] . ' ' . $cap['Apellidos']) ?>"
                                                     data-curso="<?= htmlspecialchars($cap['Nombre_Curso']) ?>"
                                                     data-institucion="<?= htmlspecialchars($cap['Institucion_Organizadora']) ?>"
                                                     data-inicio="<?= $cap['Fecha_Inicio_Curso'] ?>"
@@ -125,14 +128,21 @@ include_once '../includes/header.php';
                                                     title="Editar Capacitacion">
                                                     <i class="bi bi-pencil-square"></i>
                                                 </button>
-                                                <!-- boton de eliminar -->
-                                                <button class="btn btn-sm btn-danger btn-eliminar-capacitacion"
-
-                                                    onclick="confirmarEliminacionCapacitacion(<?= $cap['ID_Capacitacion'] ?>,
-                                                    '<?= htmlspecialchars($cap['Nombre_Curso']) ?>' )"
-                                                    title="Eliminar Capacitacion">
-                                                    <i class="bi bi-trash"></i>
+                                                <!-- boton de ver detalles -->
+                                                <button class="btn btn-sm btn-info btn-detalle-capacitacion"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#detalleCapacitacionModal"
+                                                    data-funcionario="<?= htmlspecialchars($cap['Nombre'] . ' ' . $cap['Apellidos']) ?>"
+                                                    data-curso="<?= htmlspecialchars($cap['Nombre_Curso']) ?>"
+                                                    data-institucion="<?= htmlspecialchars($cap['Institucion_Organizadora']) ?>"
+                                                    data-inicio="<?= $cap['Fecha_Inicio_Curso'] ?>"
+                                                    data-fin="<?= $cap['Fecha_Fin_Curso'] ?>"
+                                                    data-certificado="<?= htmlspecialchars($cap['Certificado_URL']) ?>"
+                                                    title="Ver Detalles">
+                                                    <i class="bi bi-eye"></i>
                                                 </button>
+
+
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -174,7 +184,7 @@ include_once '../includes/header.php';
     <div class="modal fade" id="addCapacitacionModal" tabindex="-1" aria-labelledby="addCapacitacionModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
+                <div class="modal-header bg-success text-white">
                     <h5 class="modal-title" id="addCapacitacionModalLabel">
                         <i class="bi bi-journal-text me-2"></i>Registrar Capacitación
                     </h5>
@@ -268,6 +278,48 @@ include_once '../includes/header.php';
 
 
 
+
+
+    <!-- Modal de ver detalle de Capacitacion -->
+    <div class="modal fade" id="detalleCapacitacionModal" tabindex="-1" aria-labelledby="detalleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title" id="detalleModalLabel"><i class="bi bi-info-circle me-2"></i>Detalles de Capacitación</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="fw-bold text-muted small text-uppercase">Funcionario</label>
+                        <p id="det-funcionario" class="fs-5 fw-semibold"></p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="fw-bold text-muted small text-uppercase">Nombre del Curso</label>
+                        <p id="det-curso" class="text-primary"></p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="fw-bold text-muted small text-uppercase">Institución Organizadora</label>
+                        <p id="det-institucion"></p>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <label class="fw-bold text-muted small text-uppercase">Fecha Inicio</label>
+                            <p id="det-inicio"></p>
+                        </div>
+                        <div class="col-6">
+                            <label class="fw-bold text-muted small text-uppercase">Fecha Fin</label>
+                            <p id="det-fin"></p>
+                        </div>
+                    </div>
+                    <div id="det-certificado-area" class="mt-3 p-3 bg-light rounded text-center">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 
 
@@ -403,7 +455,7 @@ include_once '../includes/header.php';
                             const item = document.createElement('button');
                             item.type = 'button';
                             item.className = 'list-group-item list-group-item-action';
-                            item.textContent = `${f.Nombres} ${f.Apellidos} - ${f.DNI_Pasaporte}`;
+                            item.textContent = `${f.Nombre} ${f.Apellidos} - ${f.Dip_Pasaporte}`;
                             item.addEventListener('click', () => {
                                 idFuncionarioInput.value = f.ID_Funcionario;
                                 nombreFuncionarioSpan.textContent = `${f.Nombres} ${f.Apellidos} - DOCUMENTO: ${f.DNI_Pasaporte}`;
@@ -615,60 +667,40 @@ include_once '../includes/header.php';
     </script>
 
 
-    <!-- Modal de confirmacion para eliminar capacitaciones externas -->
+    <!--Script para ver detallete de capacitaciones externas -->
     <script>
-        function confirmarEliminacionCapacitacion(idCapacitacion, nombreCurso) {
-            Swal.fire({
-                title: '¿Estás seguro?',
-                html: `
-                    ¡Vas a eliminar el curso:
-                    <br>
-                    <strong style="color: #007bff; font-size: 1.2em;">${nombreCurso}</strong>
-                    <br><br>
-                    <span style="color: red;">
-                        Esta acción es irreversible.
-                    </span>`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#5a5d5fff',
-                confirmButtonText: '<i class="bi bi-trash"></i> Sí, Eliminar',
-                cancelButtonText: '<i class="bi bi-x-circle"></i> Cancelar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-
-                    // Crear y enviar el formulario dinámico al script de eliminación
-                    const form = document.createElement('form');
-                    form.method = 'POST';
-                    form.action = '../api/eliminar_capacitacion.php';
-
-                    const idField = document.createElement('input');
-                    idField.type = 'hidden';
-                    idField.name = 'id_capacitacion';
-                    idField.value = idCapacitacion;
-
-                    form.appendChild(idField);
-                    document.body.appendChild(form);
-                    form.submit();
-                }
-            });
-        }
         document.addEventListener('DOMContentLoaded', function() {
+            // Manejar la apertura del modal de detalles
+            const detalleButtons = document.querySelectorAll('.btn-detalle-capacitacion');
 
-            const deleteButtons = document.querySelectorAll('.btn-eliminar-capacitacion');
+            detalleButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Extraer datos de los atributos data-
+                    const funcionario = this.getAttribute('data-funcionario');
+                    const curso = this.getAttribute('data-curso');
+                    const institucion = this.getAttribute('data-institucion');
+                    const inicio = this.getAttribute('data-inicio');
+                    const fin = this.getAttribute('data-fin');
+                    const certificado = this.getAttribute('data-certificado');
 
-            deleteButtons.forEach(button => {
-                button.addEventListener('click', function(e) {
-                    e.preventDefault();
+                    // Insertar datos en el modal
+                    document.getElementById('det-funcionario').textContent = funcionario;
+                    document.getElementById('det-curso').textContent = curso;
+                    document.getElementById('det-institucion').textContent = institucion;
+                    document.getElementById('det-inicio').textContent = inicio;
+                    document.getElementById('det-fin').textContent = fin;
 
-                    // Obtener los tres atributos de datos
-                    const formacionId = this.getAttribute('data-id');
-                    const tituloNombre = this.getAttribute('data-curso');
-                    // Nuevo: Obtener el nombre del funcionario
-                    const funcionarioNombre = this.getAttribute('data-funcionario');
-
-                    // Llama a la función de confirmación con el nuevo parámetro
-                    confirmarEliminacionCapacitacion(idCapacitacion, nombreCurso);
+                    // Manejar el área del certificado
+                    const certificadoArea = document.getElementById('det-certificado-area');
+                    if (certificado && certificado !== '') {
+                        certificadoArea.innerHTML = `
+                    <label class="d-block mb-2 fw-bold small text-uppercase">Certificado Adjunto</label>
+                    <a href="../${certificado}" target="_blank" class="btn btn-primary w-100">
+                        <i class="bi bi-file-earmark-pdf me-2"></i>Ver Documento Original
+                    </a>`;
+                    } else {
+                        certificadoArea.innerHTML = '<span class="text-muted italic">No hay certificado digital disponible.</span>';
+                    }
                 });
             });
         });
