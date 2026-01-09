@@ -281,45 +281,75 @@ include_once '../includes/header.php';
 
 
     <!-- Modal de ver detalle de Capacitacion -->
-    <div class="modal fade" id="detalleCapacitacionModal" tabindex="-1" aria-labelledby="detalleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow">
-                <div class="modal-header bg-info text-white">
-                    <h5 class="modal-title" id="detalleModalLabel"><i class="bi bi-info-circle me-2"></i>Detalles de Capacitación</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="fw-bold text-muted small text-uppercase">Funcionario</label>
-                        <p id="det-funcionario" class="fs-5 fw-semibold"></p>
-                    </div>
-                    <div class="mb-3">
-                        <label class="fw-bold text-muted small text-uppercase">Nombre del Curso</label>
-                        <p id="det-curso" class="text-primary"></p>
-                    </div>
-                    <div class="mb-3">
-                        <label class="fw-bold text-muted small text-uppercase">Institución Organizadora</label>
-                        <p id="det-institucion"></p>
-                    </div>
-                    <div class="row">
-                        <div class="col-6">
-                            <label class="fw-bold text-muted small text-uppercase">Fecha Inicio</label>
-                            <p id="det-inicio"></p>
-                        </div>
-                        <div class="col-6">
-                            <label class="fw-bold text-muted small text-uppercase">Fecha Fin</label>
-                            <p id="det-fin"></p>
-                        </div>
-                    </div>
-                    <div id="det-certificado-area" class="mt-3 p-3 bg-light rounded text-center">
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                </div>
+   <div class="modal fade" id="detalleCapacitacionModal" tabindex="-1" aria-labelledby="detalleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            
+            <div class="modal-header bg-primary text-white py-3">
+                <h5 class="modal-title d-flex align-items-center" id="detalleModalLabel">
+                    <i class="bi bi-journal-check fs-4 me-2"></i> 
+                    <span>Detalles de Capacitación</span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
+
+            <div class="modal-body p-4">
+                <div class="d-flex align-items-center mb-4 p-3 bg-light rounded-3 border-start border-primary border-4">
+                    <div class="flex-shrink-0">
+                        <i class="bi bi-person-badge fs-1 text-primary"></i>
+                    </div>
+                    <div class="ms-3">
+                        <label class="text-uppercase text-muted fw-bold mb-0" style="font-size: 0.75rem; letter-spacing: 1px;">Funcionario</label>
+                        <p id="det-funcionario" class="h5 fw-bold mb-0 text-dark"></p>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-12">
+                        <div class="d-flex align-items-start">
+                            <i class="bi bi-book me-2 text-primary"></i>
+                            <div>
+                                <label class="fw-bold text-muted small text-uppercase">Nombre del Curso</label>
+                                <p id="det-curso" class="fw-medium mb-0"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="d-flex align-items-start">
+                            <i class="bi bi-building me-2 text-primary"></i>
+                            <div>
+                                <label class="fw-bold text-muted small text-uppercase">Institución Organizadora</label>
+                                <p id="det-institucion" class="fw-medium mb-0"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-6">
+                        <div class="p-2 border rounded-3 bg-white">
+                            <label class="fw-bold text-muted small text-uppercase d-block mb-1">
+                                <i class="bi bi-calendar-event me-1"></i>Inicio
+                            </label>
+                            <p id="det-inicio" class="mb-0 fw-semibold text-dark"></p>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-2 border rounded-3 bg-white">
+                            <label class="fw-bold text-muted small text-uppercase d-block mb-1">
+                                <i class="bi bi-calendar-check me-1"></i>Fin
+                            </label>
+                            <p id="det-fin" class="mb-0 fw-semibold text-dark"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="det-certificado-area" class="mt-4 p-3 border border-dashed rounded-3 text-center bg-light">
+                    </div>
+            </div>
+
         </div>
     </div>
+</div>
 
 
 
@@ -620,8 +650,6 @@ include_once '../includes/header.php';
             });
         });
     </script>
-
-
 
 
 
