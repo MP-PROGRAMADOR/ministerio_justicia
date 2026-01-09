@@ -34,27 +34,23 @@ include_once '../includes/header.php';
                 </div>
 
 
-
-                <?php
-
-                if (isset($_SESSION['error'])) {
-                    echo "<div id='mensajeFlash' class='alert alert-danger'>" . htmlspecialchars($_SESSION['error']) . "</div>";
-                    unset($_SESSION['error']);
-                }
-                if (isset($_SESSION['exito'])) {
-                    echo "<div id='mensajeFlash' class='alert alert-success'>" . htmlspecialchars($_SESSION['exito']) . "</div>";
-                    unset($_SESSION['exito']);
-                }
-                ?>
-
-
                 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-
-
-
-
                 <div class="container-fluid px-4">
+                    <div>
+                        <?php
+
+                        if (isset($_SESSION['error'])) {
+                            echo "<div id='mensajeFlash' class='alert alert-danger'>" . htmlspecialchars($_SESSION['error']) . "</div>";
+                            unset($_SESSION['error']);
+                        }
+                        if (isset($_SESSION['exito'])) {
+                            echo "<div id='mensajeFlash' class='alert alert-success'>" . htmlspecialchars($_SESSION['exito']) . "</div>";
+                            unset($_SESSION['exito']);
+                        }
+                        ?>
+
+                    </div>
                     <div class="table-custom mb-4 p-4">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h5 class="mb-0 fw-semibold">Listado de Funcionarios</h5>
@@ -94,8 +90,8 @@ include_once '../includes/header.php';
                                     <?php foreach ($formaciones as $f): ?>
                                         <tr>
                                             <td><?= htmlspecialchars($f['ID_Formacion']) ?></td>
-                                            <td><?= htmlspecialchars($f['Nombres'] . ' ' . $f['Apellidos']) ?></td>
-                                            <td><?= htmlspecialchars($f['DNI_Pasaporte']) ?></td>
+                                            <td><?= htmlspecialchars($f['Nombre'] . ' ' . $f['Apellidos']) ?></td>
+                                            <td><?= htmlspecialchars($f['Dip_Pasaporte']) ?></td>
                                             <td><?= htmlspecialchars($f['Titulo_Obtenido']) ?></td>
                                             <td><?= htmlspecialchars($f['Institucion_Educativa']) ?></td>
                                             <td><?= htmlspecialchars($f['Fecha_Graduacion']) ?></td>
@@ -125,7 +121,7 @@ include_once '../includes/header.php';
                                                 <div class="d-flex gap-2">
                                                     <button class="btn btn-sm btn-warning btn-editar-formacion"
                                                         data-id="<?= $f['ID_Formacion'] ?>"
-                                                        data-funcionario="<?= htmlspecialchars($f['Nombres'] . ' ' . $f['Apellidos']) ?>"
+                                                        data-funcionario="<?= htmlspecialchars($f['Nombre'] . ' ' . $f['Apellidos']) ?>"
                                                         data-titulo="<?= htmlspecialchars($f['Titulo_Obtenido']) ?>"
                                                         data-institucion="<?= htmlspecialchars($f['Institucion_Educativa']) ?>"
                                                         data-fecha="<?= $f['Fecha_Graduacion'] ?>"
@@ -140,7 +136,7 @@ include_once '../includes/header.php';
                                                         title="Eliminar Formación"
                                                         data-id="<?= $f['ID_Formacion'] ?>"
                                                         data-nombre="<?= htmlspecialchars($f['Titulo_Obtenido']) ?>"
-                                                        data-funcionario="<?= htmlspecialchars($f['Nombres'] . ' ' . $f['Apellidos']) ?>">
+                                                        data-funcionario="<?= htmlspecialchars($f['Nombre'] . ' ' . $f['Apellidos']) ?>">
                                                         <i class="bi bi-trash"></i>
                                                     </button>
                                                 </div>
@@ -187,7 +183,7 @@ include_once '../includes/header.php';
     <div class="modal fade" id="addFormacionModal" tabindex="-1" aria-labelledby="addFormacionModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
+                <div class="modal-header bg-success text-white">
                     <h5 class="modal-title" id="addFormacionModalLabel">
                         <i class="bi bi-mortarboard-fill me-2"></i>Registrar Formación Académica
                     </h5>
@@ -268,7 +264,7 @@ include_once '../includes/header.php';
                         <!-- Botón enviar -->
                         <div class="mt-4 d-flex justify-content-end mb-3">
                             <button type="submit" class="btn btn-success">
-                                <i class="bi bi-save me-2"></i>Registrar Formación
+                                <i class="bi bi-save me-2"></i>Guardar Formación
                             </button>
                         </div>
                     </form>
@@ -390,10 +386,10 @@ include_once '../includes/header.php';
                             const item = document.createElement('button');
                             item.type = 'button';
                             item.className = 'list-group-item list-group-item-action';
-                            item.textContent = `${f.Nombres} ${f.Apellidos} - ${f.DNI_Pasaporte}`;
+                            item.textContent = `${f.Nombre} ${f.Apellidos} - ${f.Dip_Pasaporte}`;
                             item.addEventListener('click', () => {
                                 idFuncionarioInput.value = f.ID_Funcionario;
-                                nombreFuncionarioSpan.textContent = `${f.Nombres} ${f.Apellidos} - DOCUMENTO: ${f.DNI_Pasaporte}`;
+                                nombreFuncionarioSpan.textContent = `${f.Nombre} ${f.Apellidos} - DOCUMENTO: ${f.Dip_Pasaporte}`;
                                 seleccionadoDiv.classList.remove('d-none');
                                 listaFuncionarios.innerHTML = '';
                                 searchInput.value = '';
