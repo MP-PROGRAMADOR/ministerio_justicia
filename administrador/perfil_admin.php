@@ -1,349 +1,330 @@
+<style>
+    .form-floating {
+        position: relative;
+    }
+
+    .input-group-icon-profile {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #adb5bd;
+        z-index: 5;
+        pointer-events: none;
+    }
+
+    .form-control:focus~.input-group-icon-profile {
+        color: #3b82f6;
+    }
+
+    .avatar-circle {
+        width: 100px;
+        height: 100px;
+        background-color: white;
+        color: #1e3a8a;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        font-weight: 800;
+        border: 4px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .icon-box {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+
+    /* Mejora responsiva para la línea divisoria */
+    @media (min-width: 768px) {
+        .col-md-7 {
+            border-right: 1px solid #f0f0f0;
+        }
+    }
+</style>
+
+
+
 <?php
+
 include_once '../includes/header.php';
+
+if (!isset($_SESSION['ID_Usuario'])) {
+    header('Location: login.php');
+    exit();
+}
+
+include_once '../includes/silebar_admin.php';
+
+// Configuración de visualización inicial
+$usuario_id = $_SESSION['ID_Usuario'];
+$nombre_a_mostrar = 'Usuario Desconocido';
+$correo_a_mostrar = 'N/A';
+$rol_a_mostrar = 'Invitado';
+$fecha_creacion = null;
+$ultimo_acceso = null;
+$cargo_usuario = 'Sin Cargo Asignado';
+$user_initials = 'NA';
+
+try {
+    // 1. Consultar datos del usuario y unir con la tabla 'funcionarios' por correo
+    $sql_user = "
+        SELECT 
+            u.Nombre_Usuario, 
+            u.Rol_Usuario, 
+            u.Email_Contacto, 
+            u.Fecha_Creacion, 
+            u.Ultimo_Acceso,
+            f.Id_funcionario,
+            f.Nombre AS F_Nombre,
+            f.Apellidos AS F_Apellidos
+        FROM tbl_usuarios u
+        LEFT JOIN funcionarios f ON u.Email_Contacto = f.Correo
+        WHERE u.ID_Usuario = :usuario_id
+    ";
+
+    $stmt_user = $pdo->prepare($sql_user);
+    $stmt_user->execute([':usuario_id' => $usuario_id]);
+    $datos_usuario = $stmt_user->fetch(PDO::FETCH_ASSOC);
+
+    if ($datos_usuario) {
+        // Lógica de nombre: Si existe en la tabla funcionarios, usar ese, si no, el Nombre_Usuario
+        $nombre_completo = (!empty($datos_usuario['F_Nombre']))
+            ? $datos_usuario['F_Nombre'] . ' ' . $datos_usuario['F_Apellidos']
+            : $datos_usuario['Nombre_Usuario'];
+
+        $nombre_a_mostrar = $nombre_completo;
+        $correo_a_mostrar = $datos_usuario['Email_Contacto'];
+        $rol_a_mostrar    = $datos_usuario['Rol_Usuario'];
+        $fecha_creacion   = $datos_usuario['Fecha_Creacion'];
+        $ultimo_acceso    = $datos_usuario['Ultimo_Acceso'];
+
+        // Generar Iniciales
+        $parts = explode(" ", $nombre_a_mostrar);
+        $user_initials = (count($parts) >= 2)
+            ? mb_substr($parts[0], 0, 1) . mb_substr($parts[count($parts) - 1], 0, 1)
+            : mb_substr($parts[0], 0, 2);
+        $user_initials = strtoupper($user_initials);
+
+        // 2. Consultar Cargo Actual mediante la tabla 'nombramientos'
+        if (!empty($datos_usuario['Id_funcionario'])) {
+            $sql_cargo = "
+                SELECT c.Nombre 
+                FROM nombramientos n
+                JOIN cargos c ON n.Id_cargo = c.Id_cargo
+                WHERE n.Id_funcionario = :id_func
+                ORDER BY n.Fecha_nombramiento DESC
+                LIMIT 1
+            ";
+            $stmt_cargo = $pdo->prepare($sql_cargo);
+            $stmt_cargo->execute([':id_func' => $datos_usuario['Id_funcionario']]);
+            $cargo_data = $stmt_cargo->fetch(PDO::FETCH_ASSOC);
+
+            if ($cargo_data) {
+                $cargo_usuario = $cargo_data['Nombre'];
+            }
+        }
+    }
+} catch (PDOException $e) {
+    error_log("Error en Perfil: " . $e->getMessage());
+}
 ?>
 
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<div class="container py-5">
+    <?php if (isset($_SESSION['alerta_mensaje'])): ?>
+        <div id="contenedor-alerta" class="alert alert-<?= $_SESSION['alerta_tipo']; ?> alert-dismissible fade show shadow-sm mb-4" role="alert">
+            <i id="alerta-icono" class="bi bi-info-circle me-2"></i>
+            <span id="alerta-texto"><?= htmlspecialchars($_SESSION['alerta_mensaje']); ?></span>
+        </div>
+        <?php unset($_SESSION['alerta_mensaje'], $_SESSION['alerta_tipo']); ?>
+    <?php else: ?>
+        <div id="contenedor-alerta" class="alert alert-danger alert-dismissible fade hide shadow-sm mb-4 d-none" role="alert">
+            <i id="alerta-icono" class="bi bi-exclamation-triangle me-2"></i>
+            <span id="alerta-texto"></span>
+        </div>
+    <?php endif; ?>
 
 
 
- <?php include_once '../includes/silebar_admin.php'; ?>
-
-<body>
-    <div class="container-fluid p-0">
-        <div class="row g-0">
-
-           
-
-
-            <?php
-
-            // session_start();
-
-
-            if (!isset($_SESSION['ID_Usuario'])) {
-                header('Location: login.php');
-                exit();
-            }
-
-            $usuario_id = $_SESSION['ID_Usuario'];
-            $datos_usuario = null;
-            $user_initials = 'NA';
-            $cargo_usuario = 'No Asignado';
-
-            // Variables para el HTML (inicializadas para evitar errores)
-            $nombre_a_mostrar = 'Usuario Desconocido';
-            $correo_a_mostrar = 'N/A';
-            $rol_a_mostrar = 'Invitado';
-            $fecha_creacion = null;
-            $ultimo_acceso = null;
-
-
-
-            $pdo = null; // Usaremos $pdo para la conexión
-
-            try {
-                $pdo = new PDO($dsn, $user, $pass, $options);
-            } catch (\PDOException $e) {
-                // Error fatal si la conexión falla
-                die("Error Fatal de Conexión: " . $e->getMessage());
-            }
-
-
-            try {
-                // 3.1. Consultar datos principales del usuario
-                $sql_user = "
-                    SELECT 
-                        u.Nombre_Usuario, 
-                        u.Rol_Usuario, 
-                        u.Email_Contacto, 
-                        u.Fecha_Creacion, 
-                        u.Ultimo_Acceso,
-                        f.Nombres,
-                        f.Apellidos
-                    FROM tbl_usuarios u
-                    LEFT JOIN tbl_funcionarios f ON u.Email_Contacto = f.Email_Oficial
-                    WHERE u.ID_Usuario = :usuario_id
-                ";
-
-                $stmt_user = $pdo->prepare($sql_user);
-                $stmt_user->bindParam(':usuario_id', $usuario_id, PDO::PARAM_INT);
-                $stmt_user->execute();
-                $datos_usuario = $stmt_user->fetch();
-
-                if ($datos_usuario) {
-                    // Asignación de variables de visualización
-                    $nombre_completo = $datos_usuario['Nombres'] && $datos_usuario['Apellidos']
-                        ? $datos_usuario['Nombres'] . ' ' . $datos_usuario['Apellidos']
-                        : $datos_usuario['Nombre_Usuario'];
-
-                    $nombre_a_mostrar = $nombre_completo;
-                    $correo_a_mostrar = $datos_usuario['Email_Contacto'];
-                    $rol_a_mostrar    = $datos_usuario['Rol_Usuario'];
-                    $fecha_creacion   = $datos_usuario['Fecha_Creacion'];
-                    $ultimo_acceso    = $datos_usuario['Ultimo_Acceso'];
-
-                    // 3.2. Obtener iniciales
-                    function get_initials($name)
-                    {
-                        $parts = explode(' ', trim($name));
-                        $initials = '';
-                        foreach ($parts as $part) {
-                            if (!empty($part)) {
-                                $initials .= strtoupper(substr($part, 0, 1));
-                            }
-                        }
-                        return substr($initials, 0, 2);
-                    }
-                    $user_initials = get_initials($nombre_completo);
-
-                    // 3.3. Consultar Cargo (si se encontraron nombres/apellidos)
-                    if ($datos_usuario['Nombres'] && $datos_usuario['Email_Contacto']) {
-                        $sql_cargo = "
-                            SELECT c.Nombre_Cargo
-                            FROM tbl_asignaciones a
-                            JOIN tbl_funcionarios f ON a.ID_Funcionario = f.ID_Funcionario
-                            JOIN tbl_cargos c ON a.ID_Cargo = c.ID_Cargo
-                            WHERE f.Email_Oficial = :email AND a.Fecha_Fin_Asignacion IS NULL
-                            ORDER BY a.Fecha_Inicio_Asignacion DESC
-                            LIMIT 1
-                        ";
-                        $stmt_cargo = $pdo->prepare($sql_cargo);
-                        $stmt_cargo->bindParam(':email', $datos_usuario['Email_Contacto']);
-                        $stmt_cargo->execute();
-                        $cargo_data = $stmt_cargo->fetch();
-
-                        if ($cargo_data) {
-                            $cargo_usuario = $cargo_data['Nombre_Cargo'];
-                        }
-                    }
-                } else {
-                    die("Error: Usuario con ID " . htmlspecialchars($usuario_id) . " no encontrado.");
-                }
-            } catch (PDOException $e) {
-                die("Error de base de datos en consulta: " . $e->getMessage());
-            }
-
-
-
-            ?>
-
-
-
-
-            <div class="container-fluid py-5">
-
-                <?php
-
-                // session_start();
-
-                if (isset($_SESSION['alerta_mensaje']) && isset($_SESSION['alerta_tipo'])) {
-                    $mensaje = $_SESSION['alerta_mensaje'];
-                    $tipo = $_SESSION['alerta_tipo'];
-
-                    // Limpiar las variables de sesión para que la alerta no se muestre de nuevo al recargar
-                    unset($_SESSION['alerta_mensaje']);
-                    unset($_SESSION['alerta_tipo']);
-                ?>
-                    <!-- Contenedor de la alerta de Bootstrap 5 -->
-                    <div class="container my-4">
-                        <div class="alert alert-<?php echo htmlspecialchars($tipo); ?> alert-dismissible fade show" role="alert">
-                            <i class="bi bi-info-circle-fill me-2"></i>
-                            <?php echo htmlspecialchars($mensaje); ?>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
+    <!-- Modal para ver mi perfil -->
+    <div class="row justify-content-center">
+        <div class="col-lg-9 col-xl-8">
+            <div class="card border-0 shadow-lg overflow-hidden" style="border-radius: 20px;">
+                <div class="profile-header text-center text-white py-5" style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); position: relative;">
+                    <div class="avatar-circle shadow-lg mx-auto">
+                        <?= htmlspecialchars($user_initials); ?>
                     </div>
-                <?php
-                }
-                ?>
-                <h3 class="fw-bold mb-4 text-center text-dark">
-                    <i class="bi bi-person-badge me-2 text-primary"></i> Mi Perfil de Usuario
-                </h3>
+                    <h2 class="mt-4 fw-bold mb-1"><?= htmlspecialchars($nombre_a_mostrar); ?></h2>
+                    <span class="badge rounded-pill bg-white text-primary px-3 py-2 text-uppercase" style="font-size: 0.75rem; letter-spacing: 1px;">
+                        <?= htmlspecialchars($rol_a_mostrar); ?>
+                    </span>
+                </div>
 
-                <div class="row justify-content-center ">
-                    <div class="col-lg-8 col-xl-6 ">
-                        <!-- Tarjeta Principal del Perfil -->
-                        <div class="card shadow-2xl border-0 rounded-4 overflow-hidden profile-card pt-4">
+                <div class="card-body p-4 p-md-5 bg-white">
+                    <div class="row g-4">
+                        <div class="col-md-7">
+                            <h5 class="text-dark fw-bold mb-4 border-bottom pb-2">
+                                <i class="bi bi-person-lines-fill me-2 text-primary"></i>Datos de Identidad
+                            </h5>
+                            <div class="mb-3">
+                                <label class="text-muted small d-block">Usuario del Sistema</label>
+                                <p class="fw-semibold text-dark mb-0"><?= htmlspecialchars($datos_usuario['Nombre_Usuario']); ?></p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="text-muted small d-block">Correo Electrónico</label>
+                                <p class="fw-semibold text-dark mb-0"><?= htmlspecialchars($correo_a_mostrar); ?></p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="text-muted small d-block">Cargo / Función</label>
+                                <span class="badge bg-light text-primary border border-primary-subtle px-3 py-2">
+                                    <?= htmlspecialchars($cargo_usuario); ?>
+                                </span>
+                            </div>
+                        </div>
 
-                            <!-- Encabezado con Gradiente -->
-                            <div class="card-header text-white text-center py-5 rounded-top-4 max-auto"
-                                style="background: #095fa5ff; position: relative; overflow: visible;">
-                                <div class="shadow-lg my-5"
-                                    style="width: 120px; height: 120px; border: 4px solid white; border-radius: 50%; overflow: hidden; 
-                                        position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10;">
-
-                                    <span class="initials"
-                                        style="display: block; width: 100%; height: 100%; border-radius: 50%; 
-                                        background-color: #0875ceff; color: white; 
-                                        font-size: 3.5rem; font-weight: 800; line-height: 118px; text-align: center;">
-                                        <?php echo htmlspecialchars($user_initials ?? 'NA'); ?>
-                                    </span>
+                        <div class="col-md-5 bg-light rounded-4 p-4">
+                            <h5 class="text-dark fw-bold mb-4">Actividad</h5>
+                            <div class="mb-4">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="icon-box bg-primary-subtle text-primary me-3">
+                                        <i class="bi bi-calendar-event"></i>
+                                    </div>
+                                    <div>
+                                        <small class="text-muted d-block">Registro</small>
+                                        <span class="fw-bold small"><?= $fecha_creacion ? date('d/m/Y', strtotime($fecha_creacion)) : 'N/A'; ?></span>
+                                    </div>
                                 </div>
-
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-box bg-success-subtle text-success me-3">
+                                        <i class="bi bi-shield-check"></i>
+                                    </div>
+                                    <div>
+                                        <small class="text-muted d-block">Último Acceso</small>
+                                        <span class="fw-bold small"><?= $ultimo_acceso ? date('d/m/Y H:i', strtotime($ultimo_acceso)) : 'Primera vez'; ?></span>
+                                    </div>
+                                </div>
                             </div>
 
+                            <hr>
 
-                            <!-- Cuerpo de la Tarjeta -->
-                            <div class="card-body p-4 pt-5 bg-light-subtle">
-
-                                <h5 class="mb-3 text-dark fw-bold border-bottom pb-2 text-primary">
-                                    <i class="bi bi-info-circle-fill me-2 fw-"></i> Detalles de la Cuenta
-                                </h5>
-                                <div class="row g-3 small">
-                                    <!-- ID del Sistema-->
-                                    <div class="col-md-6 border-bottom pb-2">
-                                        <i class="bi bi-fingerprint me-2 fw-"></i>ID del Sistema: </br>
-                                        <span class="text-secondary fw-bold"><?php echo htmlspecialchars($usuario_id ?? 'N/A'); ?></span>
-
-                                    </div>
-                                    <!-- Nombre de Usuario-->
-                                    <div class="col-md-6 border-bottom pb-2">
-                                        <i class="bi bi-person-circle me-2 fw-"></i>Nombre de Usuario: </br>
-                                        <span class="text-primary fw-bold"> <?php echo htmlspecialchars($nombre_a_mostrar ?? 'Nombre de Usuario'); ?></span>
-
-
-                                    </div>
-                                    <!-- Correo Electrónico -->
-                                    <div class="col-md-6 border-bottom pb-2 fw-">
-                                        <i class="bi bi-envelope-fill me-2 fw-"></i>Correo Electrónico: </br>
-
-                                        <span class="text-secondary"><?php echo htmlspecialchars($correo_a_mostrar ?? 'correo@ejemplo.com'); ?></span>
-                                    </div>
-                                    <!-- Rol en el Sistema -->
-                                    <div class="col-md-6 border-bottom pb-2 fw-">
-                                        <i class="bi bi bi-person-badge-fill me-2 fw-"></i>Rol en el Sistema: </br>
-                                        <span class="badge  text-primary fs-6 p-2"><?php echo htmlspecialchars($rol_a_mostrar ?? 'Usuario'); ?></span>
-                                    </div>
-                                    <!-- Fecha de Creación -->
-                                    <div class="col-md-6">
-                                        <i class="bi bi-calendar-check-fill me-2 fw-"></i>Fecha de Creación: </br>
-
-                                        <span class="text-secondary"><?php echo ($fecha_creacion ? date('d/m/Y', strtotime($fecha_creacion)) : 'N/A'); ?></span>
-                                    </div>
-                                    <!-- Último Acceso -->
-                                    <div class="col-md-6">
-                                        <i class="bi bi bi-clock-fill me-2"></i>Último Acceso: </br>
-                                        <span class="fw-semibold text-muted d-block"></span>
-                                        <span class="text-secondary"><?php echo ($ultimo_acceso ? date('d/m/Y H:i A', strtotime($ultimo_acceso)) : 'Nunca'); ?></span>
-                                    </div>
-                                </div>
-
-                                <h5 class="mt-5 mb-3 text-dark fw-bold border-bottom pb-2 text-primary">
-                                    <i class="bi bi-shield-lock-fill me-2"></i> Acciones de Seguridad
-                                </h5>
-
-                                <div class="d-flex flex-column gap-3">
-                                    <button class="btn btn-primary rounded-pill  action-button" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
-                                        <i class="bi bi-key me-2"></i> Cambiar Contraseña
-                                    </button>
-                                </div>
-
-                            </div>
+                            <button class="btn btn-primary w-100 rounded-pill shadow-sm" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+                                <i class="bi bi-key-fill me-2"></i> Cambiar Contraseña
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
 
 
 
-
-            <!-- Modal de Cambio de Contraseña -->
-            <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content rounded-4">
-                        <div class="modal-header bg-primary text-white rounded-top-4">
-                            <h5 class="modal-title" id="changePasswordModalLabel"><i class="bi bi-shield-lock me-2"></i> Cambiar Contraseña</h5>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                        </div>
-                        <form action="../api/cambiar_password.php" method="POST" id="changePasswordForm">
-                            <div class="modal-body p-4">
-                                <form id="changePasswordForm" action="api/update_password.php" method="POST">
-
-                                    <div class="mb-3">
-                                        <label for="currentPassword" class="form-label fw-bold">Contraseña Actual</label>
-                                        <div class="input-group">
-                                            <input type="password" class="form-control" id="currentPassword" name="currentPassword" required autocomplete="off">
-                                            <button class="btn btn-outline-secondary" type="button" id="toggleCurrentPassword" title="Mostrar/Ocultar Contraseña">
-                                                <i class="bi bi-eye-slash" id="eyeIconCurrent"></i>
-                                            </button>
-                                        </div>
-                                        <div class="invalid-feedback">
-                                            La contraseña actual es incorrecta.
-                                        </div>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="newPassword" class="form-label fw-bold">Nueva Contraseña</label>
-                                        <div class="input-group">
-                                            <input type="password" class="form-control" id="newPassword" name="newPassword" required autocomplete="off">
-                                            <button class="btn btn-outline-secondary" type="button" id="toggleNewPassword" title="Mostrar/Ocultar Contraseña">
-                                                <i class="bi bi-eye-slash" id="eyeIconNew"></i>
-                                            </button>
-                                        </div>
-
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="confirmPassword" class="form-label fw-bold">Confirmar Nueva Contraseña</label>
-                                        <div class="input-group">
-                                            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required autocomplete="off">
-                                            <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword" title="Mostrar/Ocultar Contraseña">
-                                                <i class="bi bi-eye-slash" id="eyeIconConfirm"></i>
-                                            </button>
-                                        </div>
-                                        <div class="invalid-feedback">
-                                            Las contraseñas no coinciden.
-                                        </div>
-                                    </div>
-
-
-                                </form>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="submit" class="btn btn-primary"> <i class="bi bi-check-circle me-1"></i> Guardar Cambios</button>
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="bi bi-x-circle me-2"></i>Cancelar</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+<!-- Modal para cambiar de contraseña -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+            <div class="modal-header border-0 pt-4 px-4">
+                <h5 class="modal-title fw-bold text-dark" id="changePasswordModalLabel">
+                    <i class="bi bi-shield-lock text-primary me-2"></i>Seguridad de la Cuenta
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
+            <div class="modal-body p-4">
+                <p class="text-muted small mb-4">Para proteger tu cuenta, asegúrate de que tu nueva contraseña sea robusta (mínimo 8 caracteres).</p>
+
+                <form id="formCambiarPass" action="../api/cambiar_password.php" method="POST">
+
+                    <div class="form-floating mb-3">
+                        <input type="password" class="form-control" id="currentPassword" name="currentPassword" placeholder="Contraseña Actual" required>
+                        <label for="currentPassword">Contraseña Actual</label>
+                        <i class="bi bi-lock input-group-icon-profile"></i>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input type="password" class="form-control" id="newPassword" name="newPassword" placeholder="Nueva Contraseña" required minlength="8">
+                        <label for="newPassword">Nueva Contraseña</label>
+                        <i class="bi bi-key input-group-icon-profile"></i>
+                    </div>
+
+                    <div class="form-floating mb-4">
+                        <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" placeholder="Confirmar Contraseña" required>
+                        <label for="confirmPassword">Confirmar Nueva Contraseña</label>
+                        <i class="bi bi-check2-all input-group-icon-profile"></i>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill shadow-sm fw-bold">
+                        <span class="spinner-border spinner-border-sm d-none" id="pass-spinner" role="status"></span>
+                        <span id="btn-text">Actualizar Contraseña</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 
-            <script>
-                function togglePasswordVisibility(inputId, iconId) {
-                    const passwordInput = document.getElementById(inputId);
-                    const eyeIcon = document.getElementById(iconId);
-
-                    // Verifica el tipo actual y lo cambia
-                    if (passwordInput.getAttribute('type') === 'password') {
-                        passwordInput.setAttribute('type', 'text');
-                        // Cambia el icono de ojo cerrado (slash) a ojo abierto
-                        eyeIcon.classList.remove('bi-eye-slash');
-                        eyeIcon.classList.add('bi-eye');
-                    } else {
-                        passwordInput.setAttribute('type', 'password');
-                        // Cambia el icono de ojo abierto a ojo cerrado (slash)
-                        eyeIcon.classList.remove('bi-eye');
-                        eyeIcon.classList.add('bi-eye-slash');
-                    }
+<!--Script para cambiar de contraseña y autocierre del modal de alerta-->
+<script>
+    function configurarAutoCierre() {
+        const alerta = document.getElementById('contenedor-alerta');
+        if (alerta && !alerta.classList.contains('d-none')) {
+            setTimeout(() => {
+                if (typeof bootstrap !== 'undefined' && bootstrap.Alert) {
+                    const bsAlert = new bootstrap.Alert(alerta);
+                    bsAlert.close();
                 }
+            }, 4000);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", configurarAutoCierre);
+
+    document.getElementById('formCambiarPass').addEventListener('submit', function(e) {
+        const newPass = document.getElementById('newPassword').value;
+        const confirmPass = document.getElementById('confirmPassword').value;
+
+        if (newPass !== confirmPass) {
+            e.preventDefault();
+
+            // 1. Localizamos el div de error que ya existe
+            const contenedor = document.getElementById('contenedor-alerta');
+            const texto = document.getElementById('alerta-texto');
+            const icono = document.getElementById('alerta-icono');
+
+            // 2. Cambiamos su contenido y estilo sin crear nuevos elementos
+            texto.textContent = "La nueva contraseña y la confirmación no coinciden.";
+            contenedor.className = "alert alert-danger alert-dismissible fade show shadow-sm mb-4"; // Quitamos d-none y hide
+            contenedor.classList.remove('d-none');
+            icono.className = "bi bi-exclamation-triangle me-2";
+
+            // 3. Cerramos el modal
+            const modalInstance = bootstrap.Modal.getInstance(document.getElementById('changePasswordModal'));
+            if (modalInstance) modalInstance.hide();
+
+            // 4. Activamos el autocierre para este error
+            configurarAutoCierre();
+            return;
+        }
+
+        // Si todo está bien, mostramos el spinner
+        this.querySelector('button[type="submit"]').disabled = true;
+        document.getElementById('pass-spinner').classList.remove('d-none');
+        document.getElementById('btn-text').textContent = ' Procesando...';
+    });
+</script>
 
 
-                // 1. Contraseña Actual
-                document.getElementById('toggleCurrentPassword').addEventListener('click', function() {
-                    togglePasswordVisibility('currentPassword', 'eyeIconCurrent');
-                });
 
-                // 2. Nueva Contraseña
-                document.getElementById('toggleNewPassword').addEventListener('click', function() {
-                    togglePasswordVisibility('newPassword', 'eyeIconNew');
-                });
+<?php
 
-                // 3. Confirmar Nueva Contraseña
-                document.getElementById('toggleConfirmPassword').addEventListener('click', function() {
-                    togglePasswordVisibility('confirmPassword', 'eyeIconConfirm');
-                });
-            </script>
-<?php include_once '../includes/footer.php'; ?>
+include_once '../includes/footer.php';
+?>
