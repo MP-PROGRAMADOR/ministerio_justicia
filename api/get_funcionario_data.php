@@ -13,14 +13,18 @@ try {
 
     /* ================= 1. DATOS DEL FUNCIONARIO ================= */
     $stmt = $pdo->prepare("
-        SELECT 
-            f.*,
-            s.nombre AS nombre_seccion,
-            c.nombre AS nombre_categoria
-        FROM funcionarios f
-        LEFT JOIN secciones s ON f.Id_seccion = s.Id_seccion
-        LEFT JOIN categorias c ON f.Id_categoria = c.Id_categoria
-        WHERE f.Id_funcionario = ?
+      SELECT 
+    f.*, 
+    s.nombre AS Nombre_Seccion, 
+    d.nombre AS Nombre_Direccion, 
+    d.provincia AS Provincia_Direccion, 
+    d.distrito AS Distrito_Direccion,
+    c.nombre AS Nombre_Categoria
+FROM funcionarios f
+LEFT JOIN secciones s ON f.Id_seccion = s.Id_seccion
+LEFT JOIN direcciones d ON s.Id_direccion = d.Id_direccion
+LEFT JOIN categorias c ON f.Id_categoria = c.Id_categoria
+WHERE f.Id_funcionario = ?;
     ");
     $stmt->execute([$id]);
     $funcionario = $stmt->fetch(PDO::FETCH_ASSOC);
