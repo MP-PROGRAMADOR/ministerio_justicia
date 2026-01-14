@@ -2,7 +2,7 @@
 session_start();
 
 // 1. VERIFICACIÓN DE SESIÓN (CORREGIDO: Usar ID_Funcionario de la sesión de login)
-if (!isset($_SESSION['ID_Funcionario'])) { 
+if (!isset($_SESSION['ID_Usuario'])) { 
     $_SESSION['error'] = "Sesión expirada. Vuelve a iniciar sesión.";
     // Redirige al login principal
     header("Location: ../index.php"); 
@@ -15,7 +15,7 @@ try {
     $pdo = new PDO($dsn, $user, $pass, $options);
 
     // ID del Funcionario que solicita el permiso (tomado de la variable correcta de la sesión)
-    $ID_Funcionario = $_SESSION['ID_Funcionario']; 
+    $ID_Funcionario = $_SESSION['ID_Usuario']; 
 
     // 2. RECUPERACIÓN DE DATOS DEL FORMULARIO
     $Tipo_Permiso = $_POST['Tipo_Permiso'] ?? null;
