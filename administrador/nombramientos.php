@@ -44,7 +44,7 @@ try {
                         <div id="mensajeFlash" class="alert alert-danger alert-dismissible fade show" role="alert">
                             <?= htmlspecialchars($_SESSION['error']);
                             unset($_SESSION['error']); ?>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                           
                         </div>
                     <?php endif; ?>
 
@@ -52,7 +52,7 @@ try {
                         <div id="mensajeFlash" class="alert alert-success alert-dismissible fade show" role="alert">
                             <?= htmlspecialchars($_SESSION['exito']);
                             unset($_SESSION['exito']); ?>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            
                         </div>
                     <?php endif; ?>
                 </div>
@@ -233,8 +233,10 @@ try {
                         </div>
                     </div>
                     <div class="modal-footer bg-light border-0">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" id="btnSubmit" class="btn btn-success px-4">Guardar Registro</button>
+                        <button type="submit" id="btnSubmit" class="btn btn-success px-4">
+                            <i class="bi bi-save me-2"></i>
+                            <span id="btnSubmitText">Registrar Nombramiento</span>
+                        </button>
                     </div>
                 </form>
             </div>
@@ -242,16 +244,25 @@ try {
     </div>
 
     <script>
-        // Lógica para modo edición
+        // Lógica para modo EDICIÓN
         document.querySelectorAll('.btn-edit').forEach(btn => {
             btn.addEventListener('click', function() {
                 const modal = new bootstrap.Modal(document.getElementById('addNombramientoModal'));
-                document.getElementById('modalTitle').innerHTML = '<i class="bi bi-pencil-square me-2"></i>Editar Nombramiento';
-                document.getElementById('modalHeader').classList.replace('bg-success', 'bg-warning');
-                document.getElementById('modalHeader').classList.add('text-dark');
-                document.getElementById('btnSubmit').classList.replace('btn-success', 'btn-warning');
+
+                // 1. Encabezado: Color de fondo amarillo y texto negro
+                const header = document.getElementById('modalHeader');
+                header.innerHTML = '<h5 class="modal-title" id="modalTitle"><i class="bi bi-pencil-square me-2"></i>Editar Nombramiento</h5><button type="button" class="btn-close text-reset" data-bs-dismiss="modal"></button>';
+                header.className = 'modal-header bg-warning text-dark'; // Cambiado a text-dark
+
+                // 2. Botón: Nombre "Actualizar Nombramiento" y color amarillo
+                const btnSubmit = document.getElementById('btnSubmit');
+                btnSubmit.className = 'btn btn-warning px-4 text-dark';
+                document.getElementById('btnSubmitText').textContent = 'Actualizar Cambios';
+
+                // 3. Configuración del formulario
                 document.getElementById('nombramientoForm').action = "../api/guardar_nombramiento.php?accion=actualizar";
 
+                // Carga de datos (Dataset)
                 document.getElementById('form_id').value = this.dataset.id;
                 document.getElementById('form_func').value = this.dataset.id_func;
                 document.getElementById('form_cargo').value = this.dataset.id_cargo;
@@ -260,15 +271,25 @@ try {
                 document.getElementById('form_dir').value = this.dataset.id_dir;
                 document.getElementById('form_sec').value = this.dataset.id_sec;
                 document.getElementById('form_cat').value = this.dataset.id_cat;
+
                 modal.show();
             });
         });
 
-        // Limpiar modal al cerrar
+        // Resetear al modo CREAR al cerrar el modal
         document.getElementById('addNombramientoModal').addEventListener('hidden.bs.modal', function() {
-            document.getElementById('modalTitle').innerHTML = '<i class="bi bi-file-earmark-plus me-2"></i>Registrar Nombramiento';
-            document.getElementById('modalHeader').className = 'modal-header bg-success text-white';
-            document.getElementById('btnSubmit').className = 'btn btn-success px-4';
+            const header = document.getElementById('modalHeader');
+
+            // 1. Restaurar Encabezado (Verde y texto blanco)
+            header.innerHTML = '<h5 class="modal-title" id="modalTitle"><i class="bi bi-file-earmark-plus me-2"></i>Registrar Nombramiento</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>';
+            header.className = 'modal-header bg-success text-white';
+
+            // 2. Restaurar Botón (Verde y nombre original)
+            const btnSubmit = document.getElementById('btnSubmit');
+            btnSubmit.className = 'btn btn-success px-4';
+            document.getElementById('btnSubmitText').textContent = 'Registrar Nombramiento';
+
+            // 3. Restaurar Formulario
             document.getElementById('nombramientoForm').action = "../api/guardar_nombramiento.php?accion=crear";
             document.getElementById('nombramientoForm').reset();
             document.getElementById('form_id').value = "";
@@ -288,7 +309,7 @@ try {
                 const bsAlert = new bootstrap.Alert(alerta);
                 bsAlert.close();
             });
-        }, 3000);
+        }, 4000);
     </script>
 </body>
 

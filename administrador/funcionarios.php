@@ -42,19 +42,6 @@ include_once '../includes/header.php';
 
 
 
-                <?php
-
-                if (isset($_SESSION['error'])) {
-                    echo "<div id='mensajeFlash' class='alert alert-danger'>" . htmlspecialchars($_SESSION['error']) . "</div>";
-                    unset($_SESSION['error']);
-                }
-                if (isset($_SESSION['exito'])) {
-                    echo "<div id='mensajeFlash' class='alert alert-success'>" . htmlspecialchars($_SESSION['exito']) . "</div>";
-                    unset($_SESSION['exito']);
-                }
-                ?>
-
-
 
 
 
@@ -62,6 +49,19 @@ include_once '../includes/header.php';
 
 
                 <div class="container-fluid px-4">
+                    <div id="mensajeFlashContenedor">
+                        <?php
+                        if (isset($_SESSION['error'])) {
+                            echo "<div id='mensajeFlash' class='alert alert-danger alert-dismissible fade show'>" . htmlspecialchars($_SESSION['error']);
+                            unset($_SESSION['error']);
+                        }
+                        if (isset($_SESSION['exito'])) {
+                            echo "<div id='mensajeFlash' class='alert alert-success alert-dismissible fade show'>" . htmlspecialchars($_SESSION['exito']);
+                            unset($_SESSION['exito']);
+                        }
+                        ?>
+                    </div>
+
                     <div class="table-custom mb-4 p-4">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h5 class="mb-0 fw-semibold">Listado de Funcionarios</h5>
@@ -80,51 +80,16 @@ include_once '../includes/header.php';
                             // Consulta para obtener datos de funcionarios con sección y categoría
                             $sql = "SELECT 
                                 f.Id_funcionario,
-                                f.CODIGO,
-
-                                f.Nombre,
-                                f.Apellidos,
-                                f.Estado_Laboral,
-                                f.Dip_Pasaporte,
-                                f.Sexo,
-                                f.Fecha_nacimiento,
-                                f.Lugar_nacimiento,
-                                f.Nacionalidad,
-                                f.Telefono,
-                                f.Correo,
-                                f.Domicilio,
-                                f.Num_carnet_fun,
-
-                                f.Fecha_nombramiento,
-                                f.Fecha_posesion,
-
-                                f.Id_seccion,
-                                s.nombre AS nombre_seccion,
-
-                                f.Funcion,
-                                f.Id_categoria,
-                                c.nombre AS nombre_categoria,
-
-                                f.Profesion,
-                                f.Maximo_nivel_estudios,
-                                f.Titulacion_academica,
-                                f.Universidad_centro_formacion,
-                                f.Fecha_graduacion,
-
-                                f.Foto,
-                                f.Dip_pass_copia,
-                                f.Copia_doc_nomb,
-                                f.Copia_carnet_func,
-                                f.Copia_doc_tom_posesion,
-                                f.Copia_doc_academicos,
-
-                                f.Usuario_creador,
-                                f.Fecha_registro
-
-                            FROM funcionarios f
-                            LEFT JOIN secciones s ON f.Id_seccion = s.Id_seccion
-                            LEFT JOIN categorias c ON f.Id_categoria = c.Id_categoria
-                            ORDER BY f.Id_funcionario ASC
+                                f.CODIGO, f.Nombre, f.Apellidos, f.Estado_Laboral, f.Dip_Pasaporte, f.Sexo, f.Fecha_nacimiento,
+                                f.Lugar_nacimiento, f.Nacionalidad, f.Telefono, f.Correo, f.Domicilio, f.Num_carnet_fun,
+                                f.Fecha_nombramiento, f.Fecha_posesion, f.Id_seccion, s.nombre AS nombre_seccion,
+                                f.Funcion, f.Id_categoria, c.nombre AS nombre_categoria,
+                                f.Profesion,f.Maximo_nivel_estudios,f.Titulacion_academica,f.Universidad_centro_formacion,f.Fecha_graduacion,
+                                f.Foto,f.Dip_pass_copia,f.Copia_doc_nomb,f.Copia_carnet_func,f.Copia_doc_tom_posesion,f.Copia_doc_academicos,
+                                f.Usuario_creador, f.Fecha_registro FROM funcionarios f
+                                LEFT JOIN secciones s ON f.Id_seccion = s.Id_seccion
+                                LEFT JOIN categorias c ON f.Id_categoria = c.Id_categoria
+                                ORDER BY f.Id_funcionario ASC
                             ";
 
                             $stmt = $pdo->query($sql);
@@ -269,7 +234,9 @@ include_once '../includes/header.php';
                                                         class="btn btn-sm btn-info shadow-sm"
                                                         data-bs-toggle="modal"
                                                         data-bs-target="#employeeDetailModal"
-                                                        data-funcionario-id="<?= $f['Id_funcionario'] ?>">
+                                                        data-funcionario-id="<?= $f['Id_funcionario'] ?>"
+                                                        title="Ver detalles">
+
                                                         <i class="bi bi-person-fill"></i>
                                                     </button>
 
@@ -326,12 +293,11 @@ include_once '../includes/header.php';
 
 
 
-
-
+    <!-- Modal de Registar Funcionario -->
     <div class="modal fade" id="addFuncionarioModal" tabindex="-1" aria-labelledby="addFuncionarioModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-scrollable">
             <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
+                <div class="modal-header bg-success text-white">
                     <h5 class="modal-title" id="addFuncionarioModalLabel">
                         <i class="bi bi-person-plus-fill me-2"></i>Registrar Nuevo Funcionario
                     </h5>
@@ -341,7 +307,7 @@ include_once '../includes/header.php';
                 <div class="modal-body">
                     <form method="POST" action="../api/guardar_funcionario.php" enctype="multipart/form-data" id="formFuncionario">
 
-                        <ul class="nav nav-pills nav-fill mb-4" id="funcionarioTab" role="tablist">
+                        <ul class="nav nav-pills nav-fill mb-4 mt-3" id="funcionarioTab" role="tablist">
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link active" id="personales-tab" data-bs-toggle="pill" data-bs-target="#personales" type="button" role="tab" aria-controls="personales" aria-selected="true">
                                     <i class="bi bi-info-circle me-1"></i> Datos Personales
@@ -569,12 +535,10 @@ include_once '../includes/header.php';
                             </div>
                         </div>
 
-                        <div class="d-flex justify-content-end gap-3 mt-4">
-                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                                <i class="bi bi-x-circle me-1"></i> Cancelar
-                            </button>
+                        <div class="d-flex justify-content-end gap-3 mt-4 mb-3">
+
                             <button type="submit" class="btn btn-success">
-                                <i class="bi bi-person-plus-fill me-1"></i> Registrar Funcionario
+                                <i class="bi bi-save me-2"></i> Registrar Funcionario
                             </button>
                         </div>
 
@@ -637,7 +601,7 @@ include_once '../includes/header.php';
                         </div>
                     </div>
 
-                    
+
 
                     <!-- Footer con botones de descarga -->
                     <div class="modal-footer border-top justify-content-between flex-column flex-md-row">
@@ -718,91 +682,124 @@ include_once '../includes/header.php';
                     return edad;
                 };
 
+                const coloresEstado = {
+                    'Activo': 'bg-success',
+                    'Permiso': 'bg-info',
+                    'Vacaciones': 'bg-primary',
+                    'Cesado': 'bg-danger',
+                    'Baja Temporal': 'bg-warning text-dark', // Añadimos text-dark para mejor legibilidad en amarillo
+                    'Jubilado': 'bg-dark'
+                };
+
+                // 2. Obtener el color (usamos 'bg-secondary' como color por defecto si no coincide ninguno)
+                const colorBadge = coloresEstado[funcionario.Estado_Laboral] || 'bg-secondary';
+
                 modalContentData.innerHTML = `
-        <div class="col-12 mb-4">
-            <div class="d-flex align-items-center bg-light p-3 rounded-4 shadow-sm">
-                <img src="${funcionario.Foto || 'https://placehold.co/150x150?text=Perfil'}" 
-                     class="rounded-circle border border-3 border-primary me-4" style="width:100px; height:100px; object-fit:cover;">
-                <div>
-                    <h2 class="fw-bold mb-0">${funcionario.Nombre} ${funcionario.Apellidos}</h2>
-                    <span class="badge bg-primary text-uppercase">${funcionario.Estado_Laboral}</span>
-                    <p class="text-muted mb-0"><i class="bi bi-tag-fill me-2"></i>Código: ${funcionario.CODIGO}</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-6">
-            <div class="card h-100 border-0 shadow-sm p-4">
-                <h6 class="text-primary fw-bold border-bottom pb-2 mb-3"><i class="bi bi-person-fill me-2"></i>1. Información Personal</h6>
-                <div class="row small g-2">
-                    <div class="col-6 text-muted">Nombre Completo:</div><div class="col-6 fw-bold">${funcionario.Nombre} ${funcionario.Apellidos}</div>
-                    <div class="col-6 text-muted">DIP/Pasaporte:</div><div class="col-6 fw-bold">${funcionario.Dip_Pasaporte}</div>
-                    <div class="col-6 text-muted">Edad:</div><div class="col-6 fw-bold">${calcularEdad(funcionario.Fecha_nacimiento)} años</div>
-                    <div class="col-6 text-muted">Fecha de Nacimiento:</div><div class="col-6 fw-bold">${formatDate(funcionario.Fecha_nacimiento)}</div>
-                    <div class="col-6 text-muted">Lugar de Nacimiento:</div><div class="col-6 fw-bold">${funcionario.Lugar_nacimiento || 'N/A'}</div>
-                    <div class="col-6 text-muted">Natural de:</div><div class="col-6 fw-bold">${funcionario.Nacionalidad} (Prov: ${funcionario.Nacionalidad})</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-6">
-            <div class="card h-100 border-0 shadow-sm p-4">
-                <h6 class="text-primary fw-bold border-bottom pb-2 mb-3"><i class="bi bi-telephone-fill me-2"></i>2. Información de Contacto</h6>
-                <div class="row small g-2">
-                    <div class="col-6 text-muted">Teléfono:</div><div class="col-6 fw-bold">${funcionario.Telefono || 'N/A'}</div>
-                    <div class="col-6 text-muted">Correo:</div><div class="col-6 fw-bold">${funcionario.Correo || 'N/A'}</div>
-                    <div class="col-6 text-muted">Ubicación / Barrio:</div><div class="col-6 fw-bold">${funcionario.Domicilio || 'N/A'}</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-12">
-            <div class="card border-0 shadow-sm p-4 mt-2">
-                <h6 class="text-primary fw-bold border-bottom pb-2 mb-3"><i class="bi bi-briefcase-fill me-2"></i>3. Información de Funcionario</h6>
-                <div class="row small">
-                    <div class="col-md-6 border-end">
-                        <p class="mb-1"><strong>Función (Cargo):</strong> ${funcionario.Funcion || 'N/A'}</p>
-                        <p class="mb-1"><strong>Sección:</strong> ${funcionario.Nombre_Seccion || 'N/A'}</p>
-                        <p class="mb-1"><strong>Dirección:</strong> ${funcionario.Nombre_Direccion || 'N/A'}</p>
-                    </div>
-                    <div class="col-md-6 ps-md-4">
-                        <p class="mb-1"><strong>Ubicación Actual:</strong> ${funcionario.Provincia_Direccion || 'N/A'}, ${funcionario.Distrito_Direccion || 'N/A'}</p>
-                        <p class="mb-1"><strong>Fecha Nombramiento:</strong> ${formatDate(funcionario.Fecha_nombramiento)}</p>
-                        <p class="mb-1"><strong>Fecha Toma Posesión:</strong> ${formatDate(funcionario.Fecha_posesion)}</p>
+                <div class="col-12 mb-4">
+                    <div class="d-flex align-items-center bg-light p-3 rounded-4 shadow-sm">
+                        <img src="${funcionario.Foto || 'https://placehold.co/150x150?text=Perfil'}" 
+                            class="rounded-circle border border-3 border-primary me-4" style="width:100px; height:100px; object-fit:cover;">
+                        <div>
+                            <h2 class="fw-bold mb-0">${funcionario.Nombre} ${funcionario.Apellidos}</h2>
+                            
+                          <span class="badge ${colorBadge} text-uppercase">${funcionario.Estado_Laboral}</span>
+                            <p class="text-muted mb-0"><i class="bi bi-tag-fill me-2"></i>Código: ${funcionario.CODIGO}</p>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <div class="col-md-6">
-            <div class="card h-100 border-0 shadow-sm p-4 mt-2">
-                <h6 class="text-primary fw-bold border-bottom pb-2 mb-3"><i class="bi bi-mortarboard-fill me-2"></i>4. Información de Estudio</h6>
-                <p class="small mb-1"><strong>Profesión:</strong> ${funcionario.Profesion}</p>
-                <p class="small mb-1"><strong>Nivel Máximo:</strong> ${funcionario.Maximo_nivel_estudios}</p>
-                <hr class="my-2">
-                <label class="small fw-bold text-muted">Títulos Académicos:</label>
-                <ul class="list-unstyled small">
-                    ${formacion_academica.map(f => `<li><i class="bi bi-check-circle text-success me-2"></i>${f.Titulo_Obtenido} (${f.Nivel_Educativo})</li>`).join('') || '<li>No registrado</li>'}
-                </ul>
-                <label class="small fw-bold text-muted">Otras Formaciones:</label>
-                <ul class="list-unstyled small">
-                    ${capacitaciones.map(c => `<li><i class="bi bi-patch-check text-info me-2"></i>${c.Nombre_Curso}</li>`).join('') || '<li>No registrado</li>'}
-                </ul>
-            </div>
-        </div>
-
-        <div class="col-md-6">
-            <div class="card h-100 border-0 shadow-sm p-4 mt-2 bg-light">
-                <h6 class="text-danger fw-bold border-bottom pb-2 mb-3"><i class="bi bi-clock-history me-2"></i>5. Historial y Acciones</h6>
-                <div class="timeline-small">
-                    <p class="small fw-bold mb-1 text-muted">Cargos Anteriores:</p>
-                    ${historial_cargos ? historial_cargos.map(h => `<div class="small mb-1 border-start border-danger ps-2">${h.Nombre_Cargo} (${formatDate(h.Fecha_nombramiento)})</div>`).join('') : '<p class="small text-muted">Sin historial de cargos</p>'}
-                    
-                    <p class="small fw-bold mb-1 mt-3 text-muted">Permisos y Eventos:</p>
-                    ${permisos.map(p => `<div class="small mb-1 border-start border-warning ps-2 text-truncate">${p.Tipo_Permiso}: ${p.Estado_Permiso} (${formatDate(p.Fecha_Inicio_Permiso)})</div>`).join('') || '<p class="small text-muted">Sin eventos registrados</p>'}
+                <div class="col-md-6">
+                    <div class="card h-100 border-0 shadow-sm p-4">
+                        <h6 class="text-primary fw-bold border-bottom pb-2 mb-3"><i class="bi bi-person-fill me-2"></i>1. Información Personal</h6>
+                        <div class="row small g-2">
+                            <div class="col-6 text-muted">Nombre Completo:</div><div class="col-6 fw-bold">${funcionario.Nombre} ${funcionario.Apellidos}</div>
+                            <div class="col-6 text-muted">DIP/Pasaporte:</div><div class="col-6 fw-bold">${funcionario.Dip_Pasaporte}</div>
+                            <div class="col-6 text-muted">Edad:</div><div class="col-6 fw-bold">${calcularEdad(funcionario.Fecha_nacimiento)} años</div>
+                            <div class="col-6 text-muted">Fecha de Nacimiento:</div><div class="col-6 fw-bold">${formatDate(funcionario.Fecha_nacimiento)}</div>
+                            <div class="col-6 text-muted">Lugar de Nacimiento:</div><div class="col-6 fw-bold">${funcionario.Lugar_nacimiento || 'N/A'}</div>
+                            <div class="col-6 text-muted">Natural de:</div><div class="col-6 fw-bold">${funcionario.Nacionalidad} (Prov: ${funcionario.Nacionalidad})</div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>`;
+
+                <div class="col-md-6">
+                    <div class="card h-100 border-0 shadow-sm p-4">
+                        <h6 class="text-primary fw-bold border-bottom pb-2 mb-3"><i class="bi bi-telephone-fill me-2"></i>2. Información de Contacto</h6>
+                        <div class="row small g-2">
+                            <div class="col-6 text-muted">Teléfono:</div><div class="col-6 fw-bold">${funcionario.Telefono || 'N/A'}</div>
+                            <div class="col-6 text-muted">Correo:</div><div class="col-6 fw-bold">${funcionario.Correo || 'N/A'}</div>
+                            <div class="col-6 text-muted">Ubicación / Barrio:</div><div class="col-6 fw-bold">${funcionario.Domicilio || 'N/A'}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="card border-0 shadow-sm p-4 mt-2">
+                        <h6 class="text-primary fw-bold border-bottom pb-2 mb-3"><i class="bi bi-briefcase-fill me-2"></i>3. Información de Funcionario</h6>
+                        <div class="row small">
+                            <div class="col-md-6 border-end">
+                                <p class="mb-1"><strong>Función (Cargo):</strong> ${funcionario.Funcion || 'N/A'}</p>
+                                <p class="mb-1"><strong>Sección:</strong> ${funcionario.Nombre_Seccion || 'N/A'}</p>
+                                <p class="mb-1"><strong>Dirección:</strong> ${funcionario.Nombre_Direccion || 'N/A'}</p>
+                            </div>
+                            <div class="col-md-6 ps-md-4">
+                                <p class="mb-1"><strong>Ubicación Actual:</strong> ${funcionario.Provincia_Direccion || 'N/A'}, ${funcionario.Distrito_Direccion || 'N/A'}</p>
+                                <p class="mb-1"><strong>Fecha Nombramiento:</strong> ${formatDate(funcionario.Fecha_nombramiento)}</p>
+                                <p class="mb-1"><strong>Fecha Toma Posesión:</strong> ${formatDate(funcionario.Fecha_posesion)}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card h-100 border-0 shadow-sm p-4 mt-2">
+                        <h6 class="text-primary fw-bold border-bottom pb-2 mb-3"><i class="bi bi-mortarboard-fill me-2"></i>4. Información de Estudio</h6>
+                        <p class="small mb-1"><strong>Profesión:</strong> ${funcionario.Profesion}</p>
+                        <p class="small mb-1"><strong>Nivel Máximo:</strong> ${funcionario.Maximo_nivel_estudios}</p>
+                        <hr class="my-2">
+                        <label class="small fw-bold text-muted">Títulos Académicos:</label>
+                        <ul class="list-unstyled small">
+                            ${formacion_academica.map(f => `<li><i class="bi bi-check-circle text-success me-2"></i>${f.Titulo_Obtenido} (${f.Nivel_Educativo})</li>`).join('') || '<li>No registrado</li>'}
+                        </ul>
+                        <label class="small fw-bold text-muted">Otras Formaciones:</label>
+                        <ul class="list-unstyled small">
+                            ${capacitaciones.map(c => `<li><i class="bi bi-patch-check text-info me-2"></i>${c.Nombre_Curso}</li>`).join('') || '<li>No registrado</li>'}
+                        </ul>
+                    </div>
+                </div>
+
+
+                <div class="col-md-6">
+                    <div class="card h-100 border-0 shadow-sm p-4 mt-2 bg-light">
+                        <h6 class="text-danger fw-bold border-bottom pb-2 mb-3">
+                            <i class="bi bi-clock-history me-2"></i>5. Historial y Acciones
+                        </h6>
+                        
+                        ${(funcionario.Copia_doc_nomb && funcionario.Estado_Laboral !== 'Activo') ? `
+                            <div class="mb-3">
+                                <label class="small fw-bold text-muted d-block mb-1">Documento de Estado Actual:</label>
+                                <a href="${funcionario.Copia_doc_nomb}" target="_blank" class="btn btn-sm btn-outline-danger w-100 shadow-sm">
+                                    <i class="bi bi-file-earmark-pdf-fill me-2"></i>Ver Justificante de ${funcionario.Estado_Laboral}
+                                </a>
+                            </div>
+                            <hr>` : '' 
+                        }
+
+                        <div class="timeline-small">
+                            <p class="small fw-bold mb-1 text-muted">Cargos Anteriores:</p>
+                            ${historial_cargos && historial_cargos.length > 0 ? historial_cargos.map(h => `
+                                <div class="small mb-1 border-start border-danger ps-2">
+                                    ${h.Nombre_Cargo} (${formatDate(h.Fecha_nombramiento)})
+                                </div>`).join('') : '<p class="small text-muted">Sin historial de cargos</p>'}
+                            
+                            <p class="small fw-bold mb-1 mt-3 text-muted">Permisos y Eventos:</p>
+                            ${permisos && permisos.length > 0 ? permisos.map(p => `
+                                <div class="small mb-1 border-start border-warning ps-2 text-truncate">
+                                    ${p.Tipo_Permiso}: ${p.Estado_Permiso} (${formatDate(p.Fecha_Inicio_Permiso)})
+                                </div>`).join('') : '<p class="small text-muted">Sin eventos registrados</p>'}
+                        </div>
+                    </div>
+                </div>`;
 
                 lastVerificationDate.textContent = "Actualizado: " + new Date().toLocaleString();
 
@@ -856,7 +853,7 @@ include_once '../includes/header.php';
 
                         <input type="hidden" name="Id_funcionario" id="edit_Id_funcionario">
 
-                        <ul class="nav nav-pills nav-fill mb-4" id="editFuncionarioTab" role="tablist">
+                        <ul class="nav nav-pills nav-fill mb-4 mt-3" id="editFuncionarioTab" role="tablist">
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link active" id="edit-personales-tab" data-bs-toggle="pill" data-bs-target="#edit-personales" type="button" role="tab" aria-controls="edit-personales" aria-selected="true">
                                     <i class="bi bi-person-fill me-1"></i> Personales y Contacto
@@ -1072,12 +1069,9 @@ include_once '../includes/header.php';
                             </div>
 
                         </div>
-                        <div class="mt-4 d-flex justify-content-end gap-2 border-top pt-3">
-                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                                <i class="bi bi-x-circle me-1"></i> Cancelar
-                            </button>
+                        <div class="mt-4 d-flex justify-content-end gap-2 border-top pt-3 mb-3">
                             <button type="submit" class="btn btn-warning">
-                                <i class="bi bi-save me-1"></i> Guardar Cambios
+                                <i class="bi bi-save me-1"></i> Actualizar Cambios
                             </button>
                         </div>
 
@@ -1134,9 +1128,160 @@ include_once '../includes/header.php';
 
 
 
+    <!-- Modal de Cambiar el estado del funcionario sea una baja temporal o un cese definitivo -->
+    <div class="modal fade" id="modalEstadoFuncionario" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div id="modalHeaderEstado" class="modal-header text-white">
+                    <h5 class="modal-title" id="modalTitleEstado"></h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="formEstadoFuncionario" enctype="multipart/form-data">
+                    <div class="modal-body p-4">
+                        <p class="text-muted">Funcionario: <br><strong id="nombreFuncionarioEstado" class="text-dark"></strong></p>
+                        <input type="hidden" name="funcionario_id" id="inputEstadoId">
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Tipo de Acción</label>
+                            <select class="form-select" name="tipo_baja" id="tipoAccionSelect" required>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Documento Justificante</label>
+                            <input type="file" class="form-control" name="documento_baja" id="documentoEstado" accept=".pdf,.jpg,.png" required>
+                            <div class="form-text">Suba el acta, resolución o justificante de este cambio de estado.</div>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light">
+                        <button type="submit" id="btnSubmitEstado" class="btn px-4"><i class="bi bi-patch-check text-info me-2"> </i>Confirmar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
 
 
+    <!-- Modal de Cambiar el estado del funcionario sea una baja temporal o un cese definitivo -->
+    <script>
+        // Función para inyectar mensajes en el div y cerrarlos automáticamente
+        function mostrarMensajeFlash(mensaje, tipo = 'danger') {
+            const contenedor = document.getElementById('mensajeFlashContenedor');
+            if (!contenedor) return;
+
+            const idUnico = 'alert-' + Date.now();
+            contenedor.innerHTML = `
+            <div id="${idUnico}" class="alert alert-${tipo} alert-dismissible fade show shadow-sm" role="alert">
+                ${mensaje}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>`;
+
+            // Scroll al mensaje
+            contenedor.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+
+            // Autocierre después de 5 segundos
+            setTimeout(() => {
+                const alertElement = document.getElementById(idUnico);
+                if (alertElement) {
+                    const bsAlert = new bootstrap.Alert(alertElement);
+                    bsAlert.close();
+                }
+            }, 5000);
+        }
+
+        // Al cargar la página, si hay un mensaje (puesto por PHP), también ponerle temporizador
+        document.addEventListener('DOMContentLoaded', function() {
+            const alertaExistente = document.querySelector('#mensajeFlashContenedor .alert');
+            if (alertaExistente) {
+                setTimeout(() => {
+                    const bsAlert = new bootstrap.Alert(alertaExistente);
+                    bsAlert.close();
+                }, 3000);
+            }
+        });
+
+        document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('funcionario-toggle')) {
+                const checkbox = e.target;
+                const id = checkbox.getAttribute('data-funcionario-id');
+                const nombres = checkbox.getAttribute('data-funcionario-nombres');
+                const badge = checkbox.closest('tr').querySelector('.badge');
+                const estadoActual = badge ? badge.textContent.trim() : "";
+
+                const modalEl = document.getElementById('modalEstadoFuncionario');
+                const title = document.getElementById('modalTitleEstado');
+                const header = document.getElementById('modalHeaderEstado');
+                const btnSubmit = document.getElementById('btnSubmitEstado');
+                const select = document.getElementById('tipoAccionSelect');
+
+                // Mantener el switch en su estado original hasta que el modal confirme
+                const estadoDeseado = checkbox.checked;
+                checkbox.checked = !estadoDeseado;
+
+                // VALIDACIÓN: ALTA
+                if (estadoDeseado) {
+                    if (estadoActual === 'Cesado' || estadoActual === 'Jubilado') {
+                        mostrarMensajeFlash(`Acción denegada: No se puede reactivar a <b>${nombres}</b> porque su estado es definitivo (${estadoActual}).`, 'danger');
+                        return;
+                    }
+
+                    title.innerHTML = '<i class="bi bi-person-check me-2"></i>Reactivar Funcionario';
+                    header.className = 'modal-header bg-success text-white';
+                    btnSubmit.className = 'btn btn-success px-4';
+                    select.innerHTML = '<option value="activo" selected>Alta / Reincorporación</option>';
+                }
+                // VALIDACIÓN: BAJA
+                else {
+                    title.innerHTML = '<i class="bi bi-person-dash me-2"></i>Procesar Baja';
+                    header.className = 'modal-header bg-danger text-white';
+                    btnSubmit.className = 'btn btn-danger px-4';
+                    select.innerHTML = `
+                    <option value="" selected disabled>Seleccione motivo...</option>
+                    <option value="temporal">Baja Temporal (Permiso/Enfermedad)</option>
+                    <option value="definitivo">Cese Definitivo (Jubilación/Renuncia)</option>`;
+                }
+
+                document.getElementById('inputEstadoId').value = id;
+                document.getElementById('nombreFuncionarioEstado').textContent = nombres;
+                new bootstrap.Modal(modalEl).show();
+            }
+        });
+
+        document.getElementById('formEstadoFuncionario').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const submitBtn = document.getElementById('btnSubmitEstado');
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+
+            try {
+                const response = await fetch('../api/procesar_baja.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // PHP ya guardó el mensaje en $_SESSION['exito']
+                    location.reload();
+                } else {
+                    mostrarMensajeFlash(result.message, 'danger');
+                    bootstrap.Modal.getInstance(document.getElementById('modalEstadoFuncionario')).hide();
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Confirmar';
+                }
+            } catch (error) {
+                mostrarMensajeFlash('Error crítico en la red.', 'danger');
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
 
 
 

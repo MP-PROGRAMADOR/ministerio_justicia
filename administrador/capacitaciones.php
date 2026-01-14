@@ -371,7 +371,7 @@ include_once '../includes/header.php';
                         <input type="hidden" name="ID_Capacitacion" id="editID_Capacitacion">
                         <input type="hidden" name="ID_Funcionario" id="editID_Funcionario">
 
-                        <div class="mb-3">
+                        <div class="mb-3 mt-2">
                             <label for="editNombreCurso" class="form-label fw-semibold">Nombre del Curso</label>
                             <input type="text" name="Nombre_Curso" id="editNombreCurso" class="form-control" required maxlength="200">
                         </div>
@@ -403,7 +403,7 @@ include_once '../includes/header.php';
 
                         <div class="d-flex justify-content-end mb-3">
                             <button type="submit" class="btn btn-warning">
-                                <i class="bi bi-save me-2"></i>Actualizar Capacitación
+                                <i class="bi bi-save me-2"></i>Actualizar Cambios
                             </button>
                         </div>
                     </form>

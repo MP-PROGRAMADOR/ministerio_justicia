@@ -366,11 +366,8 @@ include_once '../includes/header.php';
 
                     <!-- Botón Guardar -->
                     <div class="modal-footer mb-3">
-                        <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                            <i class="bi bi-x-circle me-1"></i>Cancelar
-                        </button> -->
                         <button type="submit" class="btn btn-warning">
-                            <i class="bi bi-save me-1"></i>Guardar Cambios
+                            <i class="bi bi-save me-1"></i>Actualizar Cambios
                         </button>
                     </div>
                 </form>
@@ -646,7 +643,7 @@ include_once '../includes/header.php';
             seleccionados.forEach(func => {
                 const li = document.createElement('li');
                 li.className = 'list-group-item d-flex justify-content-between align-items-center';
-                li.textContent = `${func.Nombres} ${func.Apellidos}`;
+                li.textContent = `${func.Nombre} ${func.Apellidos}`;
 
                 const btn = document.createElement('button');
                 btn.className = 'btn btn-sm btn-danger';
@@ -783,10 +780,10 @@ include_once '../includes/header.php';
                             const item = document.createElement('button');
                             item.type = 'button';
                             item.className = 'list-group-item list-group-item-action';
-                            item.textContent = `${f.Nombres} ${f.Apellidos} - ${f.DNI_Pasaporte}`;
+                            item.textContent = `${f.Nombre} ${f.Apellidos} - ${f.DNI_Pasaporte}`;
                             item.addEventListener('click', () => {
                                 idFuncionarioInput.value = f.ID_Funcionario;
-                                nombreFuncionarioSpan.textContent = `${f.Nombres} ${f.Apellidos} - DOCUMENTO: ${f.DNI_Pasaporte}`;
+                                nombreFuncionarioSpan.textContent = `${f.Nombre} ${f.Apellidos} - DOCUMENTO: ${f.Dip_Pasaporte}`;
                                 seleccionadoDiv.classList.remove('d-none');
                                 listaFuncionarios.innerHTML = '';
                                 searchInput.value = '';

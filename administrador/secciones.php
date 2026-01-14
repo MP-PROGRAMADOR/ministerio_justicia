@@ -90,39 +90,38 @@ include_once '../includes/silebar_admin.php';
                                         <th class="text-center">Acciones</th>
                                     </tr>
                                 </thead>
-                              <tbody id="funcionariosTableBody">
-    <?php if ($secciones): ?>
-        <?php foreach ($secciones as $seccion): ?>
-            <tr>
-                <td><?= htmlspecialchars($seccion['Id_seccion']) ?></td>
-                <td><?= htmlspecialchars($seccion['nombre_seccion']) ?></td>
-                <td><?= htmlspecialchars($seccion['nombre_direccion']) ?></td>
-                <td class="text-center">
-                    <div class="d-flex justify-content-center gap-2">
-                        <!-- BOTÓN DE EDITAR SECCIÓN -->
-                        <button
-                            class="btn btn-sm btn-warning btn-editar-seccion"
-                            data-bs-toggle="modal"
-                            data-bs-target="#editSeccionModal"
-                            data-id="<?= $seccion['Id_seccion'] ?>"
-                            data-id_direccion="<?= $seccion['Id_direccion'] ?>"
-                            data-nombre="<?= htmlspecialchars($seccion['nombre_seccion']) ?>"
-                            title="Editar sección"
-                        >
-                            <i class="bi bi-pencil-square"></i>
-                        </button>
+                                <tbody id="funcionariosTableBody">
+                                    <?php if ($secciones): ?>
+                                        <?php foreach ($secciones as $seccion): ?>
+                                            <tr>
+                                                <td><?= htmlspecialchars($seccion['Id_seccion']) ?></td>
+                                                <td><?= htmlspecialchars($seccion['nombre_seccion']) ?></td>
+                                                <td><?= htmlspecialchars($seccion['nombre_direccion']) ?></td>
+                                                <td class="text-center">
+                                                    <div class="d-flex justify-content-center gap-2">
+                                                        <!-- BOTÓN DE EDITAR SECCIÓN -->
+                                                        <button
+                                                            class="btn btn-sm btn-warning btn-editar-seccion"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#editSeccionModal"
+                                                            data-id="<?= $seccion['Id_seccion'] ?>"
+                                                            data-id_direccion="<?= $seccion['Id_direccion'] ?>"
+                                                            data-nombre="<?= htmlspecialchars($seccion['nombre_seccion']) ?>"
+                                                            title="Editar sección">
+                                                            <i class="bi bi-pencil-square"></i>
+                                                        </button>
 
-                        <!-- AQUÍ PUEDES AGREGAR EL BOTÓN ELIMINAR SI QUIERES -->
-                    </div>
-                </td>
-            </tr>
-        <?php endforeach; ?>
-    <?php else: ?>
-        <tr>
-            <td colspan="4" class="text-center text-muted">No hay secciones registradas</td>
-        </tr>
-    <?php endif; ?>
-</tbody>
+                                                        <!-- AQUÍ PUEDES AGREGAR EL BOTÓN ELIMINAR SI QUIERES -->
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <tr>
+                                            <td colspan="4" class="text-center text-muted">No hay secciones registradas</td>
+                                        </tr>
+                                    <?php endif; ?>
+                                </tbody>
 
                             </table>
                         </div>
@@ -174,14 +173,15 @@ include_once '../includes/silebar_admin.php';
                         <i class="bi bi-diagram-3-fill me-2"></i>Registrar Sección
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                        aria-label="Cerrar"></button>
+                        aria-label="Cerrar">
+                    </button>
                 </div>
 
                 <!-- BODY -->
                 <div class="modal-body">
                     <form method="POST" action="../api/guardar_seccion.php" id="formSeccion">
 
-                        <div class="row g-3">
+                        <div class="row g-3 mt-1">
                             <!-- Dirección -->
                             <div class="col-md-12">
                                 <label class="form-label fw-semibold">
@@ -212,12 +212,10 @@ include_once '../includes/silebar_admin.php';
                         </div>
 
                         <!-- FOOTER -->
-                        <div class="mt-4 d-flex justify-content-end gap-2">
-                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                                <i class="bi bi-x-circle me-1"></i>Cancelar
-                            </button>
+                        <div class="mt-4 d-flex justify-content-end gap-2 mb-3">
+                           
                             <button type="submit" class="btn btn-success">
-                                <i class="bi bi-save me-1"></i>Guardar Sección
+                                <i class="bi bi-save me-1"></i>Registrar Sección
                             </button>
                         </div>
 
@@ -231,105 +229,103 @@ include_once '../includes/silebar_admin.php';
 
 
 
-  <!-- Modal para Registrar/Editar Sección -->
-<div class="modal fade" id="editSeccionModal" tabindex="-1" aria-labelledby="editSeccionModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content shadow">
+    <!-- Modal para Editar Sección -->
+    <div class="modal fade" id="editSeccionModal" tabindex="-1" aria-labelledby="editSeccionModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content shadow">
 
-            <!-- HEADER -->
-            <div class="modal-header bg-success text-white">
-                <h5 class="modal-title" id="editSeccionModalLabel">
-                    <i class="bi bi-diagram-3-fill me-2"></i><span id="modalSeccionTitle">Registrar Sección</span>
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-            </div>
+                <!-- HEADER -->
+                <div class="modal-header bg-warning">
+                    <h5 class="modal-title" id="editSeccionModalLabel">
+                        <i class="bi bi-pencil-square"></i> <span id="modalSeccionTitle">Editar Sección</span>
+                    </h5>
+                    <button type="button" class="btn-close btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
 
-            <!-- BODY -->
-            <div class="modal-body">
-                <form method="POST" action="../api/actualizar_seccion.php" id="formSeccion">
-                    <!-- Campo oculto para edición -->
-                    <input type="hidden" name="Id_seccion" id="Id_seccion">
+                <!-- BODY -->
+                <div class="modal-body">
+                    <form method="POST" action="../api/actualizar_seccion.php" id="formSeccion">
+                        <!-- Campo oculto para edición -->
+                        <input type="hidden" name="Id_seccion" id="Id_seccion">
 
-                    <div class="row g-3">
-                        <!-- Dirección -->
-                        <div class="col-md-12">
-                            <label class="form-label fw-semibold">
-                                <i class="bi bi-geo-alt text-success me-2"></i>Dirección
-                            </label>
-                            <select name="Id_direccion" id="Id_direccion" class="form-select" required>
-                                <option value="" selected disabled>Seleccione una dirección</option>
-                                <?php
-                                // Traer direcciones para llenar el select
-                                $sqlDirecciones = "SELECT Id_direccion, nombre FROM direcciones ORDER BY nombre ASC";
-                                $stmtDirecciones = $pdo->prepare($sqlDirecciones);
-                                $stmtDirecciones->execute();
-                                $direcciones = $stmtDirecciones->fetchAll(PDO::FETCH_ASSOC);
-                                foreach ($direcciones as $direccion) {
-                                    echo '<option value="' . htmlspecialchars($direccion['Id_direccion']) . '">' . htmlspecialchars($direccion['nombre']) . '</option>';
-                                }
-                                ?>
-                            </select>
+                        <div class="row g-3 mt-1">
+                            <!-- Dirección -->
+                            <div class="col-md-12">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-geo-alt text-warning me-2"></i>Dirección
+                                </label>
+                                <select name="Id_direccion" id="Id_direccion" class="form-select" required>
+                                    <option value="" selected disabled>Seleccione una dirección</option>
+                                    <?php
+                                    // Traer direcciones para llenar el select
+                                    $sqlDirecciones = "SELECT Id_direccion, nombre FROM direcciones ORDER BY nombre ASC";
+                                    $stmtDirecciones = $pdo->prepare($sqlDirecciones);
+                                    $stmtDirecciones->execute();
+                                    $direcciones = $stmtDirecciones->fetchAll(PDO::FETCH_ASSOC);
+                                    foreach ($direcciones as $direccion) {
+                                        echo '<option value="' . htmlspecialchars($direccion['Id_direccion']) . '">' . htmlspecialchars($direccion['nombre']) . '</option>';
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+
+                            <!-- Nombre de la Sección -->
+                            <div class="col-md-12">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-card-text text-warning me-2"></i>Nombre de la Sección
+                                </label>
+                                <input type="text" name="nombre" id="nombreSeccion" class="form-control" placeholder="Ej. Sección A" required>
+                            </div>
                         </div>
 
-                        <!-- Nombre de la Sección -->
-                        <div class="col-md-12">
-                            <label class="form-label fw-semibold">
-                                <i class="bi bi-card-text text-success me-2"></i>Nombre de la Sección
-                            </label>
-                            <input type="text" name="nombre" id="nombreSeccion" class="form-control" placeholder="Ej. Sección A" required>
+                        <!-- FOOTER -->
+                        <div class="mt-4 d-flex justify-content-end gap-2">
+                           
+                            <button type="submit" class="btn btn-warning mb-3">
+                                <i class="bi bi-save me-1"></i><span id="btnSeccionText">Actualizar Sección</span>
+                            </button>
                         </div>
-                    </div>
+                    </form>
+                </div>
 
-                    <!-- FOOTER -->
-                    <div class="mt-4 d-flex justify-content-end gap-2">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                            <i class="bi bi-x-circle me-1"></i>Cancelar
-                        </button>
-                        <button type="submit" class="btn btn-success">
-                            <i class="bi bi-save me-1"></i><span id="btnSeccionText">Guardar Sección</span>
-                        </button>
-                    </div>
-                </form>
             </div>
-
         </div>
     </div>
-</div>
 
-<script>
-    var seccionModal = document.getElementById('editSeccionModal');
+    <script>
+        var seccionModal = document.getElementById('editSeccionModal');
 
-    // Función para abrir modal y rellenar datos si es edición
-    seccionModal.addEventListener('show.bs.modal', function (event) {
-        var button = event.relatedTarget;
+        // Función para abrir modal y rellenar datos si es edición
+        seccionModal.addEventListener('show.bs.modal', function(event) {
+            var button = event.relatedTarget;
 
-        var id = button.getAttribute('data-id') || '';
-        var idDireccion = button.getAttribute('data-id_direccion') || '';
-        var nombre = button.getAttribute('data-nombre') || '';
+            var id = button.getAttribute('data-id') || '';
+            var idDireccion = button.getAttribute('data-id_direccion') || '';
+            var nombre = button.getAttribute('data-nombre') || '';
 
-        // Rellenar campos
-        document.getElementById('Id_seccion').value = id;
-        document.getElementById('Id_direccion').value = idDireccion;
-        document.getElementById('nombreSeccion').value = nombre;
+            // Rellenar campos
+            document.getElementById('Id_seccion').value = id;
+            document.getElementById('Id_direccion').value = idDireccion;
+            document.getElementById('nombreSeccion').value = nombre;
 
-        // Cambiar títulos y botón según si es edición o registro
-        if (id) {
-            document.getElementById('modalSeccionTitle').textContent = 'Editar Sección';
-            document.getElementById('btnSeccionText').textContent = 'Actualizar Sección';
-            document.getElementById('formSeccion').action = '../api/actualizar_seccion.php';
-        } else {
-            document.getElementById('modalSeccionTitle').textContent = 'Registrar Sección';
-            document.getElementById('btnSeccionText').textContent = 'Guardar Sección';
-            document.getElementById('formSeccion').action = '../api/guardar_seccion.php';
-        }
-    });
+            // Cambiar títulos y botón según si es edición o registro
+            if (id) {
+                document.getElementById('modalSeccionTitle').textContent = 'Editar Sección';
+                document.getElementById('btnSeccionText').textContent = 'Actualizar Cambios';
+                document.getElementById('formSeccion').action = '../api/actualizar_seccion.php';
+            } else {
+                document.getElementById('modalSeccionTitle').textContent = 'Registrar Sección';
+                document.getElementById('btnSeccionText').textContent = 'Registrar Sección';
+                document.getElementById('formSeccion').action = '../api/guardar_seccion.php';
+            }
+        });
 
-    // Resetear modal al cerrarlo
-    seccionModal.addEventListener('hidden.bs.modal', function () {
-        document.getElementById('formSeccion').reset();
-        document.getElementById('Id_seccion').value = '';
-    });
-</script>
+        // Resetear modal al cerrarlo
+        seccionModal.addEventListener('hidden.bs.modal', function() {
+            document.getElementById('formSeccion').reset();
+            document.getElementById('Id_seccion').value = '';
+        });
+    </script>
 
 
 

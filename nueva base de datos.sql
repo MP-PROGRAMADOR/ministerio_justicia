@@ -135,6 +135,8 @@ ALTER TABLE funcionarios
 ADD COLUMN Estado_Laboral ENUM('Activo','Baja Temporal','Jubilado','Cesado','Permiso','Vacaciones') 
 DEFAULT 'Activo' AFTER Apellidos;
 
+ALTER TABLE funcionarios ADD COLUMN Doc_Estado_Adjunto VARCHAR(255) NULL;
+
 
 
 /* =========================================================

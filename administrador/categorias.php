@@ -181,7 +181,7 @@ include_once '../includes/silebar_admin.php';
 
                     <div class="row g-3">
                         <!-- Nombre -->
-                        <div class="col-md-12">
+                        <div class="col-md-12 mt-4">
                             <label class="form-label fw-semibold">
                                 <i class="bi bi-tag text-success me-2"></i>Nombre de la categoría
                             </label>
@@ -200,12 +200,10 @@ include_once '../includes/silebar_admin.php';
                     </div>
 
                     <!-- FOOTER -->
-                    <div class="mt-4 d-flex justify-content-end gap-2">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                            <i class="bi bi-x-circle me-1"></i>Cancelar
-                        </button>
+                    <div class="mt-4 mb-2 d-flex justify-content-end gap-2">
+                       
                         <button type="submit" class="btn btn-success">
-                            <i class="bi bi-save me-1"></i>Guardar Categoría
+                            <i class="bi bi-save me-1"></i> Registrar Categoría
                         </button>
                     </div>
 
@@ -239,7 +237,7 @@ include_once '../includes/silebar_admin.php';
 
                     <input type="hidden" name="Id_categoria" id="editIdCategoria">
 
-                    <div class="mb-3">
+                    <div class="mb-3 mt-4">
                         <label class="form-label fw-semibold">
                             <i class="bi bi-tag me-2 text-warning"></i>Nombre de la categoría
                         </label>
@@ -256,12 +254,9 @@ include_once '../includes/silebar_admin.php';
                     </div>
 
                     <!-- FOOTER -->
-                    <div class="d-flex justify-content-end gap-2">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                            <i class="bi bi-x-circle me-1"></i>Cancelar
-                        </button>
+                    <div class="d-flex justify-content-end gap-2 mb-3">
                         <button type="submit" class="btn btn-warning">
-                            <i class="bi bi-save me-1"></i>Actualizar
+                            <i class="bi bi-save me-1"></i> Actualizar Cambios
                         </button>
                     </div>
 

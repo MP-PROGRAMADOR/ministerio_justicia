@@ -166,7 +166,7 @@ include_once '../includes/header.php';
                         </div>
                     </div>
                     <div class="modal-footer bg-light">
-                        <button type="submit" class="btn btn-success px-4">Guardar Cargo</button>
+                        <button type="submit" class="btn btn-success px-4">   <i class="bi bi-save me-2"></i>Registrar Cargo</button>
                     </div>
                 </form>
             </div>
@@ -180,7 +180,7 @@ include_once '../includes/header.php';
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg">
                 <div class="modal-header bg-warning text-dark">
-                    <h5 class="modal-title fw-bold"><i class="bi bi-pencil-square me-2"></i>Editar Cargo</h5>
+                    <h5 class="modal-title"><i class="bi bi-pencil-square me-2"></i>Editar Cargo</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form method="POST" action="../api/guardar_cargo.php?accion=actualizar">
@@ -200,7 +200,7 @@ include_once '../includes/header.php';
                         </div>
                     </div>
                     <div class="modal-footer bg-light">
-                        <button type="submit" class="btn btn-warning px-4 fw-bold">Actualizar</button>
+                        <button type="submit" class="btn btn-warning px-4">   <i class="bi bi-save me-2"></i> Actualizar Cambios</button>
                     </div>
                 </form>
             </div>

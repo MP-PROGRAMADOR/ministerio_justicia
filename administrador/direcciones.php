@@ -43,7 +43,7 @@ $direcciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="alert alert-danger alert-dismissible fade show m-3 alert-auto-dismiss" role="alert">
                         <?= htmlspecialchars($_SESSION['error']);
                         unset($_SESSION['error']); ?>
-                        
+
                     </div>
                 <?php endif; ?>
 
@@ -51,7 +51,7 @@ $direcciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="alert alert-success alert-dismissible fade show m-3 alert-auto-dismiss" role="alert">
                         <?= htmlspecialchars($_SESSION['exito']);
                         unset($_SESSION['exito']); ?>
-                        
+
                     </div>
                 <?php endif; ?>
 
@@ -99,7 +99,7 @@ $direcciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 </tbody>
                             </table>
                         </div>
-                          <nav aria-label="Page navigation example" class="mt-3">
+                        <nav aria-label="Page navigation example" class="mt-3">
                             <ul class="pagination justify-content-center" id="paginationControls">
                                 <li class="page-item disabled"><a class="page-link" href="#" tabindex="-1"
                                         aria-disabled="true">Anterior</a></li>
@@ -115,7 +115,7 @@ $direcciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <footer class="footer bg-white shadow-sm py-3 mt-auto">
                     <div class="container-fluid text-center">
                         <span class="text-muted">© 2024 Themis | Ministerio de Justicia. Todos los derechos reservados.</span>
-                        
+
                     </div>
                 </footer>
             </div>
@@ -127,7 +127,7 @@ $direcciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <div class="modal-content shadow">
                 <div class="modal-header bg-success text-white mb-2">
                     <h5 class="modal-title" id="modalDireccionLabel">
-                        <i class="bi bi-geo-alt-fill me-2"></i><span id="tituloModal">Registrar Dirección</span>
+                        <span id="tituloModal">Registrar Dirección</span>
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
@@ -176,8 +176,9 @@ $direcciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         </div>
 
                         <div class="mt-4 d-flex justify-content-end gap-2 mb-2">
-                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="btn btn-success" id="btnSubmit">Guardar Dirección</button>
+                            <button type="submit" class="btn btn-success" id="btnSubmit">
+                                <i class="bi bi-save me-1"></i> <span id="btnText">Registrar Dirección</span>
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -189,11 +190,25 @@ $direcciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
         function prepararModal(accion, data = null) {
             const form = document.getElementById('formDireccion');
             const titulo = document.getElementById('tituloModal');
+            const tituloTexto = document.getElementById('tituloModal'); // El span o contenedor del texto
             const btn = document.getElementById('btnSubmit');
+            const btnText = document.getElementById('btnText');
+            const header = document.querySelector('#modalDireccion .modal-header');
 
             if (accion === 'editar') {
-                titulo.innerText = 'Editar Dirección';
-                btn.innerText = 'Actualizar Dirección';
+                // --- MODO EDICIÓN ---
+                titulo.innerHTML = '<i class="bi bi-pencil-square me-2"></i>Editar Dirección';
+                btnText.innerText = 'Actualizar Cambios';
+
+                // Colores: Amarillo con texto negro (Header y Botón)
+                header.classList.replace('bg-success', 'bg-warning');
+                header.classList.replace('text-white', 'text-dark');
+                btn.classList.replace('btn-success', 'btn-warning');
+                btn.classList.add('text-dark');
+
+                // Ajustar el botón de cerrar (X) para que sea oscuro
+                header.querySelector('.btn-close').classList.remove('btn-close-white');
+
                 form.action = '../api/actualizar_direccion.php';
 
                 // Rellenar campos
@@ -203,9 +218,21 @@ $direcciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 document.getElementById('field_distrito').value = data.distrito;
                 document.getElementById('field_provincia').value = data.provincia;
                 document.getElementById('field_region').value = data.region;
+
             } else {
-                titulo.innerText = 'Registrar Dirección';
-                btn.innerText = 'Guardar Dirección';
+                // --- MODO REGISTRAR ---
+                titulo.innerHTML = '<i class="bi bi-geo-alt-fill me-2"></i>Registrar Dirección';
+                btnText.innerText = 'Registrar Dirección';
+
+                // Colores: Verde con texto blanco (Header y Botón)
+                header.classList.replace('bg-warning', 'bg-success');
+                header.classList.replace('text-dark', 'text-white');
+                btn.classList.replace('btn-warning', 'btn-success');
+                btn.classList.remove('text-dark');
+
+                // Ajustar el botón de cerrar (X) para que sea blanco
+                header.querySelector('.btn-close').classList.add('btn-close-white');
+
                 form.action = '../api/guardar_direccion.php';
                 form.reset();
                 document.getElementById('field_id').value = '';
