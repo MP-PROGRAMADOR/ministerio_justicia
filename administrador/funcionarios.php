@@ -241,13 +241,11 @@ include_once '../includes/header.php';
                                                     </button>
 
 
-                                                    <!-- Botón descargar PDF -->
                                                     <button class="btn btn-sm btn-success"
-                                                        onclick="window.location.href='../fpdf/cv_funcionario.php?id=<?= (int)$f['Id_funcionario'] ?>'"
-                                                        title="Descargar PDF">
+                                                        onclick="window.open('../fpdf/cv_funcionario.php?id=<?= (int)$f['Id_funcionario'] ?>', '_blank')"
+                                                        title="Ver PDF en nueva pestaña">
                                                         <i class="bi bi-filetype-pdf"></i>
                                                     </button>
-
                                                 </div>
                                             </td>
                                         </tr>

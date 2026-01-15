@@ -15,7 +15,9 @@ try {
     $pdo = new PDO($dsn, $user, $pass, $options);
 
     // ID del Funcionario que solicita el permiso (tomado de la variable correcta de la sesión)
-    $ID_Funcionario = $_SESSION['ID_Usuario']; 
+    $ID_Funcionario =$_POST['Id_funcionario'] ?? null;
+    
+    $usuario_creador=$_SESSION['ID_Usuario']; 
 
     // 2. RECUPERACIÓN DE DATOS DEL FORMULARIO
     $Tipo_Permiso = $_POST['Tipo_Permiso'] ?? null;
@@ -27,6 +29,11 @@ try {
     // 3. ESTADO POR DEFECTO Y CREADOR
     $Estado_Permiso = 'Pendiente'; 
     $ID_Usuario_Creador = $ID_Funcionario; // El mismo funcionario es el creador
+
+
+
+
+  
 
     // 4. VALIDACIÓN DE DATOS OBLIGATORIOS
     if (empty($ID_Funcionario) || empty($Tipo_Permiso) || empty($Fecha_Inicio_Permiso) || empty($Fecha_Fin_Permiso)) {
@@ -79,29 +86,28 @@ try {
     
     // 6. INSERCIÓN EN LA BASE DE DATOS
     $sql = "INSERT INTO tbl_permisos 
-        (ID_Funcionario, Tipo_Permiso, Fecha_Inicio_Permiso, Fecha_Fin_Permiso, Motivo, Observaciones, Documento_Soporte_URL, ID_Usuario_Creador, Estado_Permiso)
-        VALUES (:ID_Funcionario, :Tipo_Permiso, :Fecha_Inicio_Permiso, :Fecha_Fin_Permiso, :Motivo, :Observaciones, :Documento_Soporte_URL, :ID_Usuario_Creador, :Estado_Permiso)";
+        (Id_funcionario, Tipo_Permiso, Fecha_Inicio_Permiso, Fecha_Fin_Permiso, Motivo, Documento_Soporte_URL, Usuario_creador, Estado_Permiso)
+        VALUES (:Id_funcionario, :Tipo_Permiso, :Fecha_Inicio_Permiso, :Fecha_Fin_Permiso, :Motivo, :Documento_Soporte_URL, :Usuario_creador, :Estado_Permiso)";
         
     $stmt = $pdo->prepare($sql);
     $stmt->execute([
-        ':ID_Funcionario' => $ID_Funcionario,
+        ':Id_funcionario' => $ID_Funcionario,
         ':Tipo_Permiso' => $Tipo_Permiso,
         ':Fecha_Inicio_Permiso' => $Fecha_Inicio_Permiso,
         ':Fecha_Fin_Permiso' => $Fecha_Fin_Permiso,
         ':Motivo' => $Motivo,
-        ':Observaciones' => $Observaciones,
         ':Documento_Soporte_URL' => $documentoURL,
-        ':ID_Usuario_Creador' => $ID_Usuario_Creador,
+        ':Usuario_creador' => $usuario_creador,
         ':Estado_Permiso' => $Estado_Permiso,
     ]);
 
     $_SESSION['exito'] = "Solicitud de permiso enviada correctamente. Estado: Pendiente.";
-    header('Location: ../funcionario/panel_funcionario.php'); 
+    header('Location: ../administrador/permisos.php'); 
     exit;
 
 } catch (Exception $e) {
     $_SESSION['error'] = "Error al solicitar el permiso: " . $e->getMessage();
     // Redirige a la página anterior o al dashboard si no hay REFERER
-    header('Location: ' . $_SERVER['HTTP_REFERER'] ?? '../funcionario/panel_funcionario.php');
+    header('Location: ' . $_SERVER['HTTP_REFERER'] ?? '../administrador/permisos.php');
     exit;
 }

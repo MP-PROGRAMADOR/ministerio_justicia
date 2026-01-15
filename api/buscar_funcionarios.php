@@ -7,7 +7,7 @@ try {
     $pdo = new PDO($dsn, $user, $pass, $options);
 
     $q = $_GET['q'] ?? '';
-    $sql = "SELECT ID_Funcionario, Nombre, Apellidos, Dip_Pasaporte 
+    $sql = "SELECT Id_funcionario, Nombre, Apellidos, Dip_Pasaporte 
             FROM funcionarios 
             WHERE Nombre LIKE ? OR Apellidos LIKE ? 
             LIMIT 10";

@@ -203,6 +203,8 @@ CREATE TABLE tbl_permisos (
         'Pendiente','Aprobado','Denegado','Cancelado','Disfrutado'
     ) DEFAULT 'Pendiente',
     Motivo TEXT,
+    token int(1),
+    documento_permiso VARCHAR(255),
     Documento_Soporte_URL VARCHAR(255),
 
     Usuario_creador INT NOT NULL,
@@ -211,6 +213,8 @@ CREATE TABLE tbl_permisos (
     FOREIGN KEY (ID_Funcionario) REFERENCES funcionarios(Id_funcionario),
     FOREIGN KEY (Usuario_creador) REFERENCES tbl_usuarios(ID_Usuario)
 ) ENGINE=InnoDB;
+
+
 
 /* =========================================================
    CURSOS

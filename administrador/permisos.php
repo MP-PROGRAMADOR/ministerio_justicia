@@ -77,7 +77,7 @@ include_once '../includes/header.php';
                             // Consulta base
                             $sql = "SELECT p.*, f.Nombre, f.Apellidos, f.Dip_Pasaporte, f.Foto
                             FROM tbl_permisos p
-                            JOIN funcionarios f ON p.ID_Funcionario = f.ID_Funcionario";
+                            JOIN funcionarios f ON p.Id_funcionario = f.Id_funcionario";
 
                          
 
@@ -112,7 +112,7 @@ include_once '../includes/header.php';
                                         <tr>
                                             <td><?= htmlspecialchars($permiso['ID_Permiso']) ?></td>
                                             <td><?= htmlspecialchars($permiso['Nombre'] . ' ' . $permiso['Apellidos']) ?></td>
-                                            <td><?= htmlspecialchars($permiso['DNI_Pasaporte']) ?></td>
+                                            <td><?= htmlspecialchars($permiso['Dip_Pasaporte']) ?></td>
                                             <td><?= htmlspecialchars($permiso['Tipo_Permiso']) ?></td>
                                             <td><?= htmlspecialchars($permiso['Fecha_Solicitud']) ?></td>
                                             <td><?= htmlspecialchars($permiso['Fecha_Inicio_Permiso']) ?></td>
@@ -171,7 +171,6 @@ include_once '../includes/header.php';
                                                                 data-inicio="<?= $permiso['Fecha_Inicio_Permiso'] ?>"
                                                                 data-fin="<?= $permiso['Fecha_Fin_Permiso'] ?>"
                                                                 data-motivo="<?= htmlspecialchars($permiso['Motivo']) ?>"
-                                                                data-observaciones="<?= htmlspecialchars($permiso['Observaciones']) ?>"
                                                                 title="Editar Permiso">
                                                                 <i class="bi bi-pencil-square"></i>
                                                             </button>
@@ -212,10 +211,9 @@ include_once '../includes/header.php';
                                                         data-estado="<?= htmlspecialchars($permiso['Estado_Permiso']) ?>"
                                                         data-token="<?= htmlspecialchars($permiso['token']) ?>"
                                                         data-motivo="<?= htmlspecialchars($permiso['Motivo']) ?>"
-                                                        data-observaciones="<?= htmlspecialchars($permiso['Observaciones']) ?>"
                                                         data-docsoporte="<?= htmlspecialchars($permiso['Documento_Soporte_URL']) ?>"
                                                         data-docrespuesta="<?= htmlspecialchars($permiso['documento_permiso']) ?>"
-                                                        data-fotografia="<?= htmlspecialchars('../api/' . $permiso['Fotografia']) ?>"
+                                                        data-fotografia="<?= htmlspecialchars('../api/' . $permiso['Foto']) ?>"
                                                         title="Ver Detalles">
                                                         <i class="bi bi-eye"></i>
                                                     </button>
@@ -320,7 +318,7 @@ include_once '../includes/header.php';
 
                     <!-- Formulario de permiso -->
                     <form method="POST" action="../api/guardar_permiso.php" enctype="multipart/form-data">
-                        <input type="hidden" name="ID_Funcionario" id="ID_Funcionario">
+                        <input type="hidden" name="Id_funcionario" id="Id_funcionario">
 
                         <div class="row g-3">
                             <!-- Tipo de Permiso -->
@@ -792,7 +790,7 @@ include_once '../includes/header.php';
             const seleccionadoDiv = document.getElementById('funcionarioSeleccionado');
             const nombreFuncionarioSpan = document.getElementById('nombreFuncionario');
             const quitarBtn = document.getElementById('quitarSeleccion');
-            const idFuncionarioInput = document.getElementById('ID_Funcionario');
+            const idFuncionarioInput = document.getElementById('Id_funcionario');
 
             searchInput.addEventListener('input', () => {
                 const query = searchInput.value.trim();
@@ -818,7 +816,7 @@ include_once '../includes/header.php';
                             item.className = 'list-group-item list-group-item-action';
                             item.textContent = `${f.Nombre} ${f.Apellidos} - ${f.Dip_Pasaporte}`;
                             item.addEventListener('click', () => {
-                                idFuncionarioInput.value = f.ID_Funcionario;
+                                idFuncionarioInput.value = f.Id_funcionario;
                                 nombreFuncionarioSpan.textContent = `${f.Nombre} ${f.Apellidos} - DOCUMENTO: ${f.Dip_Pasaporte}`;
                                 seleccionadoDiv.classList.remove('d-none');
                                 listaFuncionarios.innerHTML = '';
