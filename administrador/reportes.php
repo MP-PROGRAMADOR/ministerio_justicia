@@ -232,10 +232,10 @@ include_once '../includes/header.php';
                                     <td class="fw-bold"><i class="bi bi-person-badge me-2 text-primary"></i>${f.Nombre} ${f.Apellidos} </td>
                                     <td> <i class="bi bi-hash me-1 text-secondary"></i><span class="badge bg-light text-dark border">${f.CODIGO}</span></td>
                                     <td><span class="badge ${getEstadoBadge(f.Estado_Laboral)}">${f.Estado_Laboral}</span></td>
-                                    <td><i class="bi bi-geo-alt me-2 text-success"></i>${f.nombre_direccion || 'No tiene'}</td>
-                                    <td><i class="bi bi-tags me-2 text-dark"></i>${f.nombre_categoria || 'N/A'} --
-                                    <i class="bi bi-briefcase me-2 text-warning"></i>${f.nombre_cargo || 'No tiene'} </td>
-                                    <td><i class="bi bi-building me-2 text-danger"></i>${f.nombre_seccion || 'No tiene'}</td>
+                                    <td><i class="bi bi-geo-alt me-2 text-success"></i>${f.nombre_direccion || 'Sin Asignar'}</td>
+                                    <td><i class="bi bi-tags me-2 text-dark"></i>${f.nombre_categoria || 'Sin Asignar'} --
+                                    <i class="bi bi-briefcase me-2 text-warning"></i>${f.nombre_cargo || 'Sin Asignar'} </td>
+                                    <td><i class="bi bi-building me-2 text-danger"></i>${f.nombre_seccion || 'Sin Asignar'}</td>
                                     <td><i class="bi bi-calendar-check me-2 text-info"></i>${f.Fecha_nombramiento || '-'}</td>
                                     <td class="pe-3"><i class="bi bi-calendar-event me-2 text-primary"></i>${f.Fecha_toma_posesion || '-'}</td>
                                 </tr>`;
