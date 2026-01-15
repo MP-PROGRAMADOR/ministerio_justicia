@@ -243,9 +243,11 @@ include_once '../includes/header.php';
 
                                                     <!-- Botón descargar PDF -->
                                                     <button class="btn btn-sm btn-success"
-                                                        onclick="downloadFile(<?= (int)$f['Id_funcionario'] ?>)" title="Descargar PDF">
+                                                        onclick="window.location.href='../fpdf/cv_funcionario.php?id=<?= (int)$f['Id_funcionario'] ?>'"
+                                                        title="Descargar PDF">
                                                         <i class="bi bi-filetype-pdf"></i>
                                                     </button>
+
                                                 </div>
                                             </td>
                                         </tr>

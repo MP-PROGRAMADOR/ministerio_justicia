@@ -1,148 +1,193 @@
 <?php
-// 1. ACTIVAR REPORTES DE ERROR Y BUFFER
+/* =========================================================
+   CONFIGURACIÓN Y CONEXIÓN
+   ========================================================= */
 ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
-ob_start(); // Fundamental para evitar que espacios en blanco rompan el PDF
+ob_start();
 
 require_once 'fpdf.php';
-require '../includes/conexion.php';
+require '../includes/conexion.php'; // Asegúrate que aquí estén $dsn, $user, $pass
 
-class PDF extends FPDF
-{
-    function Header()
-    {
-        // Fondo azul suave para el encabezado
-        $this->SetFillColor(230, 240, 255);
-        $this->Rect(0, 0, 210, 30, 'F');
-
-   
-
-        $this->SetFont('Arial', 'B', 16);
-        $this->SetTextColor(50, 50, 90);
-        $this->Cell(0, 10, utf8_decode('FICHA DE FUNCIONARIO'), 0, 1, 'C');
-        
-        $this->SetDrawColor(180, 180, 180);
-        $this->Line(10, 28, 200, 28);
+/* =========================================================
+   CLASE PDF PERSONALIZADA
+   ========================================================= */
+class PDF extends FPDF {
+    function Header() {
+        $this->SetFillColor(40, 60, 110);
+        $this->Rect(0, 0, 210, 35, 'F');
+        $this->SetFont('Arial', 'B', 18);
+        $this->SetTextColor(255, 255, 255);
+        $this->Cell(0, 15, utf8_decode('EXPEDIENTE UNIFICADO DEL FUNCIONARIO'), 0, 1, 'C');
+        $this->SetFont('Arial', 'I', 10);
+        $this->Cell(0, 5, utf8_decode('Sistema THEMIS - Ministerio de Justicia'), 0, 1, 'C');
         $this->Ln(10);
     }
 
-    function Footer()
-    {
-        $this->SetY(-20);
-        $this->SetFont('Arial', 'I', 9);
-        $this->SetTextColor(120, 120, 120);
-        $this->Cell(0, 10, utf8_decode('Sistema THEMIS - Página ') . $this->PageNo() . '/{nb}', 0, 0, 'C');
+    function Footer() {
+        $this->SetY(-15);
+        $this->SetFont('Arial', 'I', 8);
+        $this->SetTextColor(128);
+        $this->Cell(0, 10, utf8_decode('Página ') . $this->PageNo() . '/{nb}', 0, 0, 'C');
+        $this->Cell(0, 10, date('d/m/Y H:i'), 0, 0, 'R');
     }
 
-    function SectionTitle($title)
-    {
+    function SectionTitle($title) {
         $this->Ln(5);
         $this->SetFont('Arial', 'B', 12);
-        $this->SetFillColor(245, 245, 245);
-        $this->SetTextColor(30, 30, 120);
-        $this->Cell(0, 10, utf8_decode("  " . strtoupper($title)), 0, 1, 'L', true);
-        $this->SetTextColor(0, 0, 0);
-        $this->Ln(2);
+        $this->SetFillColor(230, 230, 230);
+        $this->SetTextColor(40, 60, 110);
+        $this->Cell(0, 8, utf8_decode("  " . strtoupper($title)), 0, 1, 'L', true);
+        $this->Ln(3);
     }
 }
 
-// 2. CONEXIÓN Y DATOS
-try {
-    // Asegúrate de que $dsn, $user, $pass, $options vengan de conexion.php
-    if (!isset($pdo)) {
-        $pdo = new PDO($dsn, $user, $pass, $options);
-    }
-} catch (PDOException $e) {
-    die("Error de conexión: " . $e->getMessage());
-}
+/* =========================================================
+   PROCESAMIENTO DE DATOS
+   ========================================================= */
+$id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+if (!$id) die('ID de funcionario no proporcionado.');
 
-$id = isset($_GET['id_funcionario']) ? (int) $_GET['id_funcionario'] : 0;
-if ($id === 0) die("Error: ID de funcionario no válido.");
+$pdo = new PDO($dsn, $user, $pass, $options);
 
-// Consulta datos básicos
-$stmt = $pdo->prepare("SELECT * FROM tbl_funcionarios WHERE ID_Funcionario = ?");
+// 1. Datos del Funcionario y su Categoría actual
+$stmt = $pdo->prepare("SELECT f.*, c.nombre as categoria_nom 
+                       FROM funcionarios f 
+                       LEFT JOIN categorias c ON f.Id_categoria = c.Id_categoria 
+                       WHERE f.Id_funcionario = ?");
 $stmt->execute([$id]);
 $f = $stmt->fetch(PDO::FETCH_ASSOC);
+if (!$f) die('Funcionario no encontrado.');
 
-if (!$f) die("Error: Funcionario no encontrado en la base de datos.");
+// 2. Historial de Nombramientos
+$stmtN = $pdo->prepare("SELECT n.*, c.Nombre as cargo_nom, d.nombre as direccion_nom 
+                        FROM nombramientos n
+                        LEFT JOIN cargos c ON n.Id_cargo = c.Id_cargo
+                        LEFT JOIN direcciones d ON n.Id_direccion = d.Id_direccion
+                        WHERE n.Id_funcionario = ? ORDER BY n.Fecha_nombramiento DESC");
+$stmtN->execute([$id]);
+$nombramientos = $stmtN->fetchAll(PDO::FETCH_ASSOC);
 
-// 3. INICIO DE GENERACIÓN PDF
+// 3. Formación Académica
+$stmtF = $pdo->prepare("SELECT * FROM tbl_formacion_academica WHERE ID_Funcionario = ? ORDER BY Fecha_Graduacion DESC");
+$stmtF->execute([$id]);
+$estudios = $stmtF->fetchAll(PDO::FETCH_ASSOC);
+
+// 4. Capacitaciones/Cursos
+$stmtC = $pdo->prepare("SELECT * FROM tbl_capacitaciones WHERE ID_Funcionario = ? ORDER BY Fecha_Inicio_Curso DESC");
+$stmtC->execute([$id]);
+$capacitaciones = $stmtC->fetchAll(PDO::FETCH_ASSOC);
+
+/* =========================================================
+   CONSTRUCCIÓN DEL PDF
+   ========================================================= */
 $pdf = new PDF();
 $pdf->AliasNbPages();
 $pdf->AddPage();
+$pdf->SetAutoPageBreak(true, 20);
 
-// MANEJO DE IMAGEN (Ruta corregida: api/funcionarios/)
-$nombre_foto = $f['Fotografia'];
-$ruta_foto = '../api/funcionarios/' . $nombre_foto;
-
-if (!empty($nombre_foto) && file_exists($ruta_foto)) {
-    // FPDF necesita la ruta física relativa o absoluta
-    $pdf->Image($ruta_foto, 155, 45, 40, 50); 
+// Foto del Funcionario
+$rutaFoto = !empty($f['Foto']) ? '../api/' . $f['Foto'] : '';
+if ($rutaFoto && file_exists($rutaFoto)) {
+    $pdf->Image($rutaFoto, 160, 45, 35, 45);
 } else {
-    // Si no hay foto, dibujamos un marco con texto
-    $pdf->Rect(155, 45, 40, 50, 'D');
-    $pdf->SetXY(155, 65);
-    $pdf->SetFont('Arial', 'I', 8);
-    $pdf->Cell(40, 10, 'Sin Foto', 0, 0, 'C');
+    $pdf->Rect(160, 45, 35, 45);
+    $pdf->SetXY(160, 62);
+    $pdf->SetFont('Arial', 'I', 7);
+    $pdf->Cell(35, 10, 'SIN FOTO', 0, 0, 'C');
 }
 
-$pdf->SetY(40); // Ajustar inicio de texto para que no choque con el header
+// SECCIÓN: DATOS PERSONALES
+$pdf->SetY(40);
 $pdf->SectionTitle('Datos Personales');
-$pdf->SetFont('Arial', '', 11);
-
-$pdf->Cell(45, 8, utf8_decode('Código:'), 0, 0);
-$pdf->Cell(0, 8, utf8_decode($f['Codigo_Funcionario']), 0, 1);
-
-$pdf->Cell(45, 8, 'Nombre:', 0, 0);
-$pdf->Cell(0, 8, utf8_decode($f['Nombres'] . ' ' . $f['Apellidos']), 0, 1);
-
-$pdf->Cell(45, 8, 'DNI / Pasaporte:', 0, 0);
-$pdf->Cell(0, 8, utf8_decode($f['DNI_Pasaporte']), 0, 1);
-
-$pdf->Cell(45, 8, 'Fecha de ingreso:', 0, 0);
-$pdf->Cell(0, 8, date('d/m/Y', strtotime($f['Fecha_Ingreso'])), 0, 1);
-
-// ASIGNACIONES (Historial Laboral)
-$pdf->SectionTitle('Historial de Asignaciones');
-$stmt = $pdo->prepare("SELECT a.*, c.Nombre_Cargo, d.Nombre_Departamento, t.Nombre_Destino 
-                       FROM tbl_asignaciones a 
-                       JOIN tbl_cargos c ON a.ID_Cargo = c.ID_Cargo 
-                       JOIN tbl_departamentos d ON a.ID_Departamento = d.ID_Departamento 
-                       JOIN tbl_destinos t ON a.ID_Destino = t.ID_Destino 
-                       WHERE a.ID_Funcionario = ? 
-                       ORDER BY a.Fecha_Inicio_Asignacion DESC");
-$stmt->execute([$id]);
-
 $pdf->SetFont('Arial', '', 10);
-while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-    $periodo = date('d/m/Y', strtotime($row['Fecha_Inicio_Asignacion'])) . ' - ' . ($row['Fecha_Fin_Asignacion'] ? date('d/m/Y', strtotime($row['Fecha_Fin_Asignacion'])) : 'Actualidad');
-    $pdf->SetFont('Arial', 'B', 10);
-    $pdf->Cell(0, 6, utf8_decode($row['Nombre_Cargo']), 0, 1);
-    $pdf->SetFont('Arial', '', 10);
-    $pdf->MultiCell(0, 5, utf8_decode($row['Nombre_Departamento'] . ' | ' . $row['Nombre_Destino'] . " (" . $periodo . ")"), 0);
-    $pdf->Ln(2);
+
+$col1 = 40; 
+$h = 6;
+
+$pdf->SetFont('Arial', 'B', 10); $pdf->Cell($col1, $h, 'Codigo:', 0); 
+$pdf->SetFont('Arial', '', 10); $pdf->Cell(0, $h, utf8_decode($f['CODIGO']), 0, 1);
+
+$pdf->SetFont('Arial', 'B', 10); $pdf->Cell($col1, $h, 'Nombre:', 0); 
+$pdf->SetFont('Arial', '', 10); $pdf->Cell(0, $h, utf8_decode($f['Nombre'] . ' ' . $f['Apellidos']), 0, 1);
+
+$pdf->SetFont('Arial', 'B', 10); $pdf->Cell($col1, $h, 'DIP/Pasaporte:', 0); 
+$pdf->SetFont('Arial', '', 10); $pdf->Cell(0, $h, utf8_decode($f['Dip_Pasaporte']), 0, 1);
+
+$pdf->SetFont('Arial', 'B', 10); $pdf->Cell($col1, $h, 'Estado Laboral:', 0); 
+$pdf->SetFont('Arial', 'B', 10); 
+$pdf->SetTextColor(0, 100, 0); // Verde para estado
+$pdf->Cell(0, $h, utf8_decode($f['Estado_Laboral']), 0, 1);
+$pdf->SetTextColor(0);
+
+$pdf->SetFont('Arial', 'B', 10); $pdf->Cell($col1, $h, utf8_decode('Teléfono/Email:'), 0); 
+$pdf->SetFont('Arial', '', 10); $pdf->Cell(0, $h, utf8_decode($f['Telefono'] . ' / ' . $f['Correo']), 0, 1);
+
+// SECCIÓN: HISTORIAL DE NOMBRAMIENTOS
+$pdf->SectionTitle('Historial de Cargos y Nombramientos');
+if($nombramientos) {
+    $pdf->SetFillColor(240, 240, 255);
+    $pdf->SetFont('Arial', 'B', 9);
+    $pdf->Cell(60, 7, 'Cargo', 1, 0, 'C', true);
+    $pdf->Cell(70, 7, utf8_decode('Dirección/Unidad'), 1, 0, 'C', true);
+    $pdf->Cell(30, 7, 'Nombramiento', 1, 0, 'C', true);
+    $pdf->Cell(30, 7, utf8_decode('Posesión'), 1, 1, 'C', true);
+    
+    $pdf->SetFont('Arial', '', 8);
+    foreach($nombramientos as $n) {
+        $pdf->Cell(60, 7, utf8_decode($n['cargo_nom']), 1);
+        $pdf->Cell(70, 7, utf8_decode($n['direccion_nom']), 1);
+        $pdf->Cell(30, 7, $n['Fecha_nombramiento'], 1, 0, 'C');
+        $pdf->Cell(30, 7, $n['Fecha_toma_posesion'], 1, 1, 'C');
+    }
+} else {
+    $pdf->Cell(0, 7, utf8_decode('No hay historial de nombramientos registrado.'), 0, 1);
 }
 
-// FORMACIÓN ACADÉMICA
-$pdf->SectionTitle('Formación Académica');
-$stmt = $pdo->prepare("SELECT * FROM tbl_formacion_academica WHERE ID_Funcionario = ? ORDER BY Fecha_Graduacion DESC");
-$stmt->execute([$id]);
-while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-    $pdf->Cell(0, 6, utf8_decode('* ' . $row['Titulo_Obtenido'] . ' - ' . $row['Institucion_Educativa'] . ' (' . date('Y', strtotime($row['Fecha_Graduacion'])) . ')'), 0, 1);
+// SECCIÓN: FORMACIÓN ACADÉMICA (Tabla tbl_formacion_academica)
+$pdf->SectionTitle(utf8_decode('Formación Académica'));
+if($estudios) {
+    foreach($estudios as $e) {
+        $pdf->SetFont('Arial', 'B', 10);
+        $pdf->Cell(0, 6, utf8_decode($e['Titulo_Obtenido'] . " (" . $e['Nivel_Educativo'] . ")"), 0, 1);
+        $pdf->SetFont('Arial', '', 10);
+        $pdf->Cell(0, 5, utf8_decode($e['Institucion_Educativa'] . " | Graduado el: " . ($e['Fecha_Graduacion'] ?? 'N/A')), 0, 1);
+        $pdf->Ln(2);
+    }
+} else {
+    $pdf->Cell(0, 7, utf8_decode('No se dispone de información académica detallada.'), 0, 1);
 }
 
-// CAPACITACIONES
-$pdf->SectionTitle('Capacitaciones');
-$stmt = $pdo->prepare("SELECT * FROM tbl_capacitaciones WHERE ID_Funcionario = ? ORDER BY Fecha_Inicio_Curso DESC");
-$stmt->execute([$id]);
-while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-    $pdf->MultiCell(0, 6, utf8_decode('- ' . $row['Nombre_Curso'] . ' (' . $row['Institucion_Organizadora'] . ')'), 0);
+// SECCIÓN: CAPACITACIONES (Tabla tbl_capacitaciones)
+$pdf->SectionTitle('Capacitaciones y Cursos');
+if($capacitaciones) {
+    $pdf->SetFont('Arial', '', 9);
+    foreach($capacitaciones as $cap) {
+        $fecha = $cap['Fecha_Inicio_Curso'] . " a " . $cap['Fecha_Fin_Curso'];
+        $pdf->MultiCell(0, 5, utf8_decode("• " . $cap['Nombre_Curso'] . " - " . $cap['Institucion_Organizadora'] . " (Periodo: $fecha)"), 0, 'L');
+    }
+} else {
+    $pdf->Cell(0, 7, 'No hay capacitaciones registradas.', 0, 1);
 }
 
-// 4. LIMPIEZA FINAL Y SALIDA
-// Esto borra cualquier eco accidental o espacio en blanco antes de generar el binario del PDF
-if (ob_get_length()) ob_end_clean(); 
+// SECCIÓN: DOCUMENTACIÓN ADJUNTA
+$pdf->SectionTitle(utf8_decode('Verificación de Documentación Digital'));
+$pdf->SetFont('Arial', '', 9);
+$docs = [
+    'Copia DIP/Pasaporte' => $f['Dip_pass_copia'],
+    'Documento Nombramiento' => $f['Copia_doc_nomb'],
+    'Carnet Funcionario' => $f['Copia_carnet_func'],
+    'Títulos Académicos' => $f['Copia_doc_academicos']
+];
 
-// I = Abrir en navegador para imprimir/descargar
-$pdf->Output('I', 'Ficha_Funcionario_' . $id . '.pdf');
+foreach($docs as $label => $val) {
+    $status = !empty($val) ? '[ DISPONIBLE ]' : '[ NO CARGADO ]';
+    $pdf->Cell(50, 6, utf8_decode($label . ":"), 0);
+    $pdf->Cell(0, 6, $status, 0, 1);
+}
+
+/* =========================================================
+   SALIDA
+   ========================================================= */
+if (ob_get_length()) ob_end_clean();
+$pdf->Output('I', 'CV_' . $f['CODIGO'] . '.pdf');
