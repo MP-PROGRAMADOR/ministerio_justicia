@@ -1,34 +1,22 @@
 <?php
-// Activar errores solo para desarrollo
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+require_once '../includes/conexion.php';
+header('Content-Type: application/json');
 
-// Configuración de la base de datos
-require '../includes/conexion.php';
-
-// Conexión PDO
 try {
     $pdo = new PDO($dsn, $user, $pass, $options);
-} catch (PDOException $e) {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Error de conexión: ' . $e->getMessage()]);
-    exit;
-}
 
-// Consultas
-try {
-    $departamentos = $pdo->query("SELECT ID_Departamento, Nombre_Departamento FROM tbl_departamentos ORDER BY Nombre_Departamento")->fetchAll();
-    $cargos = $pdo->query("SELECT ID_Cargo, Nombre_Cargo FROM tbl_cargos ORDER BY Nombre_Cargo")->fetchAll();
-    $destinos = $pdo->query("SELECT ID_Destino, Nombre_Destino FROM tbl_destinos ORDER BY Nombre_Destino")->fetchAll();
+    $response = ['success' => true];
 
-    echo json_encode([
-        'success' => true,
-        'departamentos' => $departamentos,
-        'cargos' => $cargos,
-        'destinos' => $destinos
-    ]);
+    // Obtener Direcciones
+    $response['direcciones'] = $pdo->query("SELECT Id_direccion, nombre FROM direcciones ORDER BY nombre ASC")->fetchAll(PDO::FETCH_ASSOC);
+
+    // Obtener Secciones
+    $response['secciones'] = $pdo->query("SELECT Id_seccion, nombre FROM secciones ORDER BY nombre ASC")->fetchAll(PDO::FETCH_ASSOC);
+
+    // Obtener Categorías (Cargos)
+    $response['categorias'] = $pdo->query("SELECT Id_categoria, nombre FROM categorias ORDER BY nombre ASC")->fetchAll(PDO::FETCH_ASSOC);
+
+    echo json_encode($response);
 } catch (PDOException $e) {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Error al consultar filtros: ' . $e->getMessage()]);
+    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }
