@@ -17,6 +17,17 @@ try {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+
+
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+
+
+
 <body>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
     <div class="container-fluid p-0">
@@ -30,9 +41,9 @@ try {
                                 <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addNombramientoModal">
                                     <i class="bi bi-plus-circle me-2"></i> Nuevo Nombramiento
                                 </button>
-                                <div class="input-group" style="width: auto;">
-                                    <input type="text" class="form-control" id="liveSearchInput" placeholder="Buscar en tabla...">
-                                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                <div class="input-group" style="width: 300px;">
+                                    <input type="text" class="form-control shadow-none border-secondary-subtle" id="liveSearchInput" placeholder="Buscar en tabla...">
+                                    <span class="input-group-text bg-light border-secondary-subtle"><i class="bi bi-search"></i></span>
                                 </div>
                             </div>
                         </div>
@@ -44,7 +55,7 @@ try {
                         <div id="mensajeFlash" class="alert alert-danger alert-dismissible fade show" role="alert">
                             <?= htmlspecialchars($_SESSION['error']);
                             unset($_SESSION['error']); ?>
-                           
+
                         </div>
                     <?php endif; ?>
 
@@ -52,7 +63,7 @@ try {
                         <div id="mensajeFlash" class="alert alert-success alert-dismissible fade show" role="alert">
                             <?= htmlspecialchars($_SESSION['exito']);
                             unset($_SESSION['exito']); ?>
-                            
+
                         </div>
                     <?php endif; ?>
                 </div>
@@ -108,7 +119,7 @@ try {
                                                 <td>
                                                     <div class="d-flex gap-1">
                                                         <?php if ($row['Copia_doc_nomb']): ?>
-                                                            <a href="../uploads/<?= $row['Copia_doc_nomb'] ?>" target="_blank" class="btn btn-sm btn-outline-success" title="Nombramiento"><i class="bi bi-file-pdf"></i></a>
+                                                            <a href="../uploads/<?= $row['Copia_doc_nomb'] ?>" target="_blank" class="btn btn-sm btn-outline-danger" title="Nombramiento"><i class="bi bi-file-pdf"></i></a>
                                                         <?php endif; ?>
                                                         <?php if ($row['Copia_doc_tom_posesion']): ?>
                                                             <a href="../uploads/<?= $row['Copia_doc_tom_posesion'] ?>" target="_blank" class="btn btn-sm btn-outline-primary" title="Posesión"><i class="bi bi-file-pdf"></i></a>
@@ -158,6 +169,11 @@ try {
         </div>
     </div>
 
+
+
+
+
+    <!-- Modal de Registrar Nombramiento -->
     <div class="modal fade" id="addNombramientoModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content shadow-lg border-0">
@@ -167,17 +183,24 @@ try {
                 </div>
                 <form id="nombramientoForm" method="POST" action="../api/guardar_nombramiento.php?accion=crear" enctype="multipart/form-data">
                     <input type="hidden" name="id_nombramiento" id="form_id">
+
                     <div class="modal-body p-4">
                         <div class="row g-3">
-                            <div class="col-md-6">
+
+                            <div class="col-md-6 position-relative">
                                 <label class="form-label fw-semibold">Funcionario</label>
-                                <select name="id_funcionario" id="form_func" class="form-select" required>
-                                    <option value="">Seleccione...</option>
-                                    <?php foreach ($funcionarios_list as $f): ?>
-                                        <option value="<?= $f['Id_funcionario'] ?>"><?= htmlspecialchars($f['Nombre'] . ' ' . $f['Apellidos']) ?></option>
-                                    <?php endforeach; ?>
-                                </select>
+                                <div class="input-group">
+                                    <input type="text" id="funcionario_search"
+                                        class="form-control border-secondary-subtle shadow-none"
+                                        placeholder="Escriba nombre o apellido..." autocomplete="off">
+                                </div>
+                                <div id="search_results"
+                                    class="list-group position-absolute w-100 shadow-sm d-none"
+                                    style="z-index: 9999; top: 100%;">
+                                </div>
+                                <input type="hidden" name="id_funcionario" id="form_func" required>
                             </div>
+
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold">Cargo</label>
                                 <select name="id_cargo" id="form_cargo" class="form-select" required>
@@ -187,6 +210,7 @@ try {
                                     <?php endforeach; ?>
                                 </select>
                             </div>
+
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold">Fecha Nombramiento</label>
                                 <input type="date" name="fecha_nombramiento" id="form_fecha_n" class="form-control" required>
@@ -195,6 +219,7 @@ try {
                                 <label class="form-label fw-semibold">Fecha Toma Posesión</label>
                                 <input type="date" name="fecha_toma_posesion" id="form_fecha_p" class="form-control">
                             </div>
+
                             <div class="col-md-4">
                                 <label class="form-label fw-semibold">Dirección</label>
                                 <select name="id_direccion" id="form_dir" class="form-select">
@@ -222,17 +247,26 @@ try {
                                     <?php endforeach; ?>
                                 </select>
                             </div>
+
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold">Doc. Nombramiento</label>
-                                <input type="file" name="doc_nombramiento" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-file-pdf text-danger"></i></span>
+                                    <input type="file" name="doc_nombramiento" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
+                                </div>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold">Doc. Toma Posesión</label>
-                                <input type="file" name="doc_posesion" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-file-pdf text-danger"></i></span>
+                                    <input type="file" name="doc_posesion" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
+                                </div>
                             </div>
                         </div>
                     </div>
+
                     <div class="modal-footer bg-light border-0">
+
                         <button type="submit" id="btnSubmit" class="btn btn-success px-4">
                             <i class="bi bi-save me-2"></i>
                             <span id="btnSubmitText">Registrar Nombramiento</span>
@@ -243,73 +277,165 @@ try {
         </div>
     </div>
 
+
+
+
+
+    <!--Script de Editar y Buscar Funcionario en tiempo Real -->
     <script>
-        // Lógica para modo EDICIÓN
-        document.querySelectorAll('.btn-edit').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const modal = new bootstrap.Modal(document.getElementById('addNombramientoModal'));
+        document.addEventListener('DOMContentLoaded', function() {
+            // 1. Datos para el buscador (Inyectados por PHP)
+            const funcionarios = [
+                <?php foreach ($funcionarios_list as $f): ?> {
+                        id: "<?= $f['Id_funcionario'] ?>",
+                        nombre: "<?= htmlspecialchars($f['Nombre'] . ' ' . $f['Apellidos']) ?>"
+                    },
+                <?php endforeach; ?>
+            ];
 
-                // 1. Encabezado: Color de fondo amarillo y texto negro
+            const input = document.getElementById('funcionario_search');
+            const results = document.getElementById('search_results');
+            const hidden = document.getElementById('form_func');
+
+            // 2. Lógica del buscador en tiempo real
+            input.addEventListener('input', function() {
+                const val = this.value.toLowerCase().trim();
+                results.innerHTML = '';
+
+                if (val.length > 0) {
+                    const matches = funcionarios.filter(f => f.nombre.toLowerCase().includes(val)).slice(0, 5);
+
+                    if (matches.length > 0) {
+                        results.classList.remove('d-none');
+                        matches.forEach(m => {
+                            const btn = document.createElement('button');
+                            btn.type = 'button';
+                            // Clases puras de Bootstrap para el hover y diseño
+                            btn.className = 'list-group-item list-group-item-action border-0 py-2';
+                            btn.textContent = m.nombre;
+                            btn.onclick = () => {
+                                input.value = m.nombre;
+                                hidden.value = m.id;
+                                results.classList.add('d-none');
+                            };
+                            results.appendChild(btn);
+                        });
+                    } else {
+                        results.innerHTML = '<div class="list-group-item text-muted small">No hay coincidencias</div>';
+                        results.classList.remove('d-none');
+                    }
+                } else {
+                    results.classList.add('d-none');
+                    hidden.value = '';
+                }
+            });
+
+            // 3. Lógica para modo EDICIÓN
+            document.querySelectorAll('.btn-edit').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const modal = new bootstrap.Modal(document.getElementById('addNombramientoModal'));
+
+                    // Estilos del Header (Warning)
+                    const header = document.getElementById('modalHeader');
+                    header.innerHTML = '<h5 class="modal-title"><i class="bi bi-pencil-square me-2"></i>Editar Nombramiento</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button>';
+                    header.className = 'modal-header bg-warning text-dark';
+
+                    // Estilos del Botón
+                    const btnSubmit = document.getElementById('btnSubmit');
+                    btnSubmit.className = 'btn btn-warning px-4 text-dark shadow-none';
+                    document.getElementById('btnSubmitText').textContent = 'Actualizar Cambios';
+
+                    // Configuración del Formulario
+                    document.getElementById('nombramientoForm').action = "../api/guardar_nombramiento.php?accion=actualizar";
+
+                    // CARGA DE DATOS: Aquí corregimos que aparezca el nombre en el buscador
+                    document.getElementById('form_id').value = this.dataset.id;
+                    document.getElementById('form_func').value = this.dataset.id_func;
+
+                    // Buscar el nombre correspondiente al ID para mostrarlo en el input de texto
+                    const funcEncontrado = funcionarios.find(f => f.id == this.dataset.id_func);
+                    input.value = funcEncontrado ? funcEncontrado.nombre : "Funcionario no encontrado";
+
+                    document.getElementById('form_cargo').value = this.dataset.id_cargo;
+                    document.getElementById('form_fecha_n').value = this.dataset.fecha_n;
+                    document.getElementById('form_fecha_p').value = this.dataset.fecha_p;
+                    document.getElementById('form_dir').value = this.dataset.id_dir;
+                    document.getElementById('form_sec').value = this.dataset.id_sec;
+                    document.getElementById('form_cat').value = this.dataset.id_cat;
+
+                    modal.show();
+                });
+            });
+
+            // 4. Resetear al modo CREAR al cerrar
+            document.getElementById('addNombramientoModal').addEventListener('hidden.bs.modal', function() {
                 const header = document.getElementById('modalHeader');
-                header.innerHTML = '<h5 class="modal-title" id="modalTitle"><i class="bi bi-pencil-square me-2"></i>Editar Nombramiento</h5><button type="button" class="btn-close text-reset" data-bs-dismiss="modal"></button>';
-                header.className = 'modal-header bg-warning text-dark'; // Cambiado a text-dark
+                header.innerHTML = '<h5 class="modal-title"><i class="bi bi-file-earmark-plus me-2"></i>Registrar Nombramiento</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>';
+                header.className = 'modal-header bg-success text-white';
 
-                // 2. Botón: Nombre "Actualizar Nombramiento" y color amarillo
                 const btnSubmit = document.getElementById('btnSubmit');
-                btnSubmit.className = 'btn btn-warning px-4 text-dark';
-                document.getElementById('btnSubmitText').textContent = 'Actualizar Cambios';
+                btnSubmit.className = 'btn btn-success px-4 shadow-none';
+                document.getElementById('btnSubmitText').textContent = 'Registrar Nombramiento';
 
-                // 3. Configuración del formulario
-                document.getElementById('nombramientoForm').action = "../api/guardar_nombramiento.php?accion=actualizar";
+                document.getElementById('nombramientoForm').reset();
+                document.getElementById('form_id').value = "";
+                input.value = ""; // Limpiar buscador de texto
+                hidden.value = ""; // Limpiar ID oculto
+            });
 
-                // Carga de datos (Dataset)
-                document.getElementById('form_id').value = this.dataset.id;
-                document.getElementById('form_func').value = this.dataset.id_func;
-                document.getElementById('form_cargo').value = this.dataset.id_cargo;
-                document.getElementById('form_fecha_n').value = this.dataset.fecha_n;
-                document.getElementById('form_fecha_p').value = this.dataset.fecha_p;
-                document.getElementById('form_dir').value = this.dataset.id_dir;
-                document.getElementById('form_sec').value = this.dataset.id_sec;
-                document.getElementById('form_cat').value = this.dataset.id_cat;
-
-                modal.show();
+            // Cerrar lista al cliquear fuera
+            document.addEventListener('click', (e) => {
+                if (!input.contains(e.target)) results.classList.add('d-none');
             });
         });
+    </script>
 
-        // Resetear al modo CREAR al cerrar el modal
-        document.getElementById('addNombramientoModal').addEventListener('hidden.bs.modal', function() {
-            const header = document.getElementById('modalHeader');
 
-            // 1. Restaurar Encabezado (Verde y texto blanco)
-            header.innerHTML = '<h5 class="modal-title" id="modalTitle"><i class="bi bi-file-earmark-plus me-2"></i>Registrar Nombramiento</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>';
-            header.className = 'modal-header bg-success text-white';
 
-            // 2. Restaurar Botón (Verde y nombre original)
-            const btnSubmit = document.getElementById('btnSubmit');
-            btnSubmit.className = 'btn btn-success px-4';
-            document.getElementById('btnSubmitText').textContent = 'Registrar Nombramiento';
+    <!-- Script del buscador en tiempo Real -->
+    <script>
+        document.getElementById('liveSearchInput').addEventListener('input', function() {
+            const term = this.value.toLowerCase().trim();
+            const tableBody = document.getElementById('nombramientosTableBody');
+            const rows = tableBody.querySelectorAll('tr:not(.no-results-row)'); // Seleccionamos filas reales
+            let hasResults = false;
 
-            // 3. Restaurar Formulario
-            document.getElementById('nombramientoForm').action = "../api/guardar_nombramiento.php?accion=crear";
-            document.getElementById('nombramientoForm').reset();
-            document.getElementById('form_id').value = "";
-        });
-
-        // Buscador Live
-        document.getElementById('liveSearchInput').addEventListener('keyup', function() {
-            const term = this.value.toLowerCase();
-            document.querySelectorAll('#nombramientosTableBody tr').forEach(row => {
-                row.style.display = row.textContent.toLowerCase().includes(term) ? '' : 'none';
+            // 1. Filtrado de filas
+            rows.forEach(row => {
+                // Obtenemos todo el texto de la fila para una búsqueda global
+                const text = row.textContent.toLowerCase();
+                if (text.includes(term)) {
+                    row.classList.remove('d-none'); // Usamos clase de Bootstrap
+                    hasResults = true;
+                } else {
+                    row.classList.add('d-none');
+                }
             });
-        });
 
-        // Auto-cierre de alertas
-        setTimeout(() => {
-            document.querySelectorAll('.alert').forEach(alerta => {
-                const bsAlert = new bootstrap.Alert(alerta);
-                bsAlert.close();
-            });
-        }, 4000);
+            // 2. Manejo del mensaje "No hay coincidencias"
+            const existingMsg = tableBody.querySelector('.no-results-row');
+
+            if (!hasResults) {
+                // Si no hay resultados y no existe el mensaje, lo creamos
+                if (!existingMsg) {
+                    const noResultsRow = document.createElement('tr');
+                    noResultsRow.className = 'no-results-row';
+                    noResultsRow.innerHTML = `
+                <td colspan="7" class="text-center py-3">
+                    <div class="text-muted">
+                      
+                        No se encontraron coincidencias para "<strong>${this.value}</strong>"
+                    </div>
+                </td>
+            `;
+                    tableBody.appendChild(noResultsRow);
+                }
+            } else {
+                if (existingMsg) {
+                    existingMsg.remove();
+                }
+            }
+        });
     </script>
 </body>
 
