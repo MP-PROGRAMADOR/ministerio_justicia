@@ -37,27 +37,20 @@ include_once '../includes/header.php';
 
 
 
-
-                <?php
-
-                if (isset($_SESSION['error'])) {
-                    echo "<div id='mensajeFlash' class='alert alert-danger'>" . htmlspecialchars($_SESSION['error']) . "</div>";
-                    unset($_SESSION['error']);
-                }
-                if (isset($_SESSION['exito'])) {
-                    echo "<div id='mensajeFlash' class='alert alert-success'>" . htmlspecialchars($_SESSION['exito']) . "</div>";
-                    unset($_SESSION['exito']);
-                }
-                ?>
-
-
-
-
-
-
-
-
                 <div class="container-fluid px-4">
+                    <div>
+                        <?php
+
+                        if (isset($_SESSION['error'])) {
+                            echo "<div id='mensajeFlash' class='alert alert-danger'>" . htmlspecialchars($_SESSION['error']) . "</div>";
+                            unset($_SESSION['error']);
+                        }
+                        if (isset($_SESSION['exito'])) {
+                            echo "<div id='mensajeFlash' class='alert alert-success'>" . htmlspecialchars($_SESSION['exito']) . "</div>";
+                            unset($_SESSION['exito']);
+                        }
+                        ?>
+                    </div>
                     <div class="table-custom mb-4 p-4">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h5 class="mb-0 fw-semibold">Listado de Permisos Aprobados</h5>
@@ -79,7 +72,7 @@ include_once '../includes/header.php';
                             FROM tbl_permisos p
                             JOIN funcionarios f ON p.Id_funcionario = f.Id_funcionario";
 
-                         
+
 
                             // Orden final
                             $sql .= " ORDER BY p.ID_Permiso DESC";
@@ -145,11 +138,16 @@ include_once '../includes/header.php';
 
                                             <td>
                                                 <?php if (!empty($permiso['Documento_Soporte_URL'])): ?>
-                                                    <a href="../uploads/<?= htmlspecialchars($permiso['Documento_Soporte_URL']) ?>" target="_blank" class="btn btn-sm btn-outline-primary">
-                                                        <i class="bi bi-file-earmark-text"></i> Ver
+                                                    <a href="../<?= htmlspecialchars($permiso['Documento_Soporte_URL']) ?>"
+                                                        target="_blank"
+                                                        class="btn btn-sm btn-outline-primary"
+                                                        title="Ver: <?= htmlspecialchars($permiso['documento_permiso']) ?>">
+                                                       <i class="bi bi-file-earmark-text"></i> Ver
                                                     </a>
                                                 <?php else: ?>
-                                                    <span class="text-muted">Ninguno</span>
+                                                    <span class="text-muted small">
+                                                        <i class="bi bi-slash-circle me-1"></i> Sin archivo
+                                                    </span>
                                                 <?php endif; ?>
                                             </td>
                                             <td>
@@ -188,18 +186,13 @@ include_once '../includes/header.php';
                                                         <?php endif; ?>
 
 
-
-
-
                                                         <?php if ($_SESSION['Rol_Usuario'] !== 'Jefe Personal'): ?>
-
-                                                            <!-- <button class="btn btn-sm btn-danger" title="Eliminar"><i class="bi bi-trash"></i></button> -->
 
                                                         <?php endif; ?>
 
                                                     <?php endif; ?>
 
-
+                                                    <!-- Boton de detalles de permiso -->
                                                     <button class="btn btn-sm btn-info btn-detalles-permiso"
                                                         data-id="<?= $permiso['ID_Permiso'] ?>"
                                                         data-funcionario="<?= htmlspecialchars($permiso['Nombre'] . ' ' . $permiso['Apellidos']) ?>"
@@ -217,26 +210,6 @@ include_once '../includes/header.php';
                                                         title="Ver Detalles">
                                                         <i class="bi bi-eye"></i>
                                                     </button>
-
-
-                                                    <button class="btn btn-sm btn-success btn-aprobar-permiso"
-                                                        data-bs-toggle="modal"
-                                                        data-bs-target="#modalAceptarPermiso"
-                                                        data-id="<?= $permiso['ID_Permiso'] ?>"
-                                                        data-funcionario="<?= htmlspecialchars($permiso['Nombre'] . ' ' . $permiso['Apellidos']) ?>"
-                                                        title="Aprobar Permiso">
-                                                        <i class="bi bi-check-lg"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-denegar-permiso"
-                                                        data-bs-toggle="modal"
-                                                        data-bs-target="#modalDenegarPermiso"
-                                                        data-id="<?= $permiso['ID_Permiso'] ?>"
-                                                        data-funcionario="<?= htmlspecialchars($permiso['Nombre'] . ' ' . $permiso['Apellidos']) ?>"
-                                                        title="Denegar Permiso">
-                                                        <i class="bi bi-x-lg"></i>
-                                                    </button>
-
-
 
 
                                                 </div>
@@ -280,11 +253,16 @@ include_once '../includes/header.php';
 
 
 
+
+
+
+
+
     <!-- Modal para Registrar Permiso -->
     <div class="modal fade" id="addPermisoModal" tabindex="-1" aria-labelledby="addPermisoModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
+                <div class="modal-header bg-success text-white">
                     <h5 class="modal-title" id="addPermisoModalLabel">
                         <i class="bi bi-clipboard-check me-2"></i>Solicitud de Permiso
                     </h5>
@@ -292,18 +270,15 @@ include_once '../includes/header.php';
                 </div>
                 <div class="modal-body">
 
-                    <!-- Buscador -->
-                    <div class="mb-4">
+                    <div class="mb-4 mt-3">
                         <label for="searchFuncionario" class="form-label fw-semibold">
                             <i class="bi bi-search me-2 text-primary"></i>Buscar Funcionario
                         </label>
                         <input type="text" id="searchFuncionario" class="form-control" placeholder="Escriba un nombre...">
                     </div>
 
-                    <!-- Lista de funcionarios -->
                     <div class="list-group mb-3" id="listaFuncionarios"></div>
 
-                    <!-- Funcionario seleccionado -->
                     <div id="funcionarioSeleccionado" class="mb-4 d-none">
                         <div class="alert alert-info d-flex justify-content-between align-items-center">
                             <div>
@@ -316,69 +291,55 @@ include_once '../includes/header.php';
                         </div>
                     </div>
 
-                    <!-- Formulario de permiso -->
                     <form method="POST" action="../api/guardar_permiso.php" enctype="multipart/form-data">
-                        <input type="hidden" name="Id_funcionario" id="Id_funcionario">
+                        <input type="hidden" name="ID_Funcionario" id="Id_funcionario" required>
 
                         <div class="row g-3">
-                            <!-- Tipo de Permiso -->
                             <div class="col-md-6">
                                 <label for="tipoPermiso" class="form-label fw-semibold">
                                     <i class="bi bi-ui-checks-grid text-primary me-2"></i>Tipo de Permiso
                                 </label>
                                 <select class="form-select" name="Tipo_Permiso" id="tipoPermiso" required>
-                                    <option selected disabled>Selecciona tipo</option>
-                                    <option value="Vacaciones">Vacaciones</option>
-                                    <option value="Enfermedad">Enfermedad</option>
-                                    <option value="Maternidad">Maternidad</option>
-                                    <option value="Paternidad">Paternidad</option>
-                                    <option value="Asuntos Propios">Asuntos Propios</option>
-                                    <option value="Estudios">Estudios</option>
-                                    <option value="Comisión Servicio">Comisión Servicio</option>
-                                    <option value="Otro">Otro</option>
+                                    <option selected disabled value="">Selecciona tipo</option>
+                                    <?php
+                                    $tipos = ['Vacaciones', 'Enfermedad', 'Maternidad', 'Paternidad', 'Asuntos Propios', 'Estudios', 'Comisión Servicio', 'Otro'];
+                                    foreach ($tipos as $t) {
+                                        echo "<option value='$t'>$t</option>";
+                                    }
+                                    ?>
                                 </select>
                             </div>
 
-                            <!-- Fechas -->
                             <div class="col-md-3">
                                 <label for="fechaInicio" class="form-label fw-semibold">
                                     <i class="bi bi-calendar-event text-primary me-2"></i>Inicio
                                 </label>
-                                <input type="date" name="Fecha_Inicio_Permiso" class="form-control" id="fechaInicio" required>
+                                <input type="date" name="Fecha_Inicio_Permiso" class="form-control" id="fechaInicio">
                             </div>
                             <div class="col-md-3">
                                 <label for="fechaFin" class="form-label fw-semibold">
                                     <i class="bi bi-calendar-check text-primary me-2"></i>Fin
                                 </label>
-                                <input type="date" name="Fecha_Fin_Permiso" class="form-control" id="fechaFin" required>
+                                <input type="date" name="Fecha_Fin_Permiso" class="form-control" id="fechaFin">
                             </div>
 
-                            <!-- Motivo -->
                             <div class="col-md-12">
                                 <label for="motivo" class="form-label fw-semibold">
                                     <i class="bi bi-chat-square-text text-primary me-2"></i>Motivo
                                 </label>
-                                <textarea name="Motivo" class="form-control" id="motivo" rows="3"></textarea>
+                                <textarea name="Motivo" class="form-control" id="motivo" rows="3" required></textarea>
                             </div>
 
-                            <!-- Observaciones -->
-                            <div class="col-md-12">
-                                <label for="observaciones" class="form-label fw-semibold">
-                                    <i class="bi bi-info-circle text-primary me-2"></i>Observaciones
-                                </label>
-                                <textarea name="Observaciones" class="form-control" id="observaciones" rows="2"></textarea>
-                            </div>
-
-                            <!-- Documento Soporte -->
                             <div class="col-md-6">
                                 <label for="documento" class="form-label fw-semibold">
                                     <i class="bi bi-upload text-primary me-2"></i>Documento Soporte (Obligatorio)
                                 </label>
                                 <input type="file" name="Documento_Soporte_URL" class="form-control" id="documento" accept=".pdf,.jpg,.png,.doc,.docx" required>
                             </div>
+
+                            <input type="hidden" name="token" value="1">
                         </div>
 
-                        <!-- Botón enviar -->
                         <div class="mt-4 d-flex justify-content-end mb-3">
                             <button type="submit" class="btn btn-success">
                                 <i class="bi bi-save me-2"></i>Registrar Permiso
@@ -393,60 +354,8 @@ include_once '../includes/header.php';
 
 
 
-    <!-- Modal para Aceptar Permiso -->
-    <div class="modal fade" id="modalAceptarPermiso" tabindex="-1" aria-labelledby="modalAceptarPermisoLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <form action="tu_script_de_procesamiento.php" method="POST">
-                <div class="modal-content">
-                    <div class="modal-header bg-success text-white">
-                        <h5 class="modal-title" id="modalAceptarPermisoLabel">Aprobar Permiso</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body mt-2">
-                        <p>¿Estás seguro de que deseas APROBAR este permiso? <strong id="funcionarioAprobar"></strong>?</p>
-                        <div class="mb-3">
-                            <label for="observacionesAceptar" class="form-label">Observaciones (Opcional):</label>
-                            <textarea class="form-control" id="observacionesAceptar" name="observaciones" rows="3"></textarea>
-                        </div>
-                        <input type="hidden" name="id_permiso" id="idPermisoAprobar">
-                        <input type="hidden" name="accion" value="aprobar">
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-success"> <i class="bi bi-check-circle me-1"></i>Confirmar Aprobacion</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
 
 
-
-    <!-- Modal para Denegar Permiso -->
-    <div class="modal fade" id="modalDenegarPermiso" tabindex="-1" aria-labelledby="modalDenegarPermisoLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <form action="tu_script_de_procesamiento.php" method="POST">
-                <div class="modal-content">
-                    <div class="modal-header bg-danger text-white">
-                        <h5 class="modal-title" id="modalDenegarPermisoLabel">Denegar Permiso</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body mt-2">
-                        <p>¿Estás seguro de que deseas DENEGAR este permiso <strong id="funcionarioDenegar"></strong>?</p>
-                        <div class="mb-3">
-                            <label for="observacionesDenegar" class="form-label">Motivo de Denegación (Requerido):</label>
-                            <textarea class="form-control" id="observacionesDenegar" name="observaciones" rows="3" required></textarea>
-                        </div>
-                        <input type="hidden" name="id_permiso" id="idPermisoDenegar">
-                        <input type="hidden" name="accion" value="denegar">
-                    </div>
-                    <div class="modal-footer">
-                        <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button> -->
-                        <button type="submit" class="btn btn-danger"> <i class="bi bi-check-circle me-1"></i> Confirmar Denegación</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
 
 
 
@@ -527,13 +436,13 @@ include_once '../includes/header.php';
                                 <label class="form-label fw-semibold">
                                     <i class="bi bi-calendar-event me-2 text-primary"></i>Fecha Inicio
                                 </label>
-                                <input type="date" name="Fecha_Inicio_Permiso" id="edit_Fecha_Inicio" class="form-control" required>
+                                <input type="date" name="Fecha_Inicio_Permiso" id="edit_Fecha_Inicio" class="form-control">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold">
                                     <i class="bi bi-calendar-check me-2 text-primary"></i>Fecha Fin
                                 </label>
-                                <input type="date" name="Fecha_Fin_Permiso" id="edit_Fecha_Fin" class="form-control" required>
+                                <input type="date" name="Fecha_Fin_Permiso" id="edit_Fecha_Fin" class="form-control">
                             </div>
 
                             <!-- Motivo -->
@@ -544,13 +453,7 @@ include_once '../includes/header.php';
                                 <textarea name="Motivo" id="edit_Motivo" rows="3" class="form-control"></textarea>
                             </div>
 
-                            <!-- Observaciones -->
-                            <div class="col-md-12">
-                                <label class="form-label fw-semibold">
-                                    <i class="bi bi-info-circle me-2 text-primary"></i>Observaciones
-                                </label>
-                                <textarea name="Observaciones" id="edit_Observaciones" rows="2" class="form-control"></textarea>
-                            </div>
+                        
 
 
                             <?php if ($_SESSION['Rol_Usuario'] === 'Jefe Personal'): ?>
@@ -668,8 +571,7 @@ include_once '../includes/header.php';
                         <dt class="col-sm-4"><i class="bi bi-chat-text me-1 text-primary"></i> Motivo de solicitud</dt>
                         <dd class="col-sm-8" id="modalMotivo"></dd>
 
-                        <dt class="col-sm-4"><i class="bi bi-pencil-square me-1 text-primary"></i> Observaciones</dt>
-                        <dd class="col-sm-8" id="modalObservaciones"></dd>
+                        
 
                         <dt class="col-sm-4"><i class="bi bi-file-earmark-arrow-down me-1 text-primary"></i>Antecedentes</dt>
                         <dd class="col-sm-8" id="modalDocSoporteContainer"></dd>
@@ -752,7 +654,6 @@ include_once '../includes/header.php';
                 }
 
                 document.getElementById('modalMotivo').textContent = button.dataset.motivo || '-';
-                document.getElementById('modalObservaciones').textContent = button.dataset.observaciones || '-';
 
                 // Foto perfil
                 const fotoPerfil = button.dataset.fotografia || 'https://via.placeholder.com/50?text=No+Foto';
@@ -861,7 +762,6 @@ include_once '../includes/header.php';
                     document.getElementById('edit_Fecha_Inicio').value = boton.dataset.inicio;
                     document.getElementById('edit_Fecha_Fin').value = boton.dataset.fin;
                     document.getElementById('edit_Motivo').value = boton.dataset.motivo;
-                    document.getElementById('edit_Observaciones').value = boton.dataset.observaciones;
 
                     modal.show();
                 });

@@ -2,9 +2,10 @@
 session_start();
 require_once '../includes/conexion.php';
 
-// Verificar sesión activa
+// Verificación de sesión
 if (!isset($_SESSION['ID_Usuario'])) {
-    $_SESSION['error'] = "Sesión expirada. Inicia sesión nuevamente.";
+    header("Content-Type: application/json"); // Opcional si es llamada AJAX
+    $_SESSION['error'] = "Sesión expirada.";
     header("Location: ../index.php");
     exit;
 }
@@ -12,64 +13,75 @@ if (!isset($_SESSION['ID_Usuario'])) {
 try {
     $pdo = new PDO($dsn, $user, $pass, $options);
 
-    // Recibir datos del formulario
-    $ID_Funcionario = $_POST['ID_Funcionario'] ?? null;
-    $Nombre_Curso = trim($_POST['Nombre_Curso'] ?? '');
-    $Institucion_Organizadora = trim($_POST['Institucion_Organizadora'] ?? '');
-    $Fecha_Inicio_Curso = $_POST['Fecha_Inicio_Curso'] ?? null;
-    $Fecha_Fin_Curso = $_POST['Fecha_Fin_Curso'] ?? null;
-    $ID_Usuario_Creador = $_SESSION['ID_Usuario'];
+    // 1. Recibir y limpiar datos
+    $idFuncionario = isset($_POST['ID_Funcionario']) ? intval($_POST['ID_Funcionario']) : 0;
+    $nombreCurso   = trim($_POST['Nombre_Curso'] ?? '');
+    $institucion   = trim($_POST['Institucion_Organizadora'] ?? '');
+    $fechaInicio   = !empty($_POST['Fecha_Inicio_Curso']) ? $_POST['Fecha_Inicio_Curso'] : null;
+    $fechaFin      = !empty($_POST['Fecha_Fin_Curso']) ? $_POST['Fecha_Fin_Curso'] : null;
+    $idUsuarioCreador = $_SESSION['ID_Usuario'];
 
-    // Validar campos obligatorios
-    if (!$ID_Funcionario || !$Nombre_Curso || !$Institucion_Organizadora) {
-        $_SESSION['error'] = "Todos los campos obligatorios deben completarse.";
-        header("Location: ../administrador/capacitaciones.php");
-        exit;
+    // 2. Validaciones de servidor
+    if ($idFuncionario <= 0) {
+        throw new Exception("Error: No se ha seleccionado un funcionario válido de la lista.");
+    }
+    if (empty($nombreCurso) || empty($institucion)) {
+        throw new Exception("El nombre del curso y la institución son obligatorios.");
     }
 
-    // Subida del archivo si existe
-    $Certificado_URL = null;
-    if (!empty($_FILES['Certificado_URL']['name'])) {
-        $archivo = $_FILES['Certificado_URL'];
-        $nombreArchivo = 'certificados/cert_' . uniqid() . '_' . basename($archivo['name']);
-        $rutaDestino = '../' . $nombreArchivo;
+    // 3. Verificación de existencia (Nombre de columna: Id_funcionario)
+    $check = $pdo->prepare("SELECT Id_funcionario FROM funcionarios WHERE Id_funcionario = ?");
+    $check->execute([$idFuncionario]);
+    if (!$check->fetch()) {
+        throw new Exception("El funcionario seleccionado ya no existe en la base de datos.");
+    }
 
-        if (move_uploaded_file($archivo['tmp_name'], $rutaDestino)) {
-            $Certificado_URL = $nombreArchivo;
-        } else {
-            $_SESSION['error'] = "No se pudo subir el archivo del certificado.";
-            header("Location: ../administrador/capacitaciones.php");
-            exit;
+    // 4. Subida de Certificado
+    $certificadoURL = null;
+    if (!empty($_FILES['Certificado_URL']['name']) && $_FILES['Certificado_URL']['error'] === 0) {
+        $directorio = '../certificados/';
+        if (!is_dir($directorio)) {
+            mkdir($directorio, 0777, true);
+        }
+
+        $extension = strtolower(pathinfo($_FILES['Certificado_URL']['name'], PATHINFO_EXTENSION));
+        $nombreArchivo = 'cert_' . uniqid() . '.' . $extension;
+        $rutaDestino = $directorio . $nombreArchivo;
+
+        if (move_uploaded_file($_FILES['Certificado_URL']['tmp_name'], $rutaDestino)) {
+            $certificadoURL = 'certificados/' . $nombreArchivo;
         }
     }
 
-    // Insertar en la base de datos
+    // 5. Inserción en tbl_capacitaciones
     $sql = "INSERT INTO tbl_capacitaciones (
-                ID_Funcionario,
-                Nombre_Curso,
-                Institucion_Organizadora,
-                Fecha_Inicio_Curso,
-                Fecha_Fin_Curso,
-                Certificado_URL,
+                ID_Funcionario, 
+                Nombre_Curso, 
+                Institucion_Organizadora, 
+                Fecha_Inicio_Curso, 
+                Fecha_Fin_Curso, 
+                Certificado_URL, 
                 ID_Usuario_Creador
-            )
-            VALUES (?, ?, ?, ?, ?, ?, ?)";
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
     $stmt = $pdo->prepare($sql);
     $stmt->execute([
-        $ID_Funcionario,
-        $Nombre_Curso,
-        $Institucion_Organizadora,
-        $Fecha_Inicio_Curso ?: null,
-        $Fecha_Fin_Curso ?: null,
-        $Certificado_URL,
-        $ID_Usuario_Creador
+        $idFuncionario,
+        $nombreCurso,
+        $institucion,
+        $fechaInicio,
+        $fechaFin,
+        $certificadoURL,
+        $idUsuarioCreador
     ]);
 
-    $_SESSION['exito'] = "Capacitación registrada correctamente.";
+    $_SESSION['exito'] = "Capacitación guardada correctamente.";
 
+} catch (Exception $e) {
+    $_SESSION['error'] = $e->getMessage();
 } catch (PDOException $e) {
-    $_SESSION['error'] = "Error al registrar capacitación: " . $e->getMessage();
+    $_SESSION['error'] = "Error técnico de base de datos.";
+    // En desarrollo puedes usar: $_SESSION['error'] = $e->getMessage();
 }
 
 header("Location: ../administrador/capacitaciones.php");

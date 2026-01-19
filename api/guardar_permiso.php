@@ -1,11 +1,10 @@
 <?php
 session_start();
 
-// 1. VERIFICACIÓN DE SESIÓN (CORREGIDO: Usar ID_Funcionario de la sesión de login)
-if (!isset($_SESSION['ID_Usuario'])) { 
+// 1. VERIFICACIÓN DE SESIÓN
+if (!isset($_SESSION['ID_Usuario'])) {
     $_SESSION['error'] = "Sesión expirada. Vuelve a iniciar sesión.";
-    // Redirige al login principal
-    header("Location: ../index.php"); 
+    header("Location: ../index.php");
     exit;
 }
 
@@ -14,100 +13,93 @@ include_once '../includes/conexion.php';
 try {
     $pdo = new PDO($dsn, $user, $pass, $options);
 
-    // ID del Funcionario que solicita el permiso (tomado de la variable correcta de la sesión)
-    $ID_Funcionario =$_POST['Id_funcionario'] ?? null;
-    
-    $usuario_creador=$_SESSION['ID_Usuario']; 
+    // 2. DATOS DEL FORMULARIO
+    $ID_Funcionario  = $_POST['ID_Funcionario'] ?? null;
+    $Tipo_Permiso    = $_POST['Tipo_Permiso'] ?? null;
+    $Fecha_Inicio    = $_POST['Fecha_Inicio_Permiso'] ?? null;
+    $Fecha_Fin       = $_POST['Fecha_Fin_Permiso'] ?? null;
+    $Motivo          = $_POST['Motivo'] ?? null;
+    $Usuario_creador = $_SESSION['ID_Usuario'];
 
-    // 2. RECUPERACIÓN DE DATOS DEL FORMULARIO
-    $Tipo_Permiso = $_POST['Tipo_Permiso'] ?? null;
-    $Fecha_Inicio_Permiso = $_POST['Fecha_Inicio_Permiso'] ?? null;
-    $Fecha_Fin_Permiso = $_POST['Fecha_Fin_Permiso'] ?? null;
-    $Motivo = $_POST['Motivo'] ?? ''; // Asignar cadena vacía si no se proporciona
-    $Observaciones = $_POST['Observaciones'] ?? ''; // Asignar cadena vacía si no se proporciona
+    // CAMPOS ADICIONALES DE TU TABLA
+    $token = 1; // O la lógica que manejes para este campo int(1)
 
-    // 3. ESTADO POR DEFECTO Y CREADOR
-    $Estado_Permiso = 'Pendiente'; 
-    $ID_Usuario_Creador = $ID_Funcionario; // El mismo funcionario es el creador
-
-
-
-
-  
-
-    // 4. VALIDACIÓN DE DATOS OBLIGATORIOS
-    if (empty($ID_Funcionario) || empty($Tipo_Permiso) || empty($Fecha_Inicio_Permiso) || empty($Fecha_Fin_Permiso)) {
-        throw new Exception("Faltan datos obligatorios (Funcionario ID, Tipo de Permiso o Fechas).");
-    }
-    
-    // Validar que la fecha de inicio no sea posterior a la de fin
-    if ($Fecha_Inicio_Permiso > $Fecha_Fin_Permiso) {
-        throw new Exception("La fecha de inicio no puede ser posterior a la fecha de fin.");
-    }
-    
-    // 5. GESTIÓN DE SUBIDA DE ARCHIVOS
-    $documentoURL = null;
-    
-    // El campo de documento es 'required' en el HTML. Verificamos su carga.
-    if (!isset($_FILES['Documento_Soporte_URL']) || $_FILES['Documento_Soporte_URL']['error'] === UPLOAD_ERR_NO_FILE) {
-         // Si el documento es obligatorio, lanzar una excepción.
-         throw new Exception("El Documento Soporte es obligatorio y no fue subido.");
+    // 3. VALIDACIONES
+    if (empty($ID_Funcionario) || empty($Tipo_Permiso) || empty($Motivo) ) {
+        throw new Exception("Datos obligatorios incompletos.");
     }
 
-    if ($_FILES['Documento_Soporte_URL']['error'] === UPLOAD_ERR_OK) {
+    // 4. GESTIÓN DE ARCHIVOS (Para Documento_Soporte_URL y documento_permiso)
+    $documento_URL = null;
+    $nombre_original_archivo = null;
+
+    if (isset($_FILES['Documento_Soporte_URL']) && $_FILES['Documento_Soporte_URL']['error'] === UPLOAD_ERR_OK) {
         $uploadDir = __DIR__ . '/../uploads/permisos/';
         if (!is_dir($uploadDir)) {
-            if (!mkdir($uploadDir, 0755, true)) {
-                throw new Exception("Error al crear el directorio de subida.");
-            }
-        }
-        
-        $fileTmpPath = $_FILES['Documento_Soporte_URL']['tmp_name'];
-        $fileName = basename($_FILES['Documento_Soporte_URL']['name']);
-        $fileExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
-        $allowedExt = ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'];
-
-        if (!in_array($fileExtension, $allowedExt)) {
-            throw new Exception("Tipo de archivo no permitido. Solo se permiten: " . implode(', ', $allowedExt));
+            mkdir($uploadDir, 0755, true);
         }
 
-        $newFileName = 'permiso_' . $ID_Funcionario . '_' . time() . '.' . $fileExtension;
+        $nombre_original_archivo = basename($_FILES['Documento_Soporte_URL']['name']);
+        $fileExt = strtolower(pathinfo($nombre_original_archivo, PATHINFO_EXTENSION));
+
+        // Generar nombre único para la URL
+        $newFileName = 'permiso_' . $ID_Funcionario . '_' . time() . '.' . $fileExt;
         $destPath = $uploadDir . $newFileName;
 
-        if (!move_uploaded_file($fileTmpPath, $destPath)) {
-            throw new Exception("Error al subir el archivo. Revisa permisos.");
+        if (move_uploaded_file($_FILES['Documento_Soporte_URL']['tmp_name'], $destPath)) {
+            $documento_URL = 'uploads/permisos/' . $newFileName;
+        } else {
+            throw new Exception("Error al mover el archivo al servidor.");
         }
-
-        $documentoURL = 'uploads/permisos/' . $newFileName;
     } else {
-        // Manejo de otros errores de subida de PHP
-        throw new Exception("Error al subir el archivo. Código de error: " . $_FILES['Documento_Soporte_URL']['error']);
+        throw new Exception("El documento soporte es obligatorio.");
     }
-    
-    // 6. INSERCIÓN EN LA BASE DE DATOS
-    $sql = "INSERT INTO tbl_permisos 
-        (Id_funcionario, Tipo_Permiso, Fecha_Inicio_Permiso, Fecha_Fin_Permiso, Motivo, Documento_Soporte_URL, Usuario_creador, Estado_Permiso)
-        VALUES (:Id_funcionario, :Tipo_Permiso, :Fecha_Inicio_Permiso, :Fecha_Fin_Permiso, :Motivo, :Documento_Soporte_URL, :Usuario_creador, :Estado_Permiso)";
-        
+
+    // 5. INSERCIÓN COMPLETA (Sincronizada con todos los campos de tu CREATE TABLE)
+    $sql = "INSERT INTO tbl_permisos (
+                ID_Funcionario, 
+                Tipo_Permiso, 
+                Fecha_Inicio_Permiso, 
+                Fecha_Fin_Permiso, 
+                Motivo, 
+                token, 
+                documento_permiso, 
+                Documento_Soporte_URL, 
+                Usuario_creador,
+                Estado_Permiso,
+                Fecha_Solicitud
+            ) VALUES (
+                :ID_Funcionario, 
+                :Tipo_Permiso, 
+                :Fecha_Inicio_Permiso, 
+                :Fecha_Fin_Permiso, 
+                :Motivo, 
+                :token, 
+                :documento_permiso, 
+                :Documento_Soporte_URL, 
+                :Usuario_creador,
+                'Pendiente',
+                CURDATE()
+            )";
+
     $stmt = $pdo->prepare($sql);
     $stmt->execute([
-        ':Id_funcionario' => $ID_Funcionario,
-        ':Tipo_Permiso' => $Tipo_Permiso,
-        ':Fecha_Inicio_Permiso' => $Fecha_Inicio_Permiso,
-        ':Fecha_Fin_Permiso' => $Fecha_Fin_Permiso,
-        ':Motivo' => $Motivo,
-        ':Documento_Soporte_URL' => $documentoURL,
-        ':Usuario_creador' => $usuario_creador,
-        ':Estado_Permiso' => $Estado_Permiso,
+        ':ID_Funcionario'        => $ID_Funcionario,
+        ':Tipo_Permiso'          => $Tipo_Permiso,
+        ':Fecha_Inicio_Permiso'  => $Fecha_Inicio,
+        ':Fecha_Fin_Permiso'     => $Fecha_Fin,
+        ':Motivo'                => $Motivo,
+        ':token'                 => $token,
+        ':documento_permiso'     => $nombre_original_archivo, // Guardamos el nombre original aquí
+        ':Documento_Soporte_URL' => $documento_URL,          // Guardamos la ruta del servidor aquí
+        ':Usuario_creador'       => $Usuario_creador
     ]);
 
-    $_SESSION['exito'] = "Solicitud de permiso enviada correctamente. Estado: Pendiente.";
-    header('Location: ../administrador/permisos.php'); 
+    $_SESSION['exito'] = "Solicitud registrada con éxito.";
+    header('Location: ../administrador/permisos.php');
     exit;
-
 } catch (Exception $e) {
-    $_SESSION['error'] = "Error al solicitar el permiso: " . $e->getMessage();
-    // Redirige a la página anterior o al dashboard si no hay REFERER
-    header('Location: ' . $_SERVER['HTTP_REFERER'] ?? '../administrador/permisos.php');
+    $_SESSION['error'] = "Error: " . $e->getMessage();
+    header('Location: ../administrador/permisos.php');
     exit;
 }

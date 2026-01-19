@@ -14,16 +14,17 @@ include_once '../includes/header.php';
 
             <div class="main-content" id="mainContent">
 
-
                 <div class="header-section">
                     <div class="row align-items-center">
 
                         <div class="col-md-12 text-md-end mt-3 mt-md-0">
                             <div
-                                class="d-flex justify-content-md-end align-items-center gap-2 flex-wrap justify-content-center">
+                                class="d-flex justify-content-md-end align-items-center gap-2 flex-wrap justify-content-center"
+                                data-id="<?php echo $funcionario['Id_funcionario']; ?>">
                                 <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addCapacitacionModal">
                                     <i class="bi bi-journal-plus me-1"></i> Añadir Capacitación
                                 </button>
+
 
                                 <div class="input-group" style="width: auto;">
                                     <input type="text" class="form-control" id="liveSearchInput"
@@ -37,13 +38,7 @@ include_once '../includes/header.php';
 
 
 
-
-
                 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-
-
-
 
                 <div class="container-fluid px-4">
                     <div>
@@ -76,7 +71,7 @@ include_once '../includes/header.php';
                             $sql = "SELECT c.ID_Capacitacion, c.Nombre_Curso, c.Institucion_Organizadora, c.Fecha_Inicio_Curso, c.Fecha_Fin_Curso, c.Certificado_URL,
                                 f.Nombre, f.Apellidos, f.Dip_Pasaporte
                             FROM tbl_capacitaciones c
-                            JOIN funcionarios f ON c.ID_Funcionario = f.ID_Funcionario
+                            JOIN funcionarios f ON c.Id_funcionario = f.Id_funcionario
                             ORDER BY c.ID_Capacitacion DESC";
                             $stmt = $pdo->query($sql);
                             $capacitaciones = $stmt->fetchAll();
@@ -141,8 +136,6 @@ include_once '../includes/header.php';
                                                     title="Ver Detalles">
                                                     <i class="bi bi-eye"></i>
                                                 </button>
-
-
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -281,75 +274,75 @@ include_once '../includes/header.php';
 
 
     <!-- Modal de ver detalle de Capacitacion -->
-   <div class="modal fade" id="detalleCapacitacionModal" tabindex="-1" aria-labelledby="detalleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg">
-            
-            <div class="modal-header bg-primary text-white py-3">
-                <h5 class="modal-title d-flex align-items-center" id="detalleModalLabel">
-                    <i class="bi bi-journal-check fs-4 me-2"></i> 
-                    <span>Detalles de Capacitación</span>
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
+    <div class="modal fade" id="detalleCapacitacionModal" tabindex="-1" aria-labelledby="detalleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
 
-            <div class="modal-body p-4">
-                <div class="d-flex align-items-center mb-4 p-3 bg-light rounded-3 border-start border-primary border-4">
-                    <div class="flex-shrink-0">
-                        <i class="bi bi-person-badge fs-1 text-primary"></i>
-                    </div>
-                    <div class="ms-3">
-                        <label class="text-uppercase text-muted fw-bold mb-0" style="font-size: 0.75rem; letter-spacing: 1px;">Funcionario</label>
-                        <p id="det-funcionario" class="h5 fw-bold mb-0 text-dark"></p>
-                    </div>
+                <div class="modal-header bg-primary text-white py-3">
+                    <h5 class="modal-title d-flex align-items-center" id="detalleModalLabel">
+                        <i class="bi bi-journal-check fs-4 me-2"></i>
+                        <span>Detalles de Capacitación</span>
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
-                <div class="row g-4">
-                    <div class="col-12">
-                        <div class="d-flex align-items-start">
-                            <i class="bi bi-book me-2 text-primary"></i>
-                            <div>
-                                <label class="fw-bold text-muted small text-uppercase">Nombre del Curso</label>
-                                <p id="det-curso" class="fw-medium mb-0"></p>
+                <div class="modal-body p-4">
+                    <div class="d-flex align-items-center mb-4 p-3 bg-light rounded-3 border-start border-primary border-4">
+                        <div class="flex-shrink-0">
+                            <i class="bi bi-person-badge fs-1 text-primary"></i>
+                        </div>
+                        <div class="ms-3">
+                            <label class="text-uppercase text-muted fw-bold mb-0" style="font-size: 0.75rem; letter-spacing: 1px;">Funcionario</label>
+                            <p id="det-funcionario" class="h5 fw-bold mb-0 text-dark"></p>
+                        </div>
+                    </div>
+
+                    <div class="row g-4">
+                        <div class="col-12">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-book me-2 text-primary"></i>
+                                <div>
+                                    <label class="fw-bold text-muted small text-uppercase">Nombre del Curso</label>
+                                    <p id="det-curso" class="fw-medium mb-0"></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-building me-2 text-primary"></i>
+                                <div>
+                                    <label class="fw-bold text-muted small text-uppercase">Institución Organizadora</label>
+                                    <p id="det-institucion" class="fw-medium mb-0"></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-6">
+                            <div class="p-2 border rounded-3 bg-white">
+                                <label class="fw-bold text-muted small text-uppercase d-block mb-1">
+                                    <i class="bi bi-calendar-event me-1"></i>Inicio
+                                </label>
+                                <p id="det-inicio" class="mb-0 fw-semibold text-dark"></p>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-2 border rounded-3 bg-white">
+                                <label class="fw-bold text-muted small text-uppercase d-block mb-1">
+                                    <i class="bi bi-calendar-check me-1"></i>Fin
+                                </label>
+                                <p id="det-fin" class="mb-0 fw-semibold text-dark"></p>
                             </div>
                         </div>
                     </div>
 
-                    <div class="col-12">
-                        <div class="d-flex align-items-start">
-                            <i class="bi bi-building me-2 text-primary"></i>
-                            <div>
-                                <label class="fw-bold text-muted small text-uppercase">Institución Organizadora</label>
-                                <p id="det-institucion" class="fw-medium mb-0"></p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-6">
-                        <div class="p-2 border rounded-3 bg-white">
-                            <label class="fw-bold text-muted small text-uppercase d-block mb-1">
-                                <i class="bi bi-calendar-event me-1"></i>Inicio
-                            </label>
-                            <p id="det-inicio" class="mb-0 fw-semibold text-dark"></p>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="p-2 border rounded-3 bg-white">
-                            <label class="fw-bold text-muted small text-uppercase d-block mb-1">
-                                <i class="bi bi-calendar-check me-1"></i>Fin
-                            </label>
-                            <p id="det-fin" class="mb-0 fw-semibold text-dark"></p>
-                        </div>
+                    <div id="det-certificado-area" class="mt-4 p-3 border border-dashed rounded-3 text-center bg-light">
                     </div>
                 </div>
 
-                <div id="det-certificado-area" class="mt-4 p-3 border border-dashed rounded-3 text-center bg-light">
-                    </div>
             </div>
-
         </div>
     </div>
-</div>
 
 
 
@@ -412,6 +405,10 @@ include_once '../includes/header.php';
         </div>
     </div>
 
+
+
+
+    
     <script>
         // Función para abrir el modal y rellenar los datos (ejemplo con jQuery)
         document.querySelectorAll('.btn-editar-capacitacion').forEach(button => {
@@ -487,8 +484,8 @@ include_once '../includes/header.php';
                             item.className = 'list-group-item list-group-item-action';
                             item.textContent = `${f.Nombre} ${f.Apellidos} - ${f.Dip_Pasaporte}`;
                             item.addEventListener('click', () => {
-                                idFuncionarioInput.value = f.ID_Funcionario;
-                                nombreFuncionarioSpan.textContent = `${f.Nombres} ${f.Apellidos} - DOCUMENTO: ${f.DNI_Pasaporte}`;
+                                idFuncionarioInput.value = f.Id_funcionario;
+                                nombreFuncionarioSpan.textContent = `${f.Nombre} ${f.Apellidos} - DOCUMENTO: ${f.Dip_Pasaporte}`;
                                 seleccionadoDiv.classList.remove('d-none');
                                 listaFuncionarios.innerHTML = '';
                                 searchInput.value = '';
@@ -515,11 +512,9 @@ include_once '../includes/header.php';
 
 
 
-
-
+    <!--Script para la paginacion -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Sidebar toggle for mobile
             const sidebarToggle = document.getElementById('sidebarToggle');
             const sidebar = document.getElementById('sidebar');
             const sidebarOverlay = document.getElementById('sidebarOverlay');
@@ -556,11 +551,8 @@ include_once '../includes/header.php';
 
 
 
-
-
-
             // Pagination logic (Client-side example)
-            const rowsPerPage = 8; // Number of rows per page
+            const rowsPerPage = 8;
             const tableRows = funcionariosTableBody.getElementsByTagName('tr');
             const totalPages = Math.ceil(tableRows.length / rowsPerPage);
             const paginationControls = document.getElementById('paginationControls');
@@ -582,8 +574,7 @@ include_once '../includes/header.php';
             }
 
             function setupPagination() {
-                paginationControls.innerHTML = ''; // Clear existing buttons
-
+                paginationControls.innerHTML = '';
                 const prevButton = document.createElement('li');
                 prevButton.classList.add('page-item');
                 prevButton.innerHTML = '<a class="page-link" href="#" tabindex="-1" aria-disabled="true">Anterior</a>';
@@ -693,6 +684,9 @@ include_once '../includes/header.php';
             });
         });
     </script>
+
+
+
 
 
     <!--Script para ver detallete de capacitaciones externas -->

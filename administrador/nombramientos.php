@@ -150,11 +150,13 @@ try {
                             </table>
                         </div>
                     </div>
-                    <nav aria-label="Page navigation example" class="mt-3">
+                    <nav aria-label="Navegación de tabla" class="mt-3">
                         <ul class="pagination justify-content-center" id="paginationControls">
                             <li class="page-item disabled"><a class="page-link" href="#" tabindex="-1"
                                     aria-disabled="true">Anterior</a></li>
                             <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                            <li class="page-item"><a class="page-link" href="#">3</a></li>
                             <li class="page-item"><a class="page-link" href="#">Siguiente</a></li>
                         </ul>
                     </nav>
@@ -168,6 +170,126 @@ try {
             </div>
         </div>
     </div>
+
+
+
+
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const input = document.getElementById('liveSearchInput');
+            const tableBody = document.getElementById('nombramientosTableBody');
+            const paginationControls = document.getElementById('paginationControls');
+
+            const rowsPerPage = 8;
+            let currentPage = 1;
+
+            function updateTable() {
+                const term = input.value.toLowerCase().trim();
+                const allRows = Array.from(tableBody.querySelectorAll('tr:not(.no-results-row)'));
+
+                // 1. Filtrado
+                const filteredRows = allRows.filter(row => row.textContent.toLowerCase().includes(term));
+
+                // 2. Mensaje de "Sin coincidencias"
+                const existingMsg = tableBody.querySelector('.no-results-row');
+                if (filteredRows.length === 0) {
+                    allRows.forEach(row => row.style.display = 'none');
+                    if (!existingMsg) {
+                        const tr = document.createElement('tr');
+                        tr.className = 'no-results-row';
+                        tr.innerHTML = `<td colspan="7" class="text-center py-5 text-muted">
+                    <i class="bi bi-search d-block fs-1 mb-2"></i>
+                    No se encontraron coincidencias para "<strong>${input.value}</strong>"
+                </td>`;
+                        tableBody.appendChild(tr);
+                    }
+                    paginationControls.innerHTML = '';
+                    return;
+                } else if (existingMsg) {
+                    existingMsg.remove();
+                }
+
+                // 3. Lógica de Paginación
+                const totalPages = Math.ceil(filteredRows.length / rowsPerPage);
+                if (currentPage > totalPages) currentPage = totalPages || 1;
+
+                // Ocultar todas y mostrar solo el rango de la página actual
+                allRows.forEach(row => row.style.display = 'none');
+                const start = (currentPage - 1) * rowsPerPage;
+                const end = start + rowsPerPage;
+
+                filteredRows.slice(start, end).forEach(row => {
+                    row.style.display = '';
+                });
+
+                // 4. GENERAR BOTONES (Aquí es donde se ve el número de página)
+                renderPagination(totalPages);
+            }
+
+            function renderPagination(total) {
+                paginationControls.innerHTML = '';
+                if (total <= 1) return;
+
+                // Botón Anterior
+                const prev = document.createElement('li');
+                prev.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+                prev.innerHTML = `<a class="page-link" href="#">Anterior</a>`;
+                prev.onclick = (e) => {
+                    e.preventDefault();
+                    if (currentPage > 1) {
+                        currentPage--;
+                        updateTable();
+                        window.scrollTo(0, 0);
+                    }
+                };
+                paginationControls.appendChild(prev);
+
+                // Números de Página Dinámicos
+                for (let i = 1; i <= total; i++) {
+                    const li = document.createElement('li');
+                    // Si i es igual a la página actual, le ponemos la clase 'active' de Bootstrap
+                    li.className = `page-item ${i === currentPage ? 'active' : ''}`;
+                    li.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+                    li.onclick = (e) => {
+                        e.preventDefault();
+                        currentPage = i;
+                        updateTable();
+                        window.scrollTo(0, 0); // Opcional: sube al inicio de la tabla
+                    };
+                    paginationControls.appendChild(li);
+                }
+
+                // Botón Siguiente
+                const next = document.createElement('li');
+                next.className = `page-item ${currentPage === total ? 'disabled' : ''}`;
+                next.innerHTML = `<a class="page-link" href="#">Siguiente</a>`;
+                next.onclick = (e) => {
+                    e.preventDefault();
+                    if (currentPage < total) {
+                        currentPage++;
+                        updateTable();
+                        window.scrollTo(0, 0);
+                    }
+                };
+                paginationControls.appendChild(next);
+            }
+
+            // Escuchar el buscador
+            input.addEventListener('input', () => {
+                currentPage = 1;
+                updateTable();
+            });
+
+            // Carga inicial
+            updateTable();
+        });
+    </script>
+
+
+
+
 
 
 
@@ -392,51 +514,12 @@ try {
 
 
 
-    <!-- Script del buscador en tiempo Real -->
-    <script>
-        document.getElementById('liveSearchInput').addEventListener('input', function() {
-            const term = this.value.toLowerCase().trim();
-            const tableBody = document.getElementById('nombramientosTableBody');
-            const rows = tableBody.querySelectorAll('tr:not(.no-results-row)'); // Seleccionamos filas reales
-            let hasResults = false;
+    <!-- Script del buscador en tiempo Real Al lado del boton de Nuevo Nombramiento-->
 
-            // 1. Filtrado de filas
-            rows.forEach(row => {
-                // Obtenemos todo el texto de la fila para una búsqueda global
-                const text = row.textContent.toLowerCase();
-                if (text.includes(term)) {
-                    row.classList.remove('d-none'); // Usamos clase de Bootstrap
-                    hasResults = true;
-                } else {
-                    row.classList.add('d-none');
-                }
-            });
 
-            // 2. Manejo del mensaje "No hay coincidencias"
-            const existingMsg = tableBody.querySelector('.no-results-row');
 
-            if (!hasResults) {
-                // Si no hay resultados y no existe el mensaje, lo creamos
-                if (!existingMsg) {
-                    const noResultsRow = document.createElement('tr');
-                    noResultsRow.className = 'no-results-row';
-                    noResultsRow.innerHTML = `
-                <td colspan="7" class="text-center py-3">
-                    <div class="text-muted">
-                      
-                        No se encontraron coincidencias para "<strong>${this.value}</strong>"
-                    </div>
-                </td>
-            `;
-                    tableBody.appendChild(noResultsRow);
-                }
-            } else {
-                if (existingMsg) {
-                    existingMsg.remove();
-                }
-            }
-        });
-    </script>
+
+
 </body>
 
 <?php include_once '../includes/footer.php'; ?>
