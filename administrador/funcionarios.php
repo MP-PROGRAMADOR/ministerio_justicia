@@ -79,15 +79,24 @@ include_once '../includes/header.php';
 
                             // Consulta para obtener datos de funcionarios con sección y categoría
                             $sql = "SELECT 
-                                f.Id_funcionario,
-                                f.CODIGO, f.Nombre, f.Apellidos, f.Estado_Laboral, f.Dip_Pasaporte, f.Sexo, f.Fecha_nacimiento,
-                                f.Lugar_nacimiento, f.Nacionalidad, f.Telefono, f.Correo, f.Domicilio, f.Num_carnet_fun,
-                                f.Fecha_nombramiento, f.Fecha_posesion, f.Id_seccion, s.nombre AS nombre_seccion,
-                                f.Funcion, f.Id_categoria, c.nombre AS nombre_categoria,
-                                f.Profesion,f.Maximo_nivel_estudios,f.Titulacion_academica,f.Universidad_centro_formacion,f.Fecha_graduacion,
-                                f.Foto,f.Dip_pass_copia,f.Copia_doc_nomb,f.Copia_carnet_func,f.Copia_doc_tom_posesion,f.Copia_doc_academicos,
-                                f.Usuario_creador, f.Fecha_registro FROM funcionarios f
+                                    f.Id_funcionario, f.CODIGO, f.Nombre, f.Apellidos, f.Estado_Laboral, f.Dip_Pasaporte, 
+                                    f.Sexo, f.Fecha_nacimiento, f.Lugar_nacimiento, f.Nacionalidad, f.Telefono, 
+                                    f.Correo, f.Domicilio, f.Num_carnet_fun, f.Fecha_nombramiento, f.Fecha_posesion, 
+                                    f.Id_seccion, s.nombre AS nombre_seccion, d.nombre AS nombre_direccion,
+                                    f.Funcion, f.Id_categoria, c.nombre AS nombre_categoria,
+                                    /* Subconsulta para obtener el NOMBRE del cargo más reciente */
+                                    (SELECT car.Nombre 
+                                    FROM nombramientos n 
+                                    INNER JOIN cargos car ON n.Id_cargo = car.Id_cargo 
+                                    WHERE n.Id_funcionario = f.Id_funcionario 
+                                    ORDER BY n.Fecha_nombramiento DESC LIMIT 1) AS nombre_cargo,
+                                    f.Profesion, f.Maximo_nivel_estudios, f.Titulacion_academica, 
+                                    f.Universidad_centro_formacion, f.Fecha_graduacion, f.Foto, 
+                                    f.Dip_pass_copia, f.Copia_doc_nomb, f.Copia_carnet_func, 
+                                    f.Copia_doc_tom_posesion, f.Copia_doc_academicos, f.Usuario_creador, f.Fecha_registro 
+                                FROM funcionarios f
                                 LEFT JOIN secciones s ON f.Id_seccion = s.Id_seccion
+                                LEFT JOIN direcciones d ON s.Id_direccion = d.Id_direccion
                                 LEFT JOIN categorias c ON f.Id_categoria = c.Id_categoria
                                 ORDER BY f.Id_funcionario ASC
                             ";
@@ -102,13 +111,13 @@ include_once '../includes/header.php';
                                         <th>ID</th>
                                         <th>Foto</th>
                                         <th>Código</th>
-                                        <th>Nombres</th>
-                                        <th>Apellidos</th>
-                                        <th>DIP/Pasaporte</th>
-                                        <th>Fecha Nacimiento</th>
-                                        <th>Género</th>
-                                        <th>Sección</th>
-                                        <th>Categoría</th>
+                                        <th>Nombre y Apellidos</th>
+                                        <th>Funcion</th>
+                                        <th>Seccion</th>
+                                        <th>Domicilio</th>
+                                        <th>categoria</th>
+                                        <th>Telefono</th>
+                                        <th>Ubicacion</th>
                                         <th>Estado Laboral</th>
                                         <th>Acciones</th>
                                     </tr>
@@ -133,16 +142,14 @@ include_once '../includes/header.php';
                                                     <i class="bi bi-image-fill text-muted"></i>
                                                 <?php endif; ?>
                                             </td>
-
-                                            <td><?= htmlspecialchars($f['CODIGO']) ?></td>
-                                            <td><?= htmlspecialchars($f['Nombre']) ?></td>
-                                            <td><?= htmlspecialchars($f['Apellidos']) ?></td>
-                                            <td><?= htmlspecialchars($f['Dip_Pasaporte']) ?></td>
-                                            <td><?= htmlspecialchars($f['Fecha_nacimiento']) ?></td>
-                                            <td><?= htmlspecialchars($f['Sexo']) ?></td>
-                                            <td><?= htmlspecialchars($f['nombre_seccion']) ?></td>
-                                            <td><?= htmlspecialchars($f['nombre_categoria']) ?></td>
-
+                                            <td><?= htmlspecialchars(string: $f['CODIGO']) ?></td>
+                                            <td><?= htmlspecialchars($f['Nombre']) ?> <?= htmlspecialchars($f['Apellidos']) ?></td>
+                                            <td><?= htmlspecialchars($f['nombre_cargo'] ?? 'N/A') ?></td>
+                                            <td><?= htmlspecialchars($f['nombre_seccion'] ?? 'N/A') ?></td>
+                                            <td><?= htmlspecialchars($f['Domicilio'] ?? 'N/A') ?></td>
+                                            <td><?= htmlspecialchars($f['nombre_categoria'] ?? 'N/A') ?></td>
+                                            <td><?= htmlspecialchars($f['Telefono'] ?? '---') ?> </td>
+                                            <td><?= htmlspecialchars($f['nombre_direccion'] ?? '---') ?> </td>
                                             <td>
                                                 <?php
                                                 $estado_actual = $f['Estado_Laboral'] ?? 'Activo';
@@ -325,8 +332,9 @@ include_once '../includes/header.php';
                             </li>
                         </ul>
 
-                        <div class="tab-content" id="funcionarioTabContent">
 
+                        <div class="tab-content" id="funcionarioTabContent">
+                            <!-- Datos Personales -->
                             <div class="tab-pane fade show active" id="personales" role="tabpanel" aria-labelledby="personales-tab">
                                 <h6 class="fw-semibold text-primary border-bottom pb-2 mb-3">Datos Personales</h6>
                                 <div class="row g-3 mb-3">
@@ -346,12 +354,12 @@ include_once '../includes/header.php';
                                             </div>
                                             <div class="col-md-6">
                                                 <label class="form-label">Número de Carnet de Funcionario</label>
-                                                <input type="text" class="form-control" name="Num_carnet_fun" required>
+                                                <input type="text" class="form-control" name="Num_carnet_fun">
                                             </div>
                                             <div class="col-md-4">
                                                 <label class="form-label">Sexo</label>
                                                 <select class="form-select" name="Sexo" required>
-                                                    <option value="" disabled selected>Selecciona género</option>
+                                                    <option value="" disabled selected hidden>Selecciona género</option>
                                                     <option value="Masculino">Masculino</option>
                                                     <option value="Femenino">Femenino</option>
                                                     <option value="Otro">Otro</option>
@@ -387,7 +395,7 @@ include_once '../includes/header.php';
                                     </div>
                                 </div>
                             </div>
-
+                            <!--  Contacto y Laboral -->
                             <div class="tab-pane fade" id="laboral-contacto" role="tabpanel" aria-labelledby="laboral-contacto-tab">
                                 <div class="row">
                                     <div class="col-md-6 border-end">
@@ -399,7 +407,7 @@ include_once '../includes/header.php';
                                             </div>
                                             <div class="col-12">
                                                 <label class="form-label">Correo Electrónico</label>
-                                                <input type="email" class="form-control" name="Correo" required>
+                                                <input type="email" class="form-control" name="Correo">
                                             </div>
                                             <div class="col-12">
                                                 <label class="form-label">Domicilio</label>
@@ -420,9 +428,9 @@ include_once '../includes/header.php';
                                                 <input type="date" class="form-control" name="Fecha_posesion" required>
                                             </div>
                                             <div class="col-md-12">
-                                                <label class="form-label">Función / Cargo</label>
+                                                <label class="form-label">Función/Cargo</label>
                                                 <select class="form-select" name="Funcion" required>
-                                                    <option value="" disabled selected>Selecciona El Cargo</option>
+                                                    <option value="" disabled selected hidden>Selecciona cargo</option>
                                                     <?php
                                                     // CONEXIÓN Y CONSULTA PHP para Cargos
                                                     require_once "../includes/conexion.php";
@@ -437,7 +445,7 @@ include_once '../includes/header.php';
                                             <div class="col-md-12">
                                                 <label class="form-label">Sección</label>
                                                 <select class="form-select" name="Id_seccion" required>
-                                                    <option value="" disabled selected>Selecciona sección</option>
+                                                    <option value="" disabled selected hidden>Selecciona sección</option>
                                                     <?php
                                                     // CONEXIÓN Y CONSULTA PHP para Secciones
                                                     require_once "../includes/conexion.php";
@@ -452,12 +460,12 @@ include_once '../includes/header.php';
                                             <div class="col-md-6">
                                                 <label class="form-label">Categoría</label>
                                                 <select class="form-select" name="Id_categoria" required>
-                                                    <option value="" disabled selected>Selecciona categoría</option>
+                                                    <option value="" disabled selected hidden>Selecciona categoría</option>
                                                     <?php
                                                     // CONEXIÓN Y CONSULTA PHP para Categorías
                                                     $stmt = $pdo->query("SELECT Id_categoria, nombre, descripcion FROM categorias ORDER BY nombre ASC");
                                                     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                                                        echo '<option value="' . $row['Id_categoria'] . '">' . htmlspecialchars($row['nombre']) . ' ' . htmlspecialchars($row['descripcion']) . '</option>';
+                                                        echo '<option value="' . $row['Id_categoria'] . '">' . htmlspecialchars($row['nombre']) . '</option>';
                                                     }
                                                     ?>
                                                 </select>
@@ -477,7 +485,7 @@ include_once '../includes/header.php';
                                     </div>
                                 </div>
                             </div>
-
+                            <!--  Académicos y Documentos -->
                             <div class="tab-pane fade" id="academicos-docs" role="tabpanel" aria-labelledby="academicos-docs-tab">
                                 <div class="row">
                                     <div class="col-md-6 border-end">
@@ -810,17 +818,13 @@ include_once '../includes/header.php';
             }
         }
 
-        /* --------------------------
-         Evento para abrir el modal
-        --------------------------- */
+        //Evento para abrir el modal
         document.getElementById('employeeDetailModal')
             .addEventListener('show.bs.modal', e => {
-                // Recuperar el ID del botón que activó el modal
                 const id = e.relatedTarget.getAttribute('data-funcionario-id');
                 if (id) {
                     loadEmployeeData(id);
                 } else {
-                    // Manejar caso sin ID
                     document.getElementById('modalContentData').innerHTML = `
                 <div class="col-12 text-center alert alert-warning border-0">
                     No se proporcionó un ID de funcionario.
@@ -962,18 +966,24 @@ include_once '../includes/header.php';
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label fw-semibold">Función / Cargo</label>
-                                        <input type="text" name="Funcion" id="edit_funcion" class="form-control" required>
+                                        <select name="Id_cargo" id="edit_cargo" class="form-select" required>
+                                            <?php
+                                            $stmt = $pdo->query("SELECT Id_cargo, Nombre FROM cargos ORDER BY Nombre");
+                                            while ($c = $stmt->fetch()) {
+                                                echo "<option value='{$c['Id_cargo']}'>{$c['Nombre']}</option>";
+                                            }
+                                            ?>
+                                        </select>
                                     </div>
+
                                     <div class="col-md-6">
                                         <label class="form-label fw-semibold">Categoría</label>
                                         <select name="Id_categoria" id="edit_categoria" class="form-select" required>
                                             <?php
-                                            // $stmt = $pdo->query("SELECT Id_categoria, nombre FROM categorias ORDER BY nombre");
-                                            // while ($c = $stmt->fetch()) {
-                                            //     echo "<option value='{$c['Id_categoria']}'>{$c['nombre']}</option>";
-                                            // }
-                                            echo "<option value='1'>Ej. A1</option>";
-                                            echo "<option value='2'>Ej. B2</option>";
+                                            $stmt = $pdo->query("SELECT Id_categoria, nombre FROM categorias ORDER BY nombre");
+                                            while ($c = $stmt->fetch()) {
+                                                echo "<option value='{$c['Id_categoria']}'>{$c['nombre']}</option>";
+                                            }
                                             ?>
                                         </select>
                                     </div>
@@ -981,12 +991,10 @@ include_once '../includes/header.php';
                                         <label class="form-label fw-semibold">Sección</label>
                                         <select name="Id_seccion" id="edit_seccion" class="form-select" required>
                                             <?php
-                                            // $stmt = $pdo->query("SELECT Id_seccion, nombre FROM secciones ORDER BY nombre");
-                                            // while ($s = $stmt->fetch()) {
-                                            //     echo "<option value='{$s['Id_seccion']}'>{$s['nombre']}</option>";
-                                            // }
-                                            echo "<option value='1'>Ej. RRHH</option>";
-                                            echo "<option value='2'>Ej. Contabilidad</option>";
+                                            $stmt = $pdo->query("SELECT Id_seccion, nombre FROM secciones ORDER BY nombre");
+                                            while ($s = $stmt->fetch()) {
+                                                echo "<option value='{$s['Id_seccion']}'>{$s['nombre']}</option>";
+                                            }
                                             ?>
                                         </select>
                                     </div>
