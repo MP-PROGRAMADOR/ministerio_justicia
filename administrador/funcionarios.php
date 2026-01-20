@@ -369,6 +369,31 @@ include_once '../includes/header.php';
                                                 <label class="form-label">Lugar de Nacimiento</label>
                                                 <input type="text" class="form-control" name="Lugar_nacimiento" placeholder="Ej: Malabo" required>
                                             </div>
+
+
+                                            
+                                            <div class="col-md-3">
+                                                <label class="form-label">Tribu</label>
+                                                <input type="text" class="form-control" name="Tribu">
+                                            </div>
+
+                                            <div class="col-md-3">
+                                                <label class="form-label">Pueblo</label>
+                                                <input type="text" class="form-control" name="Pueblo">
+                                            </div>
+
+                                            <div class="col-md-3">
+                                                <label class="form-label">Distrito</label>
+                                                <input type="text" class="form-control" name="Distrito">
+                                            </div>
+
+                                            <div class="col-md-3">
+                                                <label class="form-label">Provincia</label>
+                                                <input type="text" class="form-control" name="Provincia">
+                                            </div>
+
+
+
                                         </div>
                                     </div>
 

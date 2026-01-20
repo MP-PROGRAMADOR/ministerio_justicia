@@ -144,6 +144,11 @@ ADD COLUMN Distrito VARCHAR(100) AFTER Pueblo,
 ADD COLUMN Provincia VARCHAR(100) AFTER Distrito;
 
 
+ALTER TABLE funcionarios
+ADD COLUMN Id_cargo INT,
+ADD FOREIGN KEY (Id_cargo) REFERENCES cargos(Id_cargo);
+
+
 
 
 /* =========================================================
