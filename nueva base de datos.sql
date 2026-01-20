@@ -106,7 +106,6 @@ CREATE TABLE funcionarios (
     Fecha_posesion DATE,
 
     Id_seccion INT,
-    Funcion VARCHAR(100),
     Id_categoria INT,
 
     Profesion VARCHAR(100),

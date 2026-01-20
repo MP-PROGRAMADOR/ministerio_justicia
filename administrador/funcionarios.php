@@ -79,26 +79,70 @@ include_once '../includes/header.php';
 
                             // Consulta para obtener datos de funcionarios con sección y categoría
                             $sql = "SELECT 
-                                    f.Id_funcionario, f.CODIGO, f.Nombre, f.Apellidos, f.Estado_Laboral, f.Dip_Pasaporte, 
-                                    f.Sexo, f.Fecha_nacimiento, f.Lugar_nacimiento, f.Nacionalidad, f.Telefono, 
-                                    f.Correo, f.Domicilio, f.Num_carnet_fun, f.Fecha_nombramiento, f.Fecha_posesion, 
-                                    f.Id_seccion, s.nombre AS nombre_seccion, d.nombre AS nombre_direccion,
-                                    f.Funcion, f.Id_categoria, c.nombre AS nombre_categoria,
-                                    /* Subconsulta para obtener el NOMBRE del cargo más reciente */
-                                    (SELECT car.Nombre 
-                                    FROM nombramientos n 
-                                    INNER JOIN cargos car ON n.Id_cargo = car.Id_cargo 
-                                    WHERE n.Id_funcionario = f.Id_funcionario 
-                                    ORDER BY n.Fecha_nombramiento DESC LIMIT 1) AS nombre_cargo,
-                                    f.Profesion, f.Maximo_nivel_estudios, f.Titulacion_academica, 
-                                    f.Universidad_centro_formacion, f.Fecha_graduacion, f.Foto, 
-                                    f.Dip_pass_copia, f.Copia_doc_nomb, f.Copia_carnet_func, 
-                                    f.Copia_doc_tom_posesion, f.Copia_doc_academicos, f.Usuario_creador, f.Fecha_registro 
-                                FROM funcionarios f
-                                LEFT JOIN secciones s ON f.Id_seccion = s.Id_seccion
-                                LEFT JOIN direcciones d ON s.Id_direccion = d.Id_direccion
-                                LEFT JOIN categorias c ON f.Id_categoria = c.Id_categoria
-                                ORDER BY f.Id_funcionario ASC
+    f.Id_funcionario,
+    f.CODIGO,
+    f.Nombre,
+    f.Apellidos,
+    f.Estado_Laboral,
+    f.Dip_Pasaporte,
+    f.Sexo,
+    f.Fecha_nacimiento,
+    f.Lugar_nacimiento,
+    f.Nacionalidad,
+
+    -- NUEVOS DATOS GEOGRÁFICOS Y CULTURALES
+    f.Tribu,
+    f.Pueblo,
+    f.Distrito,
+    f.Provincia,
+
+    f.Telefono,
+    f.Correo,
+    f.Domicilio,
+    f.Num_carnet_fun,
+    f.Fecha_nombramiento,
+    f.Fecha_posesion,
+
+    f.Id_seccion,
+    s.nombre AS nombre_seccion,
+    d.nombre AS nombre_direccion,
+
+    f.Id_cargo,
+    f.Id_categoria,
+    c.nombre AS nombre_categoria,
+
+    /* Cargo más reciente */
+    (
+        SELECT car.Nombre
+        FROM nombramientos n
+        INNER JOIN cargos car ON n.Id_cargo = car.Id_cargo
+        WHERE n.Id_funcionario = f.Id_funcionario
+        ORDER BY n.Fecha_nombramiento DESC
+        LIMIT 1
+    ) AS nombre_cargo,
+
+    f.Profesion,
+    f.Maximo_nivel_estudios,
+    f.Titulacion_academica,
+    f.Universidad_centro_formacion,
+    f.Fecha_graduacion,
+    f.Foto,
+
+    f.Dip_pass_copia,
+    f.Copia_doc_nomb,
+    f.Copia_carnet_func,
+    f.Copia_doc_tom_posesion,
+    f.Copia_doc_academicos,
+
+    f.Usuario_creador,
+    f.Fecha_registro
+
+FROM funcionarios f
+LEFT JOIN secciones s ON f.Id_seccion = s.Id_seccion
+LEFT JOIN direcciones d ON s.Id_direccion = d.Id_direccion
+LEFT JOIN categorias c ON f.Id_categoria = c.Id_categoria
+ORDER BY f.Id_funcionario ASC
+
                             ";
 
                             $stmt = $pdo->query($sql);
@@ -215,8 +259,14 @@ include_once '../includes/header.php';
                                                         data-fecha_posesion="<?= $f['Fecha_posesion'] ?>"
 
                                                         data-id_seccion="<?= $f['Id_seccion'] ?>"
-                                                        data-funcion="<?= htmlspecialchars($f['Funcion']) ?>"
+                                                        data-funcion="<?= htmlspecialchars($f['Id_cargo']) ?>"
                                                         data-id_categoria="<?= $f['Id_categoria'] ?>"
+                                                        data-provincia="<?= htmlspecialchars($f['Provincia']) ?>"
+                                                        data-distrito="<?= htmlspecialchars($f['Distrito']) ?>"
+                                                        data-tribu="<?= htmlspecialchars($f['Tribu']) ?>"
+                                                        data-pueblo="<?= htmlspecialchars($f['Pueblo']) ?>"
+
+
 
                                                         data-profesion="<?= htmlspecialchars($f['Profesion']) ?>"
                                                         data-nivel="<?= htmlspecialchars($f['Maximo_nivel_estudios']) ?>"
@@ -379,7 +429,7 @@ include_once '../includes/header.php';
                                             </div>
 
 
-                                            
+
                                             <div class="col-md-3">
                                                 <label class="form-label">Tribu</label>
                                                 <input type="text" class="form-control" name="Tribu">
@@ -390,15 +440,28 @@ include_once '../includes/header.php';
                                                 <input type="text" class="form-control" name="Pueblo">
                                             </div>
 
-                                            <div class="col-md-3">
-                                                <label class="form-label">Distrito</label>
-                                                <input type="text" class="form-control" name="Distrito">
-                                            </div>
 
                                             <div class="col-md-3">
                                                 <label class="form-label">Provincia</label>
-                                                <input type="text" class="form-control" name="Provincia">
+                                                <select class="form-select" name="Provincia" id="Provincia" required>
+                                                    <option value="" selected disabled hidden>Selecciona provincia</option>
+                                                    <option value="Bioko Norte">Bioko Norte</option>
+                                                    <option value="Bioko Sur">Bioko Sur</option>
+                                                    <option value="Litoral">Litoral</option>
+                                                    <option value="Centro Sur">Centro Sur</option>
+                                                    <option value="Kié-Ntem">Kié-Ntem</option>
+                                                    <option value="Wele-Nzas">Wele-Nzas</option>
+                                                    <option value="Djibloho">Djibloho</option>
+                                                </select>
                                             </div>
+
+                                            <div class="col-md-3">
+                                                <label class="form-label">Distrito</label>
+                                                <select class="form-select" name="Distrito" id="Distrito" required>
+                                                    <option value="" selected disabled hidden>Selecciona distrito</option>
+                                                </select>
+                                            </div>
+
 
 
 
@@ -454,7 +517,7 @@ include_once '../includes/header.php';
                                             </div>
                                             <div class="col-md-12">
                                                 <label class="form-label">Función/Cargo</label>
-                                                <select class="form-select" name="Funcion" required>
+                                                <select class="form-select" name="Id_cargo" required>
                                                     <option value="" disabled selected hidden>Selecciona cargo</option>
                                                     <?php
                                                     // CONEXIÓN Y CONSULTA PHP para Cargos
@@ -596,6 +659,63 @@ include_once '../includes/header.php';
             }
         });
     </script>
+
+
+    <script>
+        const distritosPorProvincia = {
+            "Bioko Norte": [
+                "Malabo",
+                "Baney"
+            ],
+            "Bioko Sur": [
+                "Luba",
+                "Riaba"
+            ],
+            "Litoral": [
+                "Bata",
+                "Mbini",
+                "Kogo"
+            ],
+            "Centro Sur": [
+                "Evinayong",
+                "Niefang",
+                "Akurenam"
+            ],
+            "Kié-Ntem": [
+                "Ebebiyín",
+                "Mikomeseng",
+                "Nsok-Nsomo"
+            ],
+            "Wele-Nzas": [
+                "Mongomo",
+                "Aconibe",
+                "Añisok",
+                "Nsok-Nsomo"
+            ],
+            "Djibloho": [
+                "Ciudad de la Paz"
+            ]
+        };
+
+        document.getElementById('Provincia').addEventListener('change', function() {
+            const distritoSelect = document.getElementById('Distrito');
+            const provinciaSeleccionada = this.value;
+
+            distritoSelect.innerHTML = '<option value="" selected disabled hidden>Selecciona distrito</option>';
+
+            if (distritosPorProvincia[provinciaSeleccionada]) {
+                distritosPorProvincia[provinciaSeleccionada].forEach(distrito => {
+                    const option = document.createElement('option');
+                    option.value = distrito;
+                    option.textContent = distrito;
+                    distritoSelect.appendChild(option);
+                });
+            }
+        });
+    </script>
+
+
+
 
 
 
@@ -948,6 +1068,37 @@ include_once '../includes/header.php';
                                                 <label class="form-label fw-semibold">Nacionalidad</label>
                                                 <input type="text" name="Nacionalidad" id="edit_nacionalidad" class="form-control">
                                             </div>
+
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-semibold">Tribu</label>
+                                                <input type="text" name="Tribu" id="edit_tribu" class="form-control">
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-semibold">Pueblo</label>
+                                                <input type="text" name="Pueblo" id="edit_pueblo" class="form-control">
+                                            </div>
+
+
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-semibold">Provincia</label>
+                                                <select name="Provincia" id="edit_provincia" class="form-select">
+                                                    <option value="">Seleccione</option>
+                                                    <option value="Bioko Norte">Bioko Norte</option>
+                                                    <option value="Bioko Sur">Bioko Sur</option>
+                                                    <option value="Centro Sur">Centro Sur</option>
+                                                    <option value="Kié-Ntem">Kié-Ntem</option>
+                                                    <option value="Litoral">Litoral</option>
+                                                    <option value="Wele-Nzas">Wele-Nzas</option>
+                                                </select>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-semibold">Distrito</label>
+                                                <input type="text" name="Distrito" id="edit_distrito" class="form-control">
+                                            </div>
+
+
                                         </div>
                                     </div>
 
@@ -1138,10 +1289,15 @@ include_once '../includes/header.php';
 
             document.getElementById('edit_fecha_nombramiento').value = btn.dataset.fecha_nombramiento;
             document.getElementById('edit_fecha_posesion').value = btn.dataset.fecha_posesion;
+            document.getElementById('edit_tribu').value = btn.dataset.tribu;
+document.getElementById('edit_pueblo').value = btn.dataset.pueblo;
+document.getElementById('edit_provincia').value = btn.dataset.provincia;
+document.getElementById('edit_distrito').value = btn.dataset.distrito;
 
             // Asegurarse de que los select se poblen si tienen valores dinámicos
             document.getElementById('edit_seccion').value = btn.dataset.id_seccion;
-            document.getElementById('edit_funcion').value = btn.dataset.funcion; // Si Funcion es un campo de texto en la base de datos
+
+            document.getElementById('edit_cargo').value = btn.dataset.funcion; // Si Funcion es un campo de texto en la base de datos
             document.getElementById('edit_categoria').value = btn.dataset.id_categoria;
 
             document.getElementById('edit_profesion').value = btn.dataset.profesion;

@@ -39,11 +39,16 @@ try {
         'Domicilio'   => $_POST['Domicilio'] ?? null,
         'Num_carnet_fun' => $_POST['Num_carnet_fun'] ?? null,
 
+        'Tribu'       => $_POST['Tribu'] ?? null,
+        'Pueblo'      => $_POST['Pueblo'] ?? null,
+        'Distrito'    => $_POST['Distrito'] ?? null,
+        'Provincia'   => $_POST['Provincia'] ?? null,
+
         'Fecha_nombramiento' => $_POST['Fecha_nombramiento'] ?? null,
         'Fecha_posesion'     => $_POST['Fecha_posesion'] ?? null,
 
         'Id_seccion'  => $_POST['Id_seccion'] ?? null,
-        'Funcion'     => $_POST['Funcion'] ?? null,
+        'Id_cargo'    => $_POST['Id_cargo'] ?? null,
         'Id_categoria'=> $_POST['Id_categoria'] ?? null,
 
         'Profesion'   => $_POST['Profesion'] ?? null,
@@ -59,7 +64,6 @@ try {
     $stmt = $pdo->prepare("SELECT * FROM funcionarios WHERE Id_funcionario = ?");
     $stmt->execute([$Id_funcionario]);
     $actual = $stmt->fetch(PDO::FETCH_ASSOC);
-
     if (!$actual) {
         throw new Exception("Funcionario no encontrado.");
     }
@@ -114,11 +118,16 @@ try {
         Domicilio = :Domicilio,
         Num_carnet_fun = :Num_carnet_fun,
 
+        Tribu = :Tribu,
+        Pueblo = :Pueblo,
+        Distrito = :Distrito,
+        Provincia = :Provincia,
+
         Fecha_nombramiento = :Fecha_nombramiento,
         Fecha_posesion = :Fecha_posesion,
 
         Id_seccion = :Id_seccion,
-        Funcion = :Funcion,
+        Id_cargo = :Id_cargo,
         Id_categoria = :Id_categoria,
 
         Profesion = :Profesion,
