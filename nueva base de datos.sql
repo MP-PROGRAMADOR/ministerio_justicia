@@ -137,6 +137,13 @@ DEFAULT 'Activo' AFTER Apellidos;
 
 ALTER TABLE funcionarios ADD COLUMN Doc_Estado_Adjunto VARCHAR(255) NULL;
 
+ALTER TABLE funcionarios
+ADD COLUMN Tribu VARCHAR(100) AFTER Lugar_nacimiento,
+ADD COLUMN Pueblo VARCHAR(100) AFTER Tribu,
+ADD COLUMN Distrito VARCHAR(100) AFTER Pueblo,
+ADD COLUMN Provincia VARCHAR(100) AFTER Distrito;
+
+
 
 
 /* =========================================================
@@ -149,7 +156,6 @@ CREATE TABLE nombramientos (
     Id_cargo INT NOT NULL,
     Fecha_nombramiento DATE,
     Fecha_toma_posesion DATE,
-    Id_direccion INT,
     Id_seccion INT,
     Id_categoria INT,
 
@@ -161,11 +167,18 @@ CREATE TABLE nombramientos (
 
     FOREIGN KEY (Id_funcionario) REFERENCES funcionarios(Id_funcionario),
     FOREIGN KEY (Id_cargo) REFERENCES cargos(Id_cargo),
-    FOREIGN KEY (Id_direccion) REFERENCES direcciones(Id_direccion),
     FOREIGN KEY (Id_seccion) REFERENCES secciones(Id_seccion),
     FOREIGN KEY (Id_categoria) REFERENCES categorias(Id_categoria),
     FOREIGN KEY (Usuario_creador) REFERENCES tbl_usuarios(ID_Usuario)
 ) ENGINE=InnoDB;
+
+
+ALTER TABLE nombramientos
+ADD COLUMN Fecha_finalizacion_nombramiento DATE
+AFTER Fecha_toma_posesion;
+
+
+
 
 /* =========================================================
    QUEJAS Y SUGERENCIAS
@@ -264,6 +277,16 @@ CREATE TABLE tbl_instrucciones (
         REFERENCES tbl_usuarios(ID_Usuario)
 ) ENGINE=InnoDB;
 
+
+ALTER TABLE tbl_instrucciones
+ADD COLUMN Estado ENUM('PENDIENTE','EN-PROCESO','FINALIZADO')
+DEFAULT 'PENDIENTE'
+AFTER Mensaje;
+
+
+
+
+
 /* =========================================================
    LOGS (AUDITORÍA)
    ========================================================= */
@@ -315,6 +338,13 @@ CREATE TABLE tbl_formacion_academica (
 ) ENGINE=InnoDB
 CHARACTER SET utf8mb4
 COLLATE utf8mb4_unicode_ci;
+
+
+
+ALTER TABLE tbl_formacion_academica
+ADD COLUMN Documento_Formacion VARCHAR(255) NULL
+AFTER Nivel_Educativo;
+
 
 
 CREATE TABLE tbl_capacitaciones (
