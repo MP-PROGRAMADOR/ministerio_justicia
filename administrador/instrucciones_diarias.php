@@ -41,9 +41,6 @@ include_once '../includes/header.php';
                 </div>
 
 
-
-
-
                 <div class="container-fluid px-4">
                     <div>
                         <?php
@@ -127,8 +124,9 @@ include_once '../includes/header.php';
                                         <th>Funcionario</th>
                                         <th>Título</th>
                                         <th>Mensaje</th>
-                                        <th>Fecha Envío</th>
+                                        
                                         <th>Estado</th>
+                                        <th>Fecha Envío</th>
                                         <th>Leído</th>
                                         <th>Acciones</th>
                                     </tr>
@@ -178,6 +176,7 @@ include_once '../includes/header.php';
                                                         data-usuario-registro="<?= htmlspecialchars($instr['CreadorNombre']) ?>"
                                                         data-estado="<?= $instr['Estado'] ?>"
                                                         data-foto="<?= htmlspecialchars($instr['Foto']) ?>"
+                                                        data-fecha-lectura="<?= htmlspecialchars($instr['Fecha_Lectura']) ?>"
                                                         title="Ver Detalles">
                                                         <i class="bi bi-eye"></i>
                                                     </button>
@@ -715,24 +714,28 @@ include_once '../includes/header.php';
 
     <!-- Modal de ver instrucciones -->
     <script>
-        function mostrarDetallesInstruccion(id, funcionario, dni, titulo, mensaje, fecha, leido, creador, fotoUrl, estado) {
+        function mostrarDetallesInstruccion(id, funcionario, dni, titulo, mensaje, fecha, leido, creador, fotoUrl, estado, fechaLectura) {
             const rutaBaseFotos = '../api/';
             const urlFoto = (fotoUrl && fotoUrl !== '') ? (rutaBaseFotos + fotoUrl) : (rutaBaseFotos + 'default.jpg');
 
-            // Lógica para el badge: Solo "Abierta" si leido == 1
+            // Lógica para el badge
             let badgeHtml = '';
             if (leido == 1) {
                 badgeHtml = `<span class="badge rounded-pill bg-success-subtle text-success border border-success px-3 py-2">
                         <i class="bi bi-check-all me-1"></i> Instrucción Abierta
                      </span>`;
             } else {
-                // Si no está leída, mostramos el estado de la tabla (PENDIENTE, EN-PROCESO, etc.)
                 badgeHtml = `<span class="badge rounded-pill bg-warning-subtle text-warning border border-warning px-3 py-2">
                         <i class="bi bi-clock me-1"></i> ${estado}
                      </span>`;
             }
 
-            // Llamada al API para marcar como leída si está en 0
+            // Lógica para mostrar la hora de lectura
+            const infoLectura = (leido == 1 && fechaLectura) ?
+                `<div class="text-success fw-bold">${fechaLectura}</div>` :
+                `<div class="text-muted small italic">Aún no visualizado</div>`;
+
+            // Llamada al API para marcar como leída
             if (leido == 0) {
                 fetch('../api/marcar_leida.php', {
                     method: 'POST',
@@ -772,10 +775,17 @@ include_once '../includes/header.php';
                         <div class="text-dark fw-bold">${creador}</div>
                     </div>
                 </div>
-                <div class="col-md-12">
+                
+                <div class="col-md-6">
                     <div class="card border-0 bg-light p-3 shadow-sm">
                         <small class="text-muted fw-bold" style="font-size: 0.7rem;">FECHA DE REGISTRO</small>
                         <div class="text-secondary small fw-semibold">${fecha}</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card border-0 bg-light p-3 shadow-sm border-start border-3 border-success">
+                        <small class="text-muted fw-bold" style="font-size: 0.7rem;">HORA DE APERTURA</small>
+                        <div class="small">${infoLectura}</div>
                     </div>
                 </div>
             </div>
@@ -817,7 +827,8 @@ include_once '../includes/header.php';
                         btn.getAttribute('data-leido'),
                         btn.getAttribute('data-usuario-registro'),
                         btn.getAttribute('data-foto'),
-                        btn.getAttribute('data-estado')
+                        btn.getAttribute('data-estado'),
+                        btn.getAttribute('data-fecha-lectura') // <-- Nuevo atributo capturado
                     );
                 }
             });
