@@ -3,7 +3,7 @@
 header('Content-Type: application/json; charset=utf-8');
 
 // Iniciamos sesión para asegurar que el Usuario_creador sea válido si fuera necesario
-session_start(); 
+session_start();
 
 include_once '../includes/conexion.php';
 
@@ -16,16 +16,20 @@ try {
     if (!empty($busqueda)) {
         // Búsqueda filtrada usando los nuevos nombres de columna de tu tabla
         $sql = "SELECT Id_funcionario, Nombre, Apellidos, CODIGO 
-                FROM funcionarios 
-                WHERE Nombre LIKE :query 
-                OR Apellidos LIKE :query 
-                OR CODIGO LIKE :query 
-                ORDER BY Nombre ASC 
-                LIMIT 20";
-        
+        FROM funcionarios 
+        WHERE Nombre LIKE :nombre 
+        OR Apellidos LIKE :apellido 
+        OR CODIGO LIKE :codigo 
+        ORDER BY Nombre ASC 
+        LIMIT 20";
+
         $stmt = $pdo->prepare($sql);
         $searchTerm = "%$busqueda%";
-        $stmt->execute(['query' => $searchTerm]);
+        $stmt->execute([
+            'nombre' => $searchTerm,
+            'apellido' => $searchTerm,
+            'codigo' => $searchTerm
+        ]);
     } else {
         // Consulta general con los nuevos nombres de columna
         $sql = "SELECT Id_funcionario, Nombre, Apellidos, CODIGO 
@@ -39,7 +43,6 @@ try {
 
     // Retornamos los resultados
     echo json_encode($funcionarios, JSON_UNESCAPED_UNICODE);
-
 } catch (PDOException $e) {
     // Si el error 1452 persiste, es porque hay un proceso de escritura fallido
     http_response_code(500);

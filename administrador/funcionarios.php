@@ -24,8 +24,7 @@ include_once '../includes/header.php';
                     <div class="row align-items-center">
 
                         <div class="col-md-12 text-md-end mt-3 mt-md-0">
-                            <div
-                                class="d-flex justify-content-md-end align-items-center gap-2 flex-wrap justify-content-center">
+                            <div class="d-flex justify-content-md-end align-items-center gap-2 flex-wrap justify-content-center">
                                 <button class="btn btn-success" data-bs-toggle="modal"
                                     data-bs-target="#addFuncionarioModal">
                                     <i class="bi bi-plus-circle me-1"></i> Añadir Funcionarios
@@ -35,6 +34,8 @@ include_once '../includes/header.php';
                                         placeholder="Buscar en tabla...">
                                     <span class="input-group-text"><i class="bi bi-search"></i></span>
                                 </div>
+
+
                             </div>
                         </div>
                     </div>
@@ -65,7 +66,12 @@ include_once '../includes/header.php';
                     <div class="table-custom mb-4 p-4">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h5 class="mb-0 fw-semibold">Listado de Funcionarios</h5>
+                            <a href="" class="btn btn-warning btn-sm">
+                                <i class="bi bi-printer me-1"></i>
+                            </a>
+
                         </div>
+
 
 
                         <div class="table-responsive">
@@ -1290,9 +1296,9 @@ ORDER BY f.Id_funcionario ASC
             document.getElementById('edit_fecha_nombramiento').value = btn.dataset.fecha_nombramiento;
             document.getElementById('edit_fecha_posesion').value = btn.dataset.fecha_posesion;
             document.getElementById('edit_tribu').value = btn.dataset.tribu;
-document.getElementById('edit_pueblo').value = btn.dataset.pueblo;
-document.getElementById('edit_provincia').value = btn.dataset.provincia;
-document.getElementById('edit_distrito').value = btn.dataset.distrito;
+            document.getElementById('edit_pueblo').value = btn.dataset.pueblo;
+            document.getElementById('edit_provincia').value = btn.dataset.provincia;
+            document.getElementById('edit_distrito').value = btn.dataset.distrito;
 
             // Asegurarse de que los select se poblen si tienen valores dinámicos
             document.getElementById('edit_seccion').value = btn.dataset.id_seccion;
