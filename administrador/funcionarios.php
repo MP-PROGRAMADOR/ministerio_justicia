@@ -66,7 +66,7 @@ include_once '../includes/header.php';
                     <div class="table-custom mb-4 p-4">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h5 class="mb-0 fw-semibold">Listado de Funcionarios</h5>
-                            <a href="" class="btn btn-warning btn-sm">
+                            <a href="../fpdf/funcionarios_lista.php" class="btn btn-warning btn-sm">
                                 <i class="bi bi-printer me-1"></i>
                             </a>
 
