@@ -66,7 +66,7 @@ include_once '../includes/header.php';
                             // Obtener formación académica con datos del funcionario
                             $sql = "SELECT f.*, fu.Nombre, fu.Apellidos, fu.Dip_Pasaporte 
                             FROM tbl_formacion_academica f
-                            JOIN funcionarios fu ON f.ID_Funcionario = fu.ID_Funcionario
+                            JOIN funcionarios fu ON f.ID_Funcionario = fu.Id_Funcionario
                             ORDER BY f.ID_Formacion DESC";
                             $stmt = $pdo->query($sql);
                             $formaciones = $stmt->fetchAll();
@@ -87,62 +87,77 @@ include_once '../includes/header.php';
                                     </tr>
                                 </thead>
                                 <tbody id="funcionariosTableBody">
-                                    <?php foreach ($formaciones as $f): ?>
+                                    <?php if (empty($formaciones)): ?>
                                         <tr>
-                                            <td><?= htmlspecialchars($f['ID_Formacion']) ?></td>
-                                            <td><?= htmlspecialchars($f['Nombre'] . ' ' . $f['Apellidos']) ?></td>
-                                            <td><?= htmlspecialchars($f['Dip_Pasaporte']) ?></td>
-                                            <td><?= htmlspecialchars($f['Titulo_Obtenido']) ?></td>
-                                            <td><?= htmlspecialchars($f['Institucion_Educativa']) ?></td>
-                                            <td><?= htmlspecialchars($f['Fecha_Graduacion']) ?></td>
-                                            <td>
-                                                <?php
-
-                                                $nivel_colores = [
-                                                    'Bachiller' => 'bg-info',
-                                                    'Grado' => 'bg-primary',
-                                                    'Postgrado' => 'bg-secondary',
-                                                    'Maestria' => 'bg-success',
-                                                    'Doctorado' => 'bg-danger',
-                                                    'Otro' => 'bg-warning',
-                                                ];
-
-                                                $nivel = $f['Nivel_Educativo'];
-                                                $clase_bg = $nivel_colores[$nivel] ?? 'bg-dark';
-                                                $clase_texto = in_array($clase_bg, ['bg-primary', 'bg-secondary', 'bg-success', 'bg-danger', 'bg-dark'])
-                                                    ? 'text-white' : 'text-dark';
-                                                ?>
-
-                                                <span class="badge <?= $clase_bg ?> <?= $clase_texto ?>">
-                                                    <?= htmlspecialchars($nivel) ?>
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <div class="d-flex gap-2">
-                                                    <button class="btn btn-sm btn-warning btn-editar-formacion"
-                                                        data-id="<?= $f['ID_Formacion'] ?>"
-                                                        data-funcionario="<?= htmlspecialchars($f['Nombre'] . ' ' . $f['Apellidos']) ?>"
-                                                        data-titulo="<?= htmlspecialchars($f['Titulo_Obtenido']) ?>"
-                                                        data-institucion="<?= htmlspecialchars($f['Institucion_Educativa']) ?>"
-                                                        data-fecha="<?= $f['Fecha_Graduacion'] ?>"
-                                                        data-nivel="<?= $f['Nivel_Educativo'] ?>"
-                                                        title="Editar Formación">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-
-
-                                                    <button
-                                                        class="btn btn-sm btn-danger btn-eliminar-formacion"
-                                                        title="Eliminar Formación"
-                                                        data-id="<?= $f['ID_Formacion'] ?>"
-                                                        data-nombre="<?= htmlspecialchars($f['Titulo_Obtenido']) ?>"
-                                                        data-funcionario="<?= htmlspecialchars($f['Nombre'] . ' ' . $f['Apellidos']) ?>">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
+                                            <td colspan="8" class="text-center py-5">
+                                                <div class="d-flex flex-column align-items-center">
+                                                    <i class="bi bi-info-circle text-muted" style="font-size: 3rem;"></i>
+                                                    <h5 class="text-muted mt-3">No hay formaciones académicas registradas</h5>
+                                                    <p class="text-secondary">Utilice el botón de registro para añadir una nueva.</p>
                                                 </div>
                                             </td>
                                         </tr>
-                                    <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <?php foreach ($formaciones as $f): ?>
+                                            <tr>
+                                                <td><?= htmlspecialchars($f['ID_Formacion']) ?></td>
+                                                <td><?= htmlspecialchars($f['Nombre'] . ' ' . $f['Apellidos']) ?></td>
+                                                <td><?= htmlspecialchars($f['Dip_Pasaporte']) ?></td>
+                                                <td><?= htmlspecialchars($f['Titulo_Obtenido']) ?></td>
+                                                <td><?= htmlspecialchars($f['Institucion_Educativa']) ?></td>
+                                                <td><?= $f['Fecha_Graduacion'] ? date('d/m/Y', strtotime($f['Fecha_Graduacion'])) : 'N/A' ?></td>
+                                                <td>
+                                                    <?php
+                                                    $nivel_colores = [
+                                                        'Bachiller' => 'bg-info',
+                                                        'Grado' => 'bg-primary',
+                                                        'Postgrado' => 'bg-secondary',
+                                                        'Maestria' => 'bg-success',
+                                                        'Doctorado' => 'bg-danger',
+                                                        'Otro' => 'bg-warning',
+                                                    ];
+                                                    $nivel = $f['Nivel_Educativo'];
+                                                    $clase_bg = $nivel_colores[$nivel] ?? 'bg-dark';
+                                                    $clase_texto = in_array($clase_bg, ['bg-primary', 'bg-secondary', 'bg-success', 'bg-danger', 'bg-dark']) ? 'text-white' : 'text-dark';
+                                                    ?>
+                                                    <span class="badge <?= $clase_bg ?> <?= $clase_texto ?>">
+                                                        <?= htmlspecialchars($nivel) ?>
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex gap-2">
+                                                        <?php if (!empty($f['Documento_Formacion'])): ?>
+                                                            <a href="../uploads/formacion_academica/<?= $f['Documento_Formacion'] ?>"
+                                                                target="_blank"
+                                                                class="btn btn-sm btn-outline-info"
+                                                                title="Ver Documento">
+                                                                <i class="bi bi-file-earmark-pdf"></i>
+                                                            </a>
+                                                        <?php endif; ?>
+
+                                                        <button class="btn btn-sm btn-warning btn-editar-formacion"
+                                                            data-id="<?= $f['ID_Formacion'] ?>"
+                                                            data-funcionario="<?= htmlspecialchars($f['Nombre'] . ' ' . $f['Apellidos']) ?>"
+                                                            data-titulo="<?= htmlspecialchars($f['Titulo_Obtenido']) ?>"
+                                                            data-institucion="<?= htmlspecialchars($f['Institucion_Educativa']) ?>"
+                                                            data-fecha="<?= $f['Fecha_Graduacion'] ?>"
+                                                            data-nivel="<?= $f['Nivel_Educativo'] ?>"
+                                                            title="Editar Formación">
+                                                            <i class="bi bi-pencil-square"></i>
+                                                        </button>
+
+                                                        <button class="btn btn-sm btn-danger btn-eliminar-formacion"
+                                                            data-id="<?= $f['ID_Formacion'] ?>"
+                                                            data-nombre="<?= htmlspecialchars($f['Titulo_Obtenido']) ?>"
+                                                            data-funcionario="<?= htmlspecialchars($f['Nombre'] . ' ' . $f['Apellidos']) ?>"
+                                                            title="Eliminar Formación">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
                                 </tbody>
                             </table>
 
@@ -179,6 +194,8 @@ include_once '../includes/header.php';
 
 
 
+
+
     <!-- Modal para Registrar Formación Académica -->
     <div class="modal fade" id="addFormacionModal" tabindex="-1" aria-labelledby="addFormacionModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl">
@@ -190,19 +207,14 @@ include_once '../includes/header.php';
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body">
-
-                    <!-- Buscador -->
                     <div class="mb-4 mt-2">
                         <label for="searchFuncionario" class="form-label fw-semibold">
                             <i class="bi bi-search me-2 text-primary"></i>Buscar Funcionario
                         </label>
-                        <input type="text" id="searchFuncionario" class="form-control" placeholder="Escriba un nombre...">
+                        <input type="text" id="searchFuncionario" class="form-control" placeholder="Escriba un nombre o DIP...">
+                        <div class="list-group mb-3" id="listaFuncionarios"></div>
                     </div>
 
-                    <!-- Lista de funcionarios -->
-                    <div class="list-group mb-3" id="listaFuncionarios"></div>
-
-                    <!-- Funcionario seleccionado -->
                     <div id="funcionarioSeleccionado" class="mb-4 d-none">
                         <div class="alert alert-info d-flex justify-content-between align-items-center">
                             <div>
@@ -215,41 +227,28 @@ include_once '../includes/header.php';
                         </div>
                     </div>
 
-                    <!-- Formulario de formación académica -->
-                    <form method="POST" action="../api/guardar_formacion.php" enctype="multipart/form-data">
-                        <input type="hidden" name="ID_Funcionario" id="ID_Funcionario">
+                    <form id="formAddFormacion" method="POST" action="../api/guardar_formacion.php" enctype="multipart/form-data">
+                        <input type="hidden" name="ID_Funcionario" id="ID_Funcionario" required>
 
                         <div class="row g-3">
-                            <!-- Título Obtenido -->
                             <div class="col-md-6">
-                                <label for="titulo" class="form-label fw-semibold">
-                                    <i class="bi bi-journal-text text-primary me-2"></i>Título Obtenido <span class="text-danger">*</span>
-                                </label>
-                                <input type="text" name="Titulo_Obtenido" id="titulo" class="form-control" placeholder="Ej: Licenciado en Derecho" required>
+                                <label class="form-label fw-semibold"><i class="bi bi-journal-text text-primary me-2"></i>Título Obtenido <span class="text-danger">*</span></label>
+                                <input type="text" name="Titulo_Obtenido" class="form-control" placeholder="Ej: Licenciado en Derecho" required>
                             </div>
 
-                            <!-- Institución Educativa -->
                             <div class="col-md-6">
-                                <label for="institucion" class="form-label fw-semibold">
-                                    <i class="bi bi-building text-primary me-2"></i>Institución Educativa <span class="text-danger">*</span>
-                                </label>
-                                <input type="text" name="Institucion_Educativa" id="institucion" class="form-control" placeholder="Ej: Universidad de Guinea Ecuatorial" required>
+                                <label class="form-label fw-semibold"><i class="bi bi-building text-primary me-2"></i>Institución Educativa <span class="text-danger">*</span></label>
+                                <input type="text" name="Institucion_Educativa" class="form-control" placeholder="Ej: UNGE" required>
                             </div>
 
-                            <!-- Fecha de Graduación -->
                             <div class="col-md-4">
-                                <label for="fechaGraduacion" class="form-label fw-semibold">
-                                    <i class="bi bi-calendar-check text-primary me-2"></i>Fecha de Graduación
-                                </label>
-                                <input type="date" name="Fecha_Graduacion" id="fechaGraduacion" class="form-control">
+                                <label class="form-label fw-semibold"><i class="bi bi-calendar-check text-primary me-2"></i>Fecha de Graduación</label>
+                                <input type="date" name="Fecha_Graduacion" class="form-control">
                             </div>
 
-                            <!-- Nivel Educativo -->
                             <div class="col-md-4">
-                                <label for="nivelEducativo" class="form-label fw-semibold">
-                                    <i class="bi bi-award-fill text-primary me-2"></i>Nivel Educativo <span class="text-danger">*</span>
-                                </label>
-                                <select name="Nivel_Educativo" id="nivelEducativo" class="form-select" required>
+                                <label class="form-label fw-semibold"><i class="bi bi-award-fill text-primary me-2"></i>Nivel Educativo <span class="text-danger">*</span></label>
+                                <select name="Nivel_Educativo" class="form-select" required>
                                     <option value="" disabled selected>Selecciona nivel</option>
                                     <option value="Bachiller">Bachiller</option>
                                     <option value="Grado">Grado</option>
@@ -259,21 +258,23 @@ include_once '../includes/header.php';
                                     <option value="Otro">Otro</option>
                                 </select>
                             </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold"><i class="bi bi-file-earmark-pdf text-danger me-2"></i>Certificado/Título (PDF/Imagen)</label>
+                                <input type="file" name="Documento_Formacion" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
+                            </div>
                         </div>
 
-                        <!-- Botón enviar -->
                         <div class="mt-4 d-flex justify-content-end mb-3">
-                            <button type="submit" class="btn btn-success">
+                            <button type="submit" class="btn btn-success px-4">
                                 <i class="bi bi-save me-2"></i>Guardar Formación
                             </button>
                         </div>
                     </form>
-
                 </div>
             </div>
         </div>
     </div>
-
 
 
 
@@ -348,68 +349,69 @@ include_once '../includes/header.php';
 
 
 
-
-
-
-
-
-
     <!-- Script para buscar y seleccionar funcionario -->
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const searchInput = document.getElementById('searchFuncionario');
-            const listaFuncionarios = document.getElementById('listaFuncionarios');
-            const seleccionadoDiv = document.getElementById('funcionarioSeleccionado');
-            const nombreFuncionarioSpan = document.getElementById('nombreFuncionario');
-            const quitarBtn = document.getElementById('quitarSeleccion');
-            const idFuncionarioInput = document.getElementById('ID_Funcionario');
+    document.addEventListener('DOMContentLoaded', () => {
+        const searchInput = document.getElementById('searchFuncionario');
+        const listaFuncionarios = document.getElementById('listaFuncionarios');
+        const seleccionadoDiv = document.getElementById('funcionarioSeleccionado');
+        const nombreFuncionarioSpan = document.getElementById('nombreFuncionario');
+        const quitarBtn = document.getElementById('quitarSeleccion');
+        const idFuncionarioInput = document.getElementById('ID_Funcionario');
 
-            searchInput.addEventListener('input', () => {
-                const query = searchInput.value.trim();
-                if (query.length < 2) {
+        searchInput.addEventListener('input', () => {
+            const query = searchInput.value.trim();
+            if (query.length < 2) {
+                listaFuncionarios.innerHTML = '';
+                return;
+            }
+            fetch(`../api/buscar_funcionarios.php?q=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        listaFuncionarios.innerHTML = `<div class="text-danger">Error: ${data.error}</div>`;
+                        return;
+                    }
+                    if (!Array.isArray(data) || data.length === 0) {
+                        listaFuncionarios.innerHTML = `<div class="text-muted p-2">No se encontraron funcionarios</div>`;
+                        return;
+                    }
                     listaFuncionarios.innerHTML = '';
-                    return;
-                }
-                fetch(`../api/buscar_funcionarios.php?q=${encodeURIComponent(query)}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.error) {
-                            listaFuncionarios.innerHTML = `<div class="text-danger">Error: ${data.error}</div>`;
-                            return;
-                        }
-                        if (!Array.isArray(data) || data.length === 0) {
-                            listaFuncionarios.innerHTML = `<div class="text-muted">No se encontraron funcionarios</div>`;
-                            return;
-                        }
-                        listaFuncionarios.innerHTML = '';
-                        data.forEach(f => {
-                            const item = document.createElement('button');
-                            item.type = 'button';
-                            item.className = 'list-group-item list-group-item-action';
-                            item.textContent = `${f.Nombre} ${f.Apellidos} - ${f.Dip_Pasaporte}`;
-                            item.addEventListener('click', () => {
-                                idFuncionarioInput.value = f.ID_Funcionario;
-                                nombreFuncionarioSpan.textContent = `${f.Nombre} ${f.Apellidos} - DOCUMENTO: ${f.Dip_Pasaporte}`;
-                                seleccionadoDiv.classList.remove('d-none');
-                                listaFuncionarios.innerHTML = '';
-                                searchInput.value = '';
-                            });
-                            listaFuncionarios.appendChild(item);
+                    data.forEach(f => {
+                        const item = document.createElement('button');
+                        item.type = 'button';
+                        item.className = 'list-group-item list-group-item-action';
+                        item.textContent = `${f.Nombre} ${f.Apellidos} - ${f.Dip_Pasaporte}`;
+                        
+                        item.addEventListener('click', () => {
+                            // CORRECCIÓN AQUÍ: Usamos Id_funcionario (con d minúscula)
+                            // que es como viene de la tabla funcionarios
+                            const idReal = f.Id_funcionario || f.ID_Funcionario; 
+                            
+                            idFuncionarioInput.value = idReal;
+                            nombreFuncionarioSpan.textContent = `${f.Nombre} ${f.Apellidos} - DOCUMENTO: ${f.Dip_Pasaporte}`;
+                            seleccionadoDiv.classList.remove('d-none');
+                            listaFuncionarios.innerHTML = '';
+                            searchInput.value = '';
+                            
+                            console.log("ID cargado al input:", idReal); // Para verificar en consola
                         });
-                    })
-                    .catch(err => {
-                        listaFuncionarios.innerHTML = `<div class="text-danger">Error al buscar funcionarios</div>`;
-                        console.error(err);
+                        listaFuncionarios.appendChild(item);
                     });
-            });
-
-            quitarBtn.addEventListener('click', () => {
-                idFuncionarioInput.value = '';
-                nombreFuncionarioSpan.textContent = '';
-                seleccionadoDiv.classList.add('d-none');
-            });
+                })
+                .catch(err => {
+                    listaFuncionarios.innerHTML = `<div class="text-danger">Error al buscar funcionarios</div>`;
+                    console.error(err);
+                });
         });
-    </script>
+
+        quitarBtn.addEventListener('click', () => {
+            idFuncionarioInput.value = '';
+            nombreFuncionarioSpan.textContent = '';
+            seleccionadoDiv.classList.add('d-none');
+        });
+    });
+</script>
 
 
 
@@ -623,6 +625,18 @@ include_once '../includes/header.php';
             });
         });
     </script>
+
+
+
+
+
+
+
+
+
+
+
+
 
     <!-- Modal de confirmacion para eliminar la Formacion -->
     <script>

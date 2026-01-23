@@ -14,6 +14,8 @@ require_once '../includes/conexion.php';
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.2/mdb.min.css" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.2/mdb.min.js"></script>
     <style>
         :root {
             --primary-dark: #1a237e;
@@ -193,18 +195,18 @@ require_once '../includes/conexion.php';
                                             try {
                                                 // Último nombramiento
                                                 $stmtNombramiento = $pdo->prepare("
-            SELECT n.Id_nombramiento, n.Fecha_nombramiento, n.Fecha_toma_posesion,
-                   c.Nombre AS Nombre_Cargo,
-                   s.nombre AS Nombre_Seccion,
-                   d.nombre AS Nombre_Direccion
-            FROM nombramientos n
-            LEFT JOIN cargos c ON c.Id_cargo = n.Id_cargo
-            LEFT JOIN secciones s ON s.Id_seccion = n.Id_seccion
-            LEFT JOIN direcciones d ON d.Id_direccion = n.Id_direccion
-            WHERE n.Id_funcionario = :id
-            ORDER BY n.Fecha_nombramiento DESC
-            LIMIT 1
-        ");
+                                                SELECT n.Id_nombramiento, n.Fecha_nombramiento, n.Fecha_toma_posesion,
+                                                    c.Nombre AS Nombre_Cargo,
+                                                    s.nombre AS Nombre_Seccion,
+                                                    d.nombre AS Nombre_Direccion
+                                                FROM nombramientos n
+                                                LEFT JOIN cargos c ON c.Id_cargo = n.Id_cargo
+                                                LEFT JOIN secciones s ON s.Id_seccion = n.Id_seccion
+                                                LEFT JOIN direcciones d ON d.Id_direccion = n.Id_direccion
+                                                WHERE n.Id_funcionario = :id
+                                                ORDER BY n.Fecha_nombramiento DESC
+                                                LIMIT 1
+                                            ");
                                                 $stmtNombramiento->execute(['id' => $idFuncionario]);
                                                 if ($nombramiento = $stmtNombramiento->fetch(PDO::FETCH_ASSOC)) {
                                                     echo "<tr>
@@ -215,33 +217,33 @@ require_once '../includes/conexion.php';
 
                                                     // Puedes mostrar sección y dirección si quieres
                                                     echo "<tr>
-                    <td class='ps-4'><span class='badge bg-light text-dark border'>Sección</span></td>
-                    <td>{$nombramiento['Nombre_Seccion']}</td>
-                    <td class='text-muted small'>-</td>
-                  </tr>";
+                                                            <td class='ps-4'><span class='badge bg-light text-dark border'>Sección</span></td>
+                                                            <td>{$nombramiento['Nombre_Seccion']}</td>
+                                                            <td class='text-muted small'>-</td>
+                                                        </tr>";
 
                                                     echo "<tr>
-                    <td class='ps-4'><span class='badge bg-light text-dark border'>Dirección</span></td>
-                    <td>{$nombramiento['Nombre_Direccion']}</td>
-                    <td class='text-muted small'>-</td>
-                  </tr>";
+                                                            <td class='ps-4'><span class='badge bg-light text-dark border'>Dirección</span></td>
+                                                            <td>{$nombramiento['Nombre_Direccion']}</td>
+                                                            <td class='text-muted small'>-</td>
+                                                        </tr>";
                                                 }
 
                                                 // Cursos
                                                 $stmtCurso = $pdo->prepare("
-            SELECT cr.Nombre_Curso, cf.Fecha_Matricula 
-            FROM tbl_cursos_funcionarios cf 
-            INNER JOIN tbl_cursos cr ON cf.ID_Curso = cr.ID_Curso 
-            WHERE cf.ID_Funcionario = :id 
-            LIMIT 3
-        ");
+                                                    SELECT cr.Nombre_Curso, cf.Fecha_Matricula 
+                                                    FROM tbl_cursos_funcionarios cf 
+                                                    INNER JOIN tbl_cursos cr ON cf.ID_Curso = cr.ID_Curso 
+                                                    WHERE cf.ID_Funcionario = :id 
+                                                    LIMIT 3
+                                                ");
                                                 $stmtCurso->execute(['id' => $idFuncionario]);
                                                 foreach ($stmtCurso->fetchAll() as $c) {
                                                     echo "<tr>
-                    <td class='ps-4'><span class='badge bg-light text-dark border'>Curso</span></td>
-                    <td>Inscrito en: <strong>{$c['Nombre_Curso']}</strong></td>
-                    <td class='text-muted small'>" . date('d/m/Y', strtotime($c['Fecha_Matricula'])) . "</td>
-                  </tr>";
+                                                            <td class='ps-4'><span class='badge bg-light text-dark border'>Curso</span></td>
+                                                            <td>Inscrito en: <strong>{$c['Nombre_Curso']}</strong></td>
+                                                            <td class='text-muted small'>" . date('d/m/Y', strtotime($c['Fecha_Matricula'])) . "</td>
+                                                        </tr>";
                                                 }
                                             } catch (PDOException $e) {
                                                 echo "<tr><td colspan='3'>Error al cargar datos.</td></tr>";
@@ -286,7 +288,8 @@ require_once '../includes/conexion.php';
                     <ul class="list-group list-group-flush flex-grow-1">
                         <?php if ($instrucciones): ?>
                             <?php foreach ($instrucciones as $instr): ?>
-                                <li class="list-group-item d-flex align-items-start px-0 border-0 mb-2 instruccion-item" style="cursor:pointer;" data-id="<?= $instr['ID_Instruccion'] ?>" data-titulo="<?= htmlspecialchars($instr['Titulo']) ?>" data-mensaje="<?= htmlspecialchars($instr['Mensaje']) ?>">
+                                <li class="list-group-item d-flex align-items-start px-0 border-0 mb-2 instruccion-item" style="cursor:pointer;" data-id="<?= $instr['ID_Instruccion'] ?>"
+                                    data-titulo="<?= htmlspecialchars($instr['Titulo']) ?>" data-mensaje="<?= htmlspecialchars($instr['Mensaje']) ?>">
                                     <i class="fas fa-chevron-right text-success mt-1 me-2 small"></i>
                                     <div>
                                         <p class="mb-0 fw-bold small text-dark"><?= htmlspecialchars($instr['Titulo']) ?></p>
@@ -468,45 +471,65 @@ require_once '../includes/conexion.php';
         </div>
     </div>
 
-    <div class="modal fade" id="instruccionModal" tabindex="-1">
+
+
+    <!-- Modal de detalle de instruccion al hacerle click sobre una de ellas -->
+    <div class="modal fade" id="instruccionModal" tabindex="-1" aria-labelledby="instruccionModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg rounded-4">
                 <div class="modal-header">
                     <h5 class="modal-title fw-bold" id="instruccionModalLabel">Detalle</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4 bg-light">
                     <p id="instr-mensaje" class="lead mb-0"></p>
                 </div>
                 <div class="modal-footer border-0">
-                    <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-secondary rounded-pill" data-mdb-dismiss="modal">Cerrar</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.2/mdb.min.js"></script>
+
+     <!-- Script de detalle de instruccion al hacerle click sobre una de ellas -->
     <script>
-        // Lógica para instrucciones
+        // Inicializamos el modal una sola vez al cargar la página
+        const elModal = document.getElementById('instruccionModal');
+        let modalInstancia = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            modalInstancia = new mdb.Modal(elModal);
+        });
+
         document.querySelectorAll('.instruccion-item').forEach(item => {
             item.addEventListener('click', () => {
                 const id = item.getAttribute('data-id');
                 const titulo = item.getAttribute('data-titulo');
                 const mensaje = item.getAttribute('data-mensaje');
 
+                // Rellenar datos
                 document.getElementById('instruccionModalLabel').textContent = titulo;
                 document.getElementById('instr-mensaje').innerHTML = mensaje.replace(/\n/g, '<br>');
 
-                const modal = new mdb.Modal(document.getElementById('instruccionModal'));
-                modal.show();
+                // Mostrar modal
+                if (modalInstancia) modalInstancia.show();
 
+                // Llamada a la API (Marcamos como leído y grabamos la HORA)
                 fetch('../api/marcar_leido.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    body: 'id=' + id
-                });
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: 'id=' + id
+                    })
+                    .then(() => {
+                        // Cambiamos el icono a color gris para indicar que ya se procesó
+                        const icono = item.querySelector('i');
+                        icono.classList.remove('text-success');
+                        icono.classList.add('text-muted');
+                    })
+                    .catch(err => console.error("Error al marcar lectura:", err));
             });
         });
     </script>
