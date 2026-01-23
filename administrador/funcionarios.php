@@ -2,6 +2,9 @@
 include_once '../includes/header.php';
 ?>
 
+
+<style></style>
+
 <body>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
     <div class="container-fluid p-0">
@@ -44,11 +47,6 @@ include_once '../includes/header.php';
 
 
 
-
-
-
-
-
                 <div class="container-fluid px-4">
                     <div id="mensajeFlashContenedor">
                         <?php
@@ -85,69 +83,71 @@ include_once '../includes/header.php';
 
                             // Consulta para obtener datos de funcionarios con sección y categoría
                             $sql = "SELECT 
-    f.Id_funcionario,
-    f.CODIGO,
-    f.Nombre,
-    f.Apellidos,
-    f.Estado_Laboral,
-    f.Dip_Pasaporte,
-    f.Sexo,
-    f.Fecha_nacimiento,
-    f.Lugar_nacimiento,
-    f.Nacionalidad,
+                                f.Id_funcionario,
+                                f.CODIGO,
+                                f.Nombre,
+                                f.Apellidos,
+                                f.Estado_Laboral,
+                                f.Dip_Pasaporte,
+                                f.Sexo,
+                                f.Fecha_nacimiento,
+                                f.Lugar_nacimiento,
+                                f.Nacionalidad,
 
-    -- NUEVOS DATOS GEOGRÁFICOS Y CULTURALES
-    f.Tribu,
-    f.Pueblo,
-    f.Distrito,
-    f.Provincia,
+                                -- NUEVOS DATOS GEOGRÁFICOS Y CULTURALES
+                                f.Tribu,
+                                f.Pueblo,
+                                f.Distrito,
+                                f.Provincia,
 
-    f.Telefono,
-    f.Correo,
-    f.Domicilio,
-    f.Num_carnet_fun,
-    f.Fecha_nombramiento,
-    f.Fecha_posesion,
+                                f.Telefono,
+                                f.Correo,
+                                f.Domicilio,
+                                f.Num_carnet_fun,
+                                f.Fecha_nombramiento,
+                                f.Fecha_posesion,
 
-    f.Id_seccion,
-    s.nombre AS nombre_seccion,
-    d.nombre AS nombre_direccion,
+                                f.Id_seccion,
+                                s.nombre AS nombre_seccion,
+                                d.nombre AS nombre_direccion,
+                                d.ubicacion AS ubicacion_direccion,
+                                d.distrito AS distrito_direccion,
 
-    f.Id_cargo,
-    f.Id_categoria,
-    c.nombre AS nombre_categoria,
+                                f.Id_cargo,
+                                f.Id_categoria,
+                                c.nombre AS nombre_categoria,
 
-    /* Cargo más reciente */
-    (
-        SELECT car.Nombre
-        FROM nombramientos n
-        INNER JOIN cargos car ON n.Id_cargo = car.Id_cargo
-        WHERE n.Id_funcionario = f.Id_funcionario
-        ORDER BY n.Fecha_nombramiento DESC
-        LIMIT 1
-    ) AS nombre_cargo,
+                                /* Cargo más reciente */
+                                (
+                                    SELECT car.Nombre
+                                    FROM nombramientos n
+                                    INNER JOIN cargos car ON n.Id_cargo = car.Id_cargo
+                                    WHERE n.Id_funcionario = f.Id_funcionario
+                                    ORDER BY n.Fecha_nombramiento DESC
+                                    LIMIT 1
+                                ) AS nombre_cargo,
 
-    f.Profesion,
-    f.Maximo_nivel_estudios,
-    f.Titulacion_academica,
-    f.Universidad_centro_formacion,
-    f.Fecha_graduacion,
-    f.Foto,
+                                f.Profesion,
+                                f.Maximo_nivel_estudios,
+                                f.Titulacion_academica,
+                                f.Universidad_centro_formacion,
+                                f.Fecha_graduacion,
+                                f.Foto,
 
-    f.Dip_pass_copia,
-    f.Copia_doc_nomb,
-    f.Copia_carnet_func,
-    f.Copia_doc_tom_posesion,
-    f.Copia_doc_academicos,
+                                f.Dip_pass_copia,
+                                f.Copia_doc_nomb,
+                                f.Copia_carnet_func,
+                                f.Copia_doc_tom_posesion,
+                                f.Copia_doc_academicos,
 
-    f.Usuario_creador,
-    f.Fecha_registro
+                                f.Usuario_creador,
+                                f.Fecha_registro
 
-FROM funcionarios f
-LEFT JOIN secciones s ON f.Id_seccion = s.Id_seccion
-LEFT JOIN direcciones d ON s.Id_direccion = d.Id_direccion
-LEFT JOIN categorias c ON f.Id_categoria = c.Id_categoria
-ORDER BY f.Id_funcionario ASC
+                                FROM funcionarios f
+                                LEFT JOIN secciones s ON f.Id_seccion = s.Id_seccion
+                                LEFT JOIN direcciones d ON s.Id_direccion = d.Id_direccion
+                                LEFT JOIN categorias c ON f.Id_categoria = c.Id_categoria
+                                ORDER BY f.Id_funcionario ASC
 
                             ";
 
@@ -164,10 +164,10 @@ ORDER BY f.Id_funcionario ASC
                                         <th>Nombre y Apellidos</th>
                                         <th>Funcion</th>
                                         <th>Seccion</th>
-                                        <th>Domicilio</th>
+                                        <th>Direccion</th>
                                         <th>categoria</th>
                                         <th>Telefono</th>
-                                        <th>Ubicacion</th>
+                                        <th>Destino</th>
                                         <th>Estado Laboral</th>
                                         <th>Acciones</th>
                                     </tr>
@@ -196,10 +196,19 @@ ORDER BY f.Id_funcionario ASC
                                             <td><?= htmlspecialchars($f['Nombre']) ?> <?= htmlspecialchars($f['Apellidos']) ?></td>
                                             <td><?= htmlspecialchars($f['nombre_cargo'] ?? 'N/A') ?></td>
                                             <td><?= htmlspecialchars($f['nombre_seccion'] ?? 'N/A') ?></td>
-                                            <td><?= htmlspecialchars($f['Domicilio'] ?? 'N/A') ?></td>
+                                            <td><?= htmlspecialchars($f['nombre_direccion'] ?? '---') ?> </td>
                                             <td><?= htmlspecialchars($f['nombre_categoria'] ?? 'N/A') ?></td>
                                             <td><?= htmlspecialchars($f['Telefono'] ?? '---') ?> </td>
-                                            <td><?= htmlspecialchars($f['nombre_direccion'] ?? '---') ?> </td>
+
+
+
+
+                                            <td>
+                                                <?= (!empty($f['ubicacion_direccion']) || !empty($f['distrito_direccion']))
+                                                    ? htmlspecialchars(trim(($f['ubicacion_direccion'] ?? '') . "-" . ($f['distrito_direccion'] ?? ''), " — "))
+                                                    : '<span class="text-muted">No asignado</span>'
+                                                ?>
+                                            </td>
                                             <td>
                                                 <?php
                                                 $estado_actual = $f['Estado_Laboral'] ?? 'Activo';
@@ -621,7 +630,7 @@ ORDER BY f.Id_funcionario ASC
                                             </div>
                                             <div class="col-12">
                                                 <label class="form-label">Copia Carnet Funcionario</label>
-                                                <input type="file" class="form-control" name="Copia_carnet_func" accept=".pdf,.jpg,.png" required>
+                                                <input type="file" class="form-control" name="Copia_carnet_func" accept=".pdf,.jpg,.png">
                                             </div>
                                             <div class="col-12">
                                                 <label class="form-label">Copia Documento Toma Posesión</label>
@@ -784,8 +793,6 @@ ORDER BY f.Id_funcionario ASC
 
 
 
-
-
     <!-- Script para cargar datos del funcionario para mostrarlos en el modal de detalles del funcionario -->
     <script>
         // Función para formatear fechas de forma segura
@@ -802,6 +809,13 @@ ORDER BY f.Id_funcionario ASC
                 return 'Fecha inválida';
             }
         }
+        const coloresPermisos = {
+            'Pendiente': 'text-warning',
+            'Aprobado': 'text-success',
+            'Denegado': 'text-danger',
+            'Disfrutado': 'text-primary',
+            'Cancelado': 'text-muted'
+        };
 
         // Función principal de carga
         async function loadEmployeeData(funcionarioId) {
@@ -827,13 +841,11 @@ ORDER BY f.Id_funcionario ASC
                     formacion_academica,
                     capacitaciones,
                     permisos,
-                    asignaciones,
-                    historial_cargos
+                    asignaciones
                 } = data;
 
-                // Calcular edad
                 const calcularEdad = (fecha) => {
-                    if (!fecha) return 'N/A';
+                    if (!fecha || fecha === '0000-00-00') return 'N/A';
                     const hoy = new Date();
                     const cumple = new Date(fecha);
                     let edad = hoy.getFullYear() - cumple.getFullYear();
@@ -841,133 +853,164 @@ ORDER BY f.Id_funcionario ASC
                     return edad;
                 };
 
+                const renderRow = (label, value) => `
+            <div class="py-1">
+                <span class="text-muted small">${label}:</span>
+                <span class="fw-bold small text-dark ms-1">${value || '---'}</span>
+            </div>
+        `;
+
                 const coloresEstado = {
                     'Activo': 'bg-success',
                     'Permiso': 'bg-info',
                     'Vacaciones': 'bg-primary',
                     'Cesado': 'bg-danger',
-                    'Baja Temporal': 'bg-warning text-dark', // Añadimos text-dark para mejor legibilidad en amarillo
+                    'Baja Temporal': 'bg-warning text-dark',
                     'Jubilado': 'bg-dark'
                 };
 
-                // 2. Obtener el color (usamos 'bg-secondary' como color por defecto si no coincide ninguno)
                 const colorBadge = coloresEstado[funcionario.Estado_Laboral] || 'bg-secondary';
 
+                // Solo valores para el origen
+                const origenValores = `${funcionario.Pueblo || ''}-${funcionario.Tribu || ''} / ${funcionario.Distrito || ''}-${funcionario.Provincia || ''}`.replace(/^, |, $/g, '');
+
                 modalContentData.innerHTML = `
-                <div class="col-12 mb-4">
-                    <div class="d-flex align-items-center bg-light p-3 rounded-4 shadow-sm">
-                        <img src="${funcionario.Foto || 'https://placehold.co/150x150?text=Perfil'}" 
-                            class="rounded-circle border border-3 border-primary me-4" style="width:100px; height:100px; object-fit:cover;">
-                        <div>
-                            <h2 class="fw-bold mb-0">${funcionario.Nombre} ${funcionario.Apellidos}</h2>
-                            
-                          <span class="badge ${colorBadge} text-uppercase">${funcionario.Estado_Laboral}</span>
-                            <p class="text-muted mb-0"><i class="bi bi-tag-fill me-2"></i>Código: ${funcionario.CODIGO}</p>
+            <div class="col-12 mb-4">
+                <div class="d-flex align-items-center bg-white p-3 rounded-4 shadow-sm border">
+                    <img src="${funcionario.Foto || '../assets/img/default-avatar.png'}" 
+                        class="rounded-3 border border-3 border-white shadow-sm me-4" 
+                        style="width:110px; height:110px; object-fit:cover;">
+                    <div>
+                        <h2 class="fw-bold mb-1 text-dark">${funcionario.Nombre} ${funcionario.Apellidos}</h2>
+                        <span class="badge ${colorBadge} rounded-pill px-3 mb-2">${funcionario.Estado_Laboral}</span>
+                        <p class="text-muted mb-0 small"><i class="bi bi-tag-fill me-2"></i>Código: ${funcionario.CODIGO}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 mb-4">
+                <div class="card h-100 border-0 shadow-sm p-4">
+                    <h6 class="text-primary fw-bold border-bottom pb-2 mb-3"><i class="bi bi-person-fill me-2"></i>1. Información Personal</h6>
+                    ${renderRow('DIP/Pasaporte', funcionario.Dip_Pasaporte)}
+                    ${renderRow('Sexo / Edad', `${funcionario.Sexo} — ${calcularEdad(funcionario.Fecha_nacimiento)} años`)}
+                    ${renderRow('Nacionalidad', funcionario.Nacionalidad)}
+                    ${renderRow('Natural de', origenValores)}
+                    ${renderRow('Lugar Nacimiento', funcionario.Lugar_nacimiento)}
+                </div>
+            </div>
+
+            <div class="col-md-6 mb-4">
+                <div class="card h-100 border-0 shadow-sm p-4">
+                    <h6 class="text-primary fw-bold border-bottom pb-2 mb-3"><i class="bi bi-telephone-fill me-2"></i>2. Información de Contacto</h6>
+                    ${renderRow('Teléfono', funcionario.Telefono)}
+                    ${renderRow('Correo', funcionario.Correo)}
+                    ${renderRow('Domicilio', funcionario.Domicilio)}
+                    ${renderRow('Carnet Funcionario', funcionario.Num_carnet_fun || 'No Registrado')}
+                </div>
+            </div>
+            <div class="col-12 mb-4">
+                <div class="card border-0 shadow-sm p-4">
+                    <h6 class="text-primary fw-bold border-bottom pb-2 mb-3"><i class="bi bi-briefcase-fill me-2"></i>3. Información de Funcionario</h6>
+                   <div class="row">
+                        <div class="col-md-6 border-end">
+                            ${renderRow('Cargo Actual', funcionario.Nombre_Cargo_Actual)}
+                            ${renderRow('Categoría', funcionario.Nombre_Categoria)}
+                            ${renderRow('Sección', funcionario.Nombre_Seccion)}
+                            ${renderRow('Dirección', funcionario.Nombre_Direccion)}
+                        </div>
+                        <div class="col-md-6 ps-md-4">
+                           ${renderRow('Destino Real', `<i class="bi bi-geo-alt-fill text-danger small"></i> ${funcionario.Ubicacion_Direccion || 'N/A'} — ${funcionario.Distrito_Direccion || 'N/A'}`)}
+                            ${renderRow('Fecha Nombramiento', formatDate(funcionario.Fecha_nombramiento))}
+                            ${renderRow('Fecha Toma Posesión', formatDate(funcionario.Fecha_posesion))}
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <div class="col-md-6">
-                    <div class="card h-100 border-0 shadow-sm p-4">
-                        <h6 class="text-primary fw-bold border-bottom pb-2 mb-3"><i class="bi bi-person-fill me-2"></i>1. Información Personal</h6>
-                        <div class="row small g-2">
-                            <div class="col-6 text-muted">Nombre Completo:</div><div class="col-6 fw-bold">${funcionario.Nombre} ${funcionario.Apellidos}</div>
-                            <div class="col-6 text-muted">DIP/Pasaporte:</div><div class="col-6 fw-bold">${funcionario.Dip_Pasaporte}</div>
-                            <div class="col-6 text-muted">Edad:</div><div class="col-6 fw-bold">${calcularEdad(funcionario.Fecha_nacimiento)} años</div>
-                            <div class="col-6 text-muted">Fecha de Nacimiento:</div><div class="col-6 fw-bold">${formatDate(funcionario.Fecha_nacimiento)}</div>
-                            <div class="col-6 text-muted">Lugar de Nacimiento:</div><div class="col-6 fw-bold">${funcionario.Lugar_nacimiento || 'N/A'}</div>
-                            <div class="col-6 text-muted">Natural de:</div><div class="col-6 fw-bold">${funcionario.Nacionalidad} (Prov: ${funcionario.Nacionalidad})</div>
-                        </div>
-                    </div>
+             
+
+
+
+
+            <div class="col-md-6 mb-4">
+                <div class="card h-100 border-0 shadow-sm p-4">
+                    <h6 class="text-primary fw-bold border-bottom pb-2 mb-3">
+                        <i class="bi bi-mortarboard-fill me-2"></i>4. Formación y Estudios
+                    </h6>
+                    <label class="small fw-bold text-muted mt-2 d-block">Títulos Académicos:</label>
+                    <ul class="list-unstyled small mb-3">
+                        ${formacion_academica.map(f => `
+                            <li class="mb-2 d-flex justify-content-between align-items-center border-bottom border-light pb-1">
+                                <span><i class="bi bi-check-circle-fill text-success me-2"></i><strong>${f.Nivel_Educativo}:</strong> ${f.Titulo_Obtenido}</span>
+                                ${f.Documento_Formacion ? 
+                                    `<a href="${f.Documento_Formacion}" target="_blank" rel="noopener noreferrer" class="btn btn-link text-danger p-0 ms-2">
+                                        <i class="bi bi-file-earmark-pdf-fill fs-3"></i>
+                                    </a>` : ''}
+                            </li>
+                        `).join('') || '<li class="text-muted italic">No registrado</li>'}
+                    </ul>
+                    <label class="small fw-bold text-muted d-block">Capacitaciones:</label>
+                    <ul class="list-unstyled small mb-0">
+                        ${capacitaciones.map(c => `
+                            <li class="mb-1 d-flex justify-content-between align-items-center">
+                                <span><i class="bi bi-patch-check-fill text-info me-2"></i>${c.Nombre_Curso}</span>
+                                ${c.Certificado_URL ? 
+                                    `<a href="${c.Certificado_URL}" target="_blank" rel="noopener noreferrer" class="btn btn-link text-info p-0 ms-2">
+                                        <i class="bi bi-file-earmark-pdf-fill fs-3"></i>
+                                    </a>` : ''}
+                            </li>
+                        `).join('') || '<li class="text-muted italic">No registrado</li>'}
+                    </ul>
                 </div>
+            </div>
 
-                <div class="col-md-6">
-                    <div class="card h-100 border-0 shadow-sm p-4">
-                        <h6 class="text-primary fw-bold border-bottom pb-2 mb-3"><i class="bi bi-telephone-fill me-2"></i>2. Información de Contacto</h6>
-                        <div class="row small g-2">
-                            <div class="col-6 text-muted">Teléfono:</div><div class="col-6 fw-bold">${funcionario.Telefono || 'N/A'}</div>
-                            <div class="col-6 text-muted">Correo:</div><div class="col-6 fw-bold">${funcionario.Correo || 'N/A'}</div>
-                            <div class="col-6 text-muted">Ubicación / Barrio:</div><div class="col-6 fw-bold">${funcionario.Domicilio || 'N/A'}</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-12">
-                    <div class="card border-0 shadow-sm p-4 mt-2">
-                        <h6 class="text-primary fw-bold border-bottom pb-2 mb-3"><i class="bi bi-briefcase-fill me-2"></i>3. Información de Funcionario</h6>
-                        <div class="row small">
-                            <div class="col-md-6 border-end">
-                                <p class="mb-1"><strong>Función (Cargo):</strong> ${funcionario.Funcion || 'N/A'}</p>
-                                <p class="mb-1"><strong>Sección:</strong> ${funcionario.Nombre_Seccion || 'N/A'}</p>
-                                <p class="mb-1"><strong>Dirección:</strong> ${funcionario.Nombre_Direccion || 'N/A'}</p>
+            <div class="col-md-6 mb-4">
+                <div class="card h-100 border-0 shadow-sm p-4 bg-light">
+                    <h6 class="text-danger fw-bold border-bottom pb-2 mb-3">
+                        <i class="bi bi-clock-history me-2"></i>5. Historial y Permisos
+                    </h6>
+                    <div class="timeline-small">
+                        ${asignaciones?.length > 0 ? asignaciones.map(asig => `
+                            <div class="mb-3 border-start border-danger border-3 ps-3">
+                                <div class="fw-bold text-dark small">${asig.Nombre_Cargo || asig.nombre_cargo}</div>
+                                <div class="text-muted" style="font-size: 0.8rem;">${asig.Nombre_Seccion || asig.nombre_seccion} | ${formatDate(asig.Fecha_nombramiento)}</div>
                             </div>
-                            <div class="col-md-6 ps-md-4">
-                                <p class="mb-1"><strong>Ubicación Actual:</strong> ${funcionario.Provincia_Direccion || 'N/A'}, ${funcionario.Distrito_Direccion || 'N/A'}</p>
-                                <p class="mb-1"><strong>Fecha Nombramiento:</strong> ${formatDate(funcionario.Fecha_nombramiento)}</p>
-                                <p class="mb-1"><strong>Fecha Toma Posesión:</strong> ${formatDate(funcionario.Fecha_posesion)}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <div class="card h-100 border-0 shadow-sm p-4 mt-2">
-                        <h6 class="text-primary fw-bold border-bottom pb-2 mb-3"><i class="bi bi-mortarboard-fill me-2"></i>4. Información de Estudio</h6>
-                        <p class="small mb-1"><strong>Profesión:</strong> ${funcionario.Profesion}</p>
-                        <p class="small mb-1"><strong>Nivel Máximo:</strong> ${funcionario.Maximo_nivel_estudios}</p>
-                        <hr class="my-2">
-                        <label class="small fw-bold text-muted">Títulos Académicos:</label>
-                        <ul class="list-unstyled small">
-                            ${formacion_academica.map(f => `<li><i class="bi bi-check-circle text-success me-2"></i>${f.Titulo_Obtenido} (${f.Nivel_Educativo})</li>`).join('') || '<li>No registrado</li>'}
-                        </ul>
-                        <label class="small fw-bold text-muted">Otras Formaciones:</label>
-                        <ul class="list-unstyled small">
-                            ${capacitaciones.map(c => `<li><i class="bi bi-patch-check text-info me-2"></i>${c.Nombre_Curso}</li>`).join('') || '<li>No registrado</li>'}
-                        </ul>
-                    </div>
-                </div>
-
-
-                <div class="col-md-6">
-                    <div class="card h-100 border-0 shadow-sm p-4 mt-2 bg-light">
-                        <h6 class="text-danger fw-bold border-bottom pb-2 mb-3">
-                            <i class="bi bi-clock-history me-2"></i>5. Historial y Acciones
-                        </h6>
+                        `).join('') : '<p class="small text-muted">Sin historial de cambios</p>'}
                         
-                        ${(funcionario.Copia_doc_nomb && funcionario.Estado_Laboral !== 'Activo') ? `
-                            <div class="mb-3">
-                                <label class="small fw-bold text-muted d-block mb-1">Documento de Estado Actual:</label>
-                                <a href="${funcionario.Copia_doc_nomb}" target="_blank" class="btn btn-sm btn-outline-danger w-100 shadow-sm">
-                                    <i class="bi bi-file-earmark-pdf-fill me-2"></i>Ver Justificante de ${funcionario.Estado_Laboral}
-                                </a>
+                        <p class="small fw-bold mb-3 mt-4 text-muted border-top pt-2 text-uppercase">Últimos Permisos:</p>
+                        ${permisos?.length > 0 ? permisos.map(p => `
+                            <div class="mb-3 border-start border-warning border-3 ps-3 py-2 bg-white rounded-end shadow-sm">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="fw-bold text-dark" style="font-size: 0.95rem;">${p.Tipo_Permiso}</span>
+                                    ${p.Documento_Soporte_URL ? 
+                                        `<a href="${p.Documento_Soporte_URL}" target="_blank" rel="noopener noreferrer" class="btn btn-link text-danger p-0">
+                                            <i class="bi bi-file-earmark-pdf-fill fs-2"></i>
+                                        </a>` : ''}
+                                </div>
+                                <div class="${coloresPermisos[p.Estado_Permiso] || 'text-secondary'} fw-bold mb-1" style="font-size: 0.8rem;">
+                                    <i class="bi bi-info-circle me-1"></i>${p.Estado_Permiso}
+                                </div>
+                                <div class="text-muted" style="font-size: 0.75rem;">
+                                    <i class="bi bi-calendar-range me-1"></i>${formatDate(p.Fecha_Inicio_Permiso)} - ${p.Fecha_Fin_Permiso ? formatDate(p.Fecha_Fin_Permiso) : 'N/A'}
+                                </div>
                             </div>
-                            <hr>` : '' 
-                        }
-
-                        <div class="timeline-small">
-                            <p class="small fw-bold mb-1 text-muted">Cargos Anteriores:</p>
-                            ${historial_cargos && historial_cargos.length > 0 ? historial_cargos.map(h => `
-                                <div class="small mb-1 border-start border-danger ps-2">
-                                    ${h.Nombre_Cargo} (${formatDate(h.Fecha_nombramiento)})
-                                </div>`).join('') : '<p class="small text-muted">Sin historial de cargos</p>'}
-                            
-                            <p class="small fw-bold mb-1 mt-3 text-muted">Permisos y Eventos:</p>
-                            ${permisos && permisos.length > 0 ? permisos.map(p => `
-                                <div class="small mb-1 border-start border-warning ps-2 text-truncate">
-                                    ${p.Tipo_Permiso}: ${p.Estado_Permiso} (${formatDate(p.Fecha_Inicio_Permiso)})
-                                </div>`).join('') : '<p class="small text-muted">Sin eventos registrados</p>'}
-                        </div>
+                        `).join('') : '<p class="small text-muted">Sin permisos registrados</p>'}
                     </div>
-                </div>`;
+                </div>
+            </div>
+            `;
 
-                lastVerificationDate.textContent = "Actualizado: " + new Date().toLocaleString();
+
+
+            lastVerificationDate.textContent = "Actualizado: " + new Date().toLocaleString();
 
             } catch (error) {
-                modalContentData.innerHTML = `<div class="alert alert-danger">Error al cargar datos: ${error.message}</div>`;
+                modalContentData.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
             } finally {
                 loadingSpinner.classList.replace('d-flex', 'd-none');
             }
         }
+
 
         //Evento para abrir el modal
         document.getElementById('employeeDetailModal')
@@ -1144,7 +1187,7 @@ ORDER BY f.Id_funcionario ASC
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label fw-semibold">Nº Carnet Funcionario</label>
-                                        <input type="text" name="Num_carnet_fun" id="edit_carnet" class="form-control" required>
+                                        <input type="text" name="Num_carnet_fun" id="edit_carnet" class="form-control">
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label fw-semibold">Función / Cargo</label>
@@ -1180,13 +1223,13 @@ ORDER BY f.Id_funcionario ASC
                                             ?>
                                         </select>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-6" required>
                                         <label class="form-label fw-semibold">Fecha Nombramiento</label>
                                         <input type="date" name="Fecha_nombramiento" id="edit_fecha_nombramiento" class="form-control">
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label fw-semibold">Fecha Toma de Posesión</label>
-                                        <input type="date" name="Fecha_posesion" id="edit_fecha_posesion" class="form-control">
+                                        <input type="date" name="Fecha_posesion" id="edit_fecha_posesion" class="form-control" required>
                                     </div>
                                 </div>
                             </div>

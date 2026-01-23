@@ -53,33 +53,26 @@ include_once '../includes/silebar_admin.php';
 
                     <?php
                     $sql = "SELECT 
-    n.Id_nombramiento,
-    n.Id_funcionario,
-    n.Id_cargo,
-    n.Id_seccion,
-    n.Id_categoria,
-    n.Fecha_nombramiento,
-    n.Fecha_toma_posesion,
-    n.Fecha_finalizacion_nombramiento,
-    n.Copia_doc_nomb,
-    n.Copia_doc_tom_posesion,
+                        n.*, 
+                        CONCAT(f.Nombre, ' ', f.Apellidos) AS Funcionario,
+                        c.Nombre AS Cargo,
+                        s.nombre AS Seccion,
+                        cat.nombre AS Categoria,
+                        d.nombre AS Direccion
+                    FROM nombramientos n
+                    INNER JOIN funcionarios f ON n.Id_funcionario = f.Id_funcionario
+                    INNER JOIN cargos c ON n.Id_cargo = c.Id_cargo
+                    LEFT JOIN secciones s ON n.Id_seccion = s.Id_seccion
+                    LEFT JOIN direcciones d ON s.Id_direccion = d.Id_direccion
+                    LEFT JOIN categorias cat ON n.Id_categoria = cat.Id_categoria
+                   ORDER BY n.Fecha_nombramiento DESC";
 
-    CONCAT(f.Nombre, ' ', f.Apellidos) AS Funcionario,
-    c.Nombre AS Cargo,
-    s.nombre AS Seccion,
-    cat.nombre AS Categoria
-
-FROM nombramientos n
-INNER JOIN funcionarios f ON n.Id_funcionario = f.Id_funcionario
-INNER JOIN cargos c ON n.Id_cargo = c.Id_cargo
-LEFT JOIN secciones s ON n.Id_seccion = s.Id_seccion
-LEFT JOIN categorias cat ON n.Id_categoria = cat.Id_categoria
-
-ORDER BY n.Id_nombramiento DESC";
+                    $stmt = $pdo->prepare($sql);
+                    $stmt->execute();
+                    $nombramientos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
                     $rows = $pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
-
 
                     if (count($rows) > 0):
                         foreach ($rows as $row):
@@ -138,9 +131,17 @@ ORDER BY n.Id_nombramiento DESC";
                                                     <div><i
                                                             class="bi bi-geo-alt text-primary me-1"></i><?= $row['Fecha_toma_posesion'] ?: 'Pendiente' ?>
                                                     </div>
-                                                    <div class="text-muted">
-                                                        <i class="bi bi-calendar-x me-1"></i>
-                                                        <?= $row['Fecha_finalizacion_nombramiento'] ?: 'Vigente' ?>
+                                                    <div class="mt-1">
+                                                        <?php if (empty($row['Fecha_finalizacion_nombramiento'])): ?>
+                                                            <span class=" px-3 text-primary">
+                                                                <i class="bi bi-check-circle-fill me-1"></i> Vigente
+                                                            </span>
+                                                        <?php else: ?>
+                                                            <div class="text-muted small">
+                                                                <i class="bi bi-calendar-x me-1"></i>
+                                                                <strong>Finalizó:</strong> <?= date('d/m/Y', strtotime($row['Fecha_finalizacion_nombramiento'])) ?>
+                                                            </div>
+                                                        <?php endif; ?>
                                                     </div>
                                                 </td>
 
@@ -395,20 +396,53 @@ ORDER BY n.Id_nombramiento DESC";
                                 <input type="date" name="fecha_toma_posesion" class="form-control">
                             </div>
 
+
+
+
+
+
+
+
+
                             <div class="col-md-4">
-                                <label class="form-label fw-semibold">Sección</label>
+                                <label class="form-label fw-semibold">Sección / Departamento</label>
                                 <select name="id_seccion" class="form-select">
-                                    <option value="">Ninguna</option>
+                                    <option value="">Seleccione una sección</option>
                                     <?php
-                                    // CONEXIÓN Y CONSULTA PHP para Secciones
                                     require_once "../includes/conexion.php";
-                                    $stmt = $pdo->query("SELECT s.Id_seccion,s.nombre AS nombre_seccion,s.Id_direccion,d.nombre AS nombre_direccion FROM secciones s LEFT JOIN direcciones d ON s.Id_direccion = d.Id_direccion ORDER BY s.nombre ASC");
+
+                                    // Mantenemos el orden por Dirección para que el agrupamiento funcione
+                                    $sql = "SELECT s.Id_seccion, s.nombre AS nombre_seccion, d.nombre AS nombre_direccion 
+                                            FROM secciones s 
+                                            LEFT JOIN direcciones d ON s.Id_direccion = d.Id_direccion 
+                                            ORDER BY d.nombre ASC, s.nombre ASC";
+
+                                    $stmt = $pdo->query($sql);
+                                    $current_dir = null;
+
                                     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                                        echo '<option value="' . $row['Id_seccion'] . '">' . htmlspecialchars($row['nombre_seccion']) . ' ' . htmlspecialchars($row['nombre_direccion']) . '</option>';
+                                        $dir = $row['nombre_direccion'] ?? 'OTRAS DEPENDENCIAS';
+
+                                        // Lógica de agrupamiento visual
+                                        if ($current_dir !== $dir) {
+                                            if ($current_dir !== null) echo '</optgroup>';
+                                            echo '<optgroup label="' . htmlspecialchars(strtoupper($dir)) . '">';
+                                            $current_dir = $dir;
+                                        }
+
+                                        $labelCompleto = htmlspecialchars($row['nombre_seccion'] . " — " . $dir);
+
+                                        echo '<option value="' . $row['Id_seccion'] . '">' . $labelCompleto . '</option>';
                                     }
+
+                                    if ($current_dir !== null) echo '</optgroup>';
                                     ?>
                                 </select>
+                                <div class="form-text">Al seleccionar, se mostrará la sección junto a su dirección.</div>
                             </div>
+
+
+
 
                             <div class="col-md-4">
                                 <label class="form-label fw-semibold">Categoría</label>
@@ -439,9 +473,7 @@ ORDER BY n.Id_nombramiento DESC";
 
                     <!-- FOOTER -->
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                            Cancelar
-                        </button>
+
                         <button type="submit" class="btn btn-success">
                             Guardar Nombramiento
                         </button>
@@ -595,9 +627,15 @@ ORDER BY n.Id_nombramiento DESC";
                                 <select name="id_seccion" id="edit_sec" class="form-select">
                                     <option value="">Ninguna</option>
                                     <?php
-                                    $stmt = $pdo->query("SELECT Id_seccion, nombre FROM secciones ORDER BY nombre ASC");
-                                    while ($s = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                                        echo '<option value="' . $s['Id_seccion'] . '">' . htmlspecialchars($s['nombre']) . '</option>';
+                                    // 1. Consulta corregida con alias claros
+                                    $stmtSec = $pdo->query("SELECT s.Id_seccion, s.nombre AS nombre_seccion, d.nombre AS nombre_direccion 
+                                                                    FROM secciones s LEFT JOIN direcciones d ON s.Id_direccion = d.Id_direccion 
+                                                                    ORDER BY d.nombre ASC, s.nombre ASC");
+                                    while ($s = $stmtSec->fetch(PDO::FETCH_ASSOC)) {
+                                        // Concatenamos Dirección + Sección para que sea más fácil de identificar
+                                        $label = htmlspecialchars(($s['nombre_seccion'] . '-' . $s['nombre_direccion'] ?? 'SIN DIR.'));
+
+                                        echo '<option value="' . $s['Id_seccion'] . '">' . $label . '</option>';
                                     }
                                     ?>
                                 </select>

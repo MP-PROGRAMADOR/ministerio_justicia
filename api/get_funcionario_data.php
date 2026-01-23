@@ -12,19 +12,22 @@ try {
     }
 
     /* ================= 1. DATOS DEL FUNCIONARIO ================= */
+    // Añadimos el JOIN con cargos que agregaste vía ALTER TABLE
     $stmt = $pdo->prepare("
-      SELECT 
-    f.*, 
-    s.nombre AS Nombre_Seccion, 
-    d.nombre AS Nombre_Direccion, 
-    d.provincia AS Provincia_Direccion, 
-    d.distrito AS Distrito_Direccion,
-    c.nombre AS Nombre_Categoria
-FROM funcionarios f
-LEFT JOIN secciones s ON f.Id_seccion = s.Id_seccion
-LEFT JOIN direcciones d ON s.Id_direccion = d.Id_direccion
-LEFT JOIN categorias c ON f.Id_categoria = c.Id_categoria
-WHERE f.Id_funcionario = ?;
+        SELECT 
+            f.*, 
+            s.nombre AS Nombre_Seccion, 
+            d.nombre AS Nombre_Direccion, 
+            d.provincia AS Provincia_Direccion, 
+            d.distrito AS Distrito_Direccion,
+            c.nombre AS Nombre_Categoria,
+            cr.Nombre AS Nombre_Cargo_Actual
+        FROM funcionarios f
+        LEFT JOIN secciones s ON f.Id_seccion = s.Id_seccion
+        LEFT JOIN direcciones d ON s.Id_direccion = d.Id_direccion
+        LEFT JOIN categorias c ON f.Id_categoria = c.Id_categoria
+        LEFT JOIN cargos cr ON f.Id_cargo = cr.Id_cargo
+        WHERE f.Id_funcionario = ?;
     ");
     $stmt->execute([$id]);
     $funcionario = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -34,14 +37,13 @@ WHERE f.Id_funcionario = ?;
         exit;
     }
 
-    // Ruta de la foto
+    // Procesar ruta de la foto
     if (!empty($funcionario['Foto'])) {
         $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
         $funcionario['Foto'] = $protocol . $_SERVER['HTTP_HOST'] . '/ministerio_justicia/api/' . ltrim($funcionario['Foto'], '/');
     }
 
     /* ================= 2. FORMACIÓN ACADÉMICA ================= */
-    // Consultamos la tabla tbl_formacion_academica que definiste en el SQL
     $stmtFormacion = $pdo->prepare("SELECT * FROM tbl_formacion_academica WHERE ID_Funcionario = ? ORDER BY Fecha_Graduacion DESC");
     $stmtFormacion->execute([$id]);
     $formacion = $stmtFormacion->fetchAll(PDO::FETCH_ASSOC);
@@ -52,16 +54,28 @@ WHERE f.Id_funcionario = ?;
     $capacitaciones = $stmtCapacitaciones->fetchAll(PDO::FETCH_ASSOC);
 
     /* ================= 4. PERMISOS ================= */
+    // Asegúrate de que los nombres coincidan con el ENUM de tu DB
     $stmtPermisos = $pdo->prepare("SELECT * FROM tbl_permisos WHERE ID_Funcionario = ? ORDER BY Fecha_Inicio_Permiso DESC");
     $stmtPermisos->execute([$id]);
     $permisos = $stmtPermisos->fetchAll(PDO::FETCH_ASSOC);
 
-    /* ================= 5. ASIGNACIONES (NOMBRAMIENTOS) ================= */
+   /* ================= 5. ASIGNACIONES (NOMBRAMIENTOS) ================= */
     $stmtAsignaciones = $pdo->prepare("
-        SELECT n.*, c.Nombre AS Nombre_Cargo, d.nombre AS Nombre_Destino
+        SELECT 
+            n.Id_nombramiento,
+            n.Fecha_nombramiento,
+            n.Fecha_toma_posesion,
+            n.Fecha_finalizacion_nombramiento,
+            n.Copia_doc_nomb,
+            c.Nombre AS Nombre_Cargo, 
+            s.nombre AS Nombre_Seccion,
+            d.nombre AS Nombre_Direccion,
+            cat.nombre AS Nombre_Categoria
         FROM nombramientos n
         LEFT JOIN cargos c ON n.Id_cargo = c.Id_cargo
-        LEFT JOIN direcciones d ON n.Id_direccion = d.Id_direccion
+        LEFT JOIN secciones s ON n.Id_seccion = s.Id_seccion
+        LEFT JOIN direcciones d ON s.Id_direccion = d.Id_direccion
+        LEFT JOIN categorias cat ON n.Id_categoria = cat.Id_categoria
         WHERE n.Id_funcionario = ? 
         ORDER BY n.Fecha_nombramiento DESC
     ");
@@ -71,7 +85,7 @@ WHERE f.Id_funcionario = ?;
     /* ================= RESPUESTA FINAL ================= */
     echo json_encode([
         'funcionario' => $funcionario,
-        'formacion_academica' => $formacion, // Ahora contiene los datos reales
+        'formacion_academica' => $formacion,
         'capacitaciones' => $capacitaciones,
         'permisos' => $permisos,
         'asignaciones' => $asignaciones
