@@ -87,7 +87,7 @@ include_once '../includes/header.php';
                                         foreach ($cargos as $cargo):
                                     ?>
                                             <tr>
-                                                <td class="ps-3 text-muted">#<?= $cargo['Id_cargo'] ?></td>
+                                                <td class="ps-3 text-muted"><?= $cargo['Id_cargo'] ?></td>
                                                 <td class=" text-dark"><?= htmlspecialchars($cargo['Nombre']) ?></td>
 
                                                 <td><span class="badge bg-info text-dark px-3">Nivel <?= $cargo['Nivel_jerarquico'] ?></span></td>
@@ -99,10 +99,7 @@ include_once '../includes/header.php';
                                                         data-nivel="<?= $cargo['Nivel_jerarquico'] ?>">
                                                         <i class="bi bi-pencil-square"></i>
                                                     </button>
-                                                    <button class="btn btn-danger btn-sm"
-                                                        onclick="confirmarEliminacion(<?= $cargo['Id_cargo'] ?>, '<?= htmlspecialchars($cargo['Nombre']) ?>')">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
+                                                   
 
                                                 </td>
                                             </tr>

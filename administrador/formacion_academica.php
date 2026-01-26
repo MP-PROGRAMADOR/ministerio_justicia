@@ -145,14 +145,6 @@ include_once '../includes/header.php';
                                                             title="Editar Formación">
                                                             <i class="bi bi-pencil-square"></i>
                                                         </button>
-
-                                                        <button class="btn btn-sm btn-danger btn-eliminar-formacion"
-                                                            data-id="<?= $f['ID_Formacion'] ?>"
-                                                            data-nombre="<?= htmlspecialchars($f['Titulo_Obtenido']) ?>"
-                                                            data-funcionario="<?= htmlspecialchars($f['Nombre'] . ' ' . $f['Apellidos']) ?>"
-                                                            title="Eliminar Formación">
-                                                            <i class="bi bi-trash"></i>
-                                                        </button>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -384,8 +376,6 @@ include_once '../includes/header.php';
                         item.textContent = `${f.Nombre} ${f.Apellidos} - ${f.Dip_Pasaporte}`;
                         
                         item.addEventListener('click', () => {
-                            // CORRECCIÓN AQUÍ: Usamos Id_funcionario (con d minúscula)
-                            // que es como viene de la tabla funcionarios
                             const idReal = f.Id_funcionario || f.ID_Funcionario; 
                             
                             idFuncionarioInput.value = idReal;
@@ -679,25 +669,7 @@ include_once '../includes/header.php';
             });
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            // Selecciona todos los botones con la clase **.btn-eliminar-formacion**
-            const deleteButtons = document.querySelectorAll('.btn-eliminar-formacion');
-
-            deleteButtons.forEach(button => {
-                button.addEventListener('click', function(e) {
-                    e.preventDefault();
-
-                    // Obtener los tres atributos de datos
-                    const formacionId = this.getAttribute('data-id');
-                    const tituloNombre = this.getAttribute('data-nombre');
-                    // Nuevo: Obtener el nombre del funcionario
-                    const funcionarioNombre = this.getAttribute('data-funcionario');
-
-                    // Llama a la función de confirmación con el nuevo parámetro
-                    confirmarEliminacionFormacion(formacionId, tituloNombre, funcionarioNombre);
-                });
-            });
-        });
+    
     </script>
 
 

@@ -123,13 +123,7 @@ include_once '../includes/header.php';
                                                     </button>
 
 
-                                                    <button
-                                                        class="btn btn-sm btn-danger btn-eliminar-destino"
-                                                        title="Eliminar Destino"
-                                                        data-id="<?= $destino['ID_Destino'] ?>"
-                                                        data-descripcion="<?= htmlspecialchars($destino['Nombre_Destino']) ?>">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
+                                                   
                                                 </div>
                                             </td>
                                         </tr>
@@ -669,23 +663,6 @@ include_once '../includes/header.php';
         }
 
 
-        document.addEventListener('DOMContentLoaded', function() {
-
-            const deleteButtons = document.querySelectorAll('.btn-eliminar-destino');
-
-            deleteButtons.forEach(button => {
-                button.addEventListener('click', function(e) {
-                    e.preventDefault();
-
-                    // Obtiene los datos de los atributos data-* del botón
-                    const destinoId = this.getAttribute('data-id');
-                    const destinoNombre = this.getAttribute('data-descripcion');
-
-
-                    confirmarEliminacionDestino(destinoId, destinoNombre);
-                });
-            });
-        });
     </script>
 
 

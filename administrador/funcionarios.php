@@ -83,41 +83,20 @@ include_once '../includes/header.php';
 
                             // Consulta para obtener datos de funcionarios con sección y categoría
                             $sql = "SELECT 
-                                f.Id_funcionario,
-                                f.CODIGO,
-                                f.Nombre,
-                                f.Apellidos,
-                                f.Estado_Laboral,
-                                f.Dip_Pasaporte,
-                                f.Sexo,
-                                f.Fecha_nacimiento,
-                                f.Lugar_nacimiento,
-                                f.Nacionalidad,
+                                f.Id_funcionario, f.CODIGO, f.Nombre, f.Apellidos, f.Estado_Laboral, f.Dip_Pasaporte, 
+                                f.Sexo, f.Fecha_nacimiento, f.Lugar_nacimiento, f.Nacionalidad,
 
-                                -- NUEVOS DATOS GEOGRÁFICOS Y CULTURALES
-                                f.Tribu,
-                                f.Pueblo,
-                                f.Distrito,
-                                f.Provincia,
+                              
+                                f.Tribu, f.Pueblo, f.Distrito, f.Provincia,
 
-                                f.Telefono,
-                                f.Correo,
-                                f.Domicilio,
-                                f.Num_carnet_fun,
-                                f.Fecha_nombramiento,
-                                f.Fecha_posesion,
+                                f.Telefono, f.Correo, f.Domicilio, f.Num_carnet_fun, f.Fecha_nombramiento, f.Fecha_posesion,
 
-                                f.Id_seccion,
-                                s.nombre AS nombre_seccion,
-                                d.nombre AS nombre_direccion,
-                                d.ubicacion AS ubicacion_direccion,
+                                f.Id_seccion, s.nombre AS nombre_seccion, d.nombre AS nombre_direccion, d.ubicacion AS ubicacion_direccion, 
                                 d.distrito AS distrito_direccion,
 
-                                f.Id_cargo,
-                                f.Id_categoria,
-                                c.nombre AS nombre_categoria,
+                                f.Id_cargo, f.Id_categoria, c.nombre AS nombre_categoria,
 
-                                /* Cargo más reciente */
+                              
                                 (
                                     SELECT car.Nombre
                                     FROM nombramientos n
@@ -127,21 +106,11 @@ include_once '../includes/header.php';
                                     LIMIT 1
                                 ) AS nombre_cargo,
 
-                                f.Profesion,
-                                f.Maximo_nivel_estudios,
-                                f.Titulacion_academica,
-                                f.Universidad_centro_formacion,
-                                f.Fecha_graduacion,
-                                f.Foto,
+                                f.Profesion, f.Maximo_nivel_estudios, f.Titulacion_academica, f.Universidad_centro_formacion, f.Fecha_graduacion, f.Foto,
 
-                                f.Dip_pass_copia,
-                                f.Copia_doc_nomb,
-                                f.Copia_carnet_func,
-                                f.Copia_doc_tom_posesion,
-                                f.Copia_doc_academicos,
+                                f.Dip_pass_copia, f.Copia_doc_nomb, f.Copia_carnet_func, f.Copia_doc_tom_posesion, f.Copia_doc_academicos,
 
-                                f.Usuario_creador,
-                                f.Fecha_registro
+                                f.Usuario_creador, f.Fecha_registro
 
                                 FROM funcionarios f
                                 LEFT JOIN secciones s ON f.Id_seccion = s.Id_seccion
@@ -156,18 +125,14 @@ include_once '../includes/header.php';
                             ?>
 
                             <table class="table table-hover align-middle mb-0" id="funcionariosTable">
-                                <thead>
+                                <thead class="table-light">
                                     <tr>
                                         <th>ID</th>
                                         <th>Foto</th>
-                                        <th>Código</th>
-                                        <th>Nombre y Apellidos</th>
-                                        <th>Funcion</th>
-                                        <th>Seccion</th>
-                                        <th>Direccion</th>
-                                        <th>categoria</th>
-                                        <th>Telefono</th>
-                                        <th>Destino</th>
+                                        <th>Funcionario</th>
+                                        <th>Cargo / Categoria</th>
+                                        <th>Estructura Orgánica</th>
+                                        <th>Contacto / Destino</th>
                                         <th>Estado Laboral</th>
                                         <th>Acciones</th>
                                     </tr>
@@ -175,40 +140,47 @@ include_once '../includes/header.php';
                                 <tbody id="funcionariosTableBody">
                                     <?php foreach ($funcionarios as $f): ?>
                                         <tr>
-                                            <td><?= htmlspecialchars($f['Id_funcionario']) ?></td>
-
-                                            <?php
-                                            // Detectar protocolo y host
-                                            $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
-                                            $host = $_SERVER['HTTP_HOST'];
-                                            $fotoURL = !empty($f['Foto']) ? $protocol . $host . '/ministerio_justicia/api/' . ltrim($f['Foto'], '/') : '';
-                                            ?>
+                                            <td><small class="text-muted">#<?= $f['Id_funcionario'] ?></small></td>
 
                                             <td>
+                                                <?php
+                                                $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
+                                                $host = $_SERVER['HTTP_HOST'];
+                                                $fotoURL = !empty($f['Foto']) ? $protocol . $host . '/ministerio_justicia/api/' . ltrim($f['Foto'], '/') : '';
+                                                ?>
                                                 <?php if ($fotoURL): ?>
-                                                    <img src="<?= htmlspecialchars($fotoURL) ?>" alt="Foto" class="rounded"
+                                                    <img src="<?= htmlspecialchars($fotoURL) ?>" alt="Foto" class="rounded shadow-sm"
                                                         style="width:40px; height:40px; object-fit:cover; border-radius:8px;">
                                                 <?php else: ?>
-                                                    <i class="bi bi-image-fill text-muted"></i>
+                                                    <i class="bi bi-image-fill text-muted" style="font-size: 1.5rem;"></i>
                                                 <?php endif; ?>
                                             </td>
-                                            <td><?= htmlspecialchars(string: $f['CODIGO']) ?></td>
-                                            <td><?= htmlspecialchars($f['Nombre']) ?> <?= htmlspecialchars($f['Apellidos']) ?></td>
-                                            <td><?= htmlspecialchars($f['nombre_cargo'] ?? 'N/A') ?></td>
-                                            <td><?= htmlspecialchars($f['nombre_seccion'] ?? 'N/A') ?></td>
-                                            <td><?= htmlspecialchars($f['nombre_direccion'] ?? '---') ?> </td>
-                                            <td><?= htmlspecialchars($f['nombre_categoria'] ?? 'N/A') ?></td>
-                                            <td><?= htmlspecialchars($f['Telefono'] ?? '---') ?> </td>
-
-
-
 
                                             <td>
-                                                <?= (!empty($f['ubicacion_direccion']) || !empty($f['distrito_direccion']))
-                                                    ? htmlspecialchars(trim(($f['ubicacion_direccion'] ?? '') . "-" . ($f['distrito_direccion'] ?? ''), " — "))
-                                                    : '<span class="text-muted">No asignado</span>'
-                                                ?>
+                                                <div class="fw-bold text-dark"><?= htmlspecialchars($f['Nombre']) ?> <?= htmlspecialchars($f['Apellidos']) ?></div>
+                                                <div class="small text-primary fw-semibold"><?= htmlspecialchars($f['CODIGO']) ?></div>
                                             </td>
+
+                                            <td>
+                                                <div class="text-truncate" style="max-width: 150px;"><?= htmlspecialchars($f['nombre_cargo'] ?? 'N/A') ?></div>
+                                                <div class="text-muted small"><?= htmlspecialchars($f['nombre_categoria'] ?? 'N/A') ?></div>
+                                            </td>
+
+                                            <td>
+                                                <div class="text-truncate fw-medium" style="max-width: 150px;"><?= htmlspecialchars($f['nombre_direccion'] ?? '---') ?></div>
+                                                <div class="small text-muted"><?= htmlspecialchars($f['nombre_seccion'] ?? 'N/A') ?></div>
+                                            </td>
+
+                                            <td>
+                                                <div class="small"><i class="bi bi-telephone text-muted"></i> <?= htmlspecialchars($f['Telefono'] ?? '---') ?></div>
+                                                <div class="small text-muted text-truncate" style="max-width: 150px;">
+                                                    <i class="bi bi-geo-alt"></i>
+                                                    <?= (!empty($f['ubicacion_direccion']) || !empty($f['distrito_direccion']))
+                                                        ? htmlspecialchars(trim(($f['ubicacion_direccion'] ?? '') . "-" . ($f['distrito_direccion'] ?? ''), " — "))
+                                                        : 'No asignado' ?>
+                                                </div>
+                                            </td>
+
                                             <td>
                                                 <?php
                                                 $estado_actual = $f['Estado_Laboral'] ?? 'Activo';
@@ -248,7 +220,6 @@ include_once '../includes/header.php';
 
                                             <td>
                                                 <div class="d-flex gap-2">
-                                                    <!-- Botón editar -->
                                                     <button
                                                         class="btn btn-sm btn-warning btn-editar-funcionario"
                                                         data-bs-toggle="modal"
@@ -281,8 +252,6 @@ include_once '../includes/header.php';
                                                         data-tribu="<?= htmlspecialchars($f['Tribu']) ?>"
                                                         data-pueblo="<?= htmlspecialchars($f['Pueblo']) ?>"
 
-
-
                                                         data-profesion="<?= htmlspecialchars($f['Profesion']) ?>"
                                                         data-nivel="<?= htmlspecialchars($f['Maximo_nivel_estudios']) ?>"
                                                         data-titulacion="<?= htmlspecialchars($f['Titulacion_academica']) ?>"
@@ -300,18 +269,14 @@ include_once '../includes/header.php';
                                                         <i class="bi bi-pencil-square"></i>
                                                     </button>
 
-
-                                                    <!-- Botón ver detalles -->
                                                     <button type="button"
                                                         class="btn btn-sm btn-info shadow-sm"
                                                         data-bs-toggle="modal"
                                                         data-bs-target="#employeeDetailModal"
                                                         data-funcionario-id="<?= $f['Id_funcionario'] ?>"
                                                         title="Ver detalles">
-
                                                         <i class="bi bi-person-fill"></i>
                                                     </button>
-
 
                                                     <button class="btn btn-sm btn-success"
                                                         onclick="window.open('../fpdf/cv_funcionario.php?id=<?= (int)$f['Id_funcionario'] ?>', '_blank')"
@@ -841,7 +806,7 @@ include_once '../includes/header.php';
                     formacion_academica,
                     capacitaciones,
                     permisos,
-                    asignaciones
+                    nombramientos
                 } = data;
 
                 const calcularEdad = (fecha) => {
@@ -919,7 +884,7 @@ include_once '../includes/header.php';
                             ${renderRow('Dirección', funcionario.Nombre_Direccion)}
                         </div>
                         <div class="col-md-6 ps-md-4">
-                           ${renderRow('Destino Real', `<i class="bi bi-geo-alt-fill text-danger small"></i> ${funcionario.Ubicacion_Direccion || 'N/A'} — ${funcionario.Distrito_Direccion || 'N/A'}`)}
+                           ${renderRow('Destino Actual', `<i class="bi bi-geo-alt-fill text-danger small"></i> ${funcionario.ubicacion_direccion || 'No Asignado'} — ${funcionario.Distrito_Direccion || 'No Asignado'}`)}
                             ${renderRow('Fecha Nombramiento', formatDate(funcionario.Fecha_nombramiento))}
                             ${renderRow('Fecha Toma Posesión', formatDate(funcionario.Fecha_posesion))}
                         </div>
@@ -937,27 +902,39 @@ include_once '../includes/header.php';
                     <h6 class="text-primary fw-bold border-bottom pb-2 mb-3">
                         <i class="bi bi-mortarboard-fill me-2"></i>4. Formación y Estudios
                     </h6>
+
                     <label class="small fw-bold text-muted mt-2 d-block">Títulos Académicos:</label>
                     <ul class="list-unstyled small mb-3">
                         ${formacion_academica.map(f => `
-                            <li class="mb-2 d-flex justify-content-between align-items-center border-bottom border-light pb-1">
-                                <span><i class="bi bi-check-circle-fill text-success me-2"></i><strong>${f.Nivel_Educativo}:</strong> ${f.Titulo_Obtenido}</span>
-                                ${f.Documento_Formacion ? 
-                                    `<a href="${f.Documento_Formacion}" target="_blank" rel="noopener noreferrer" class="btn btn-link text-danger p-0 ms-2">
-                                        <i class="bi bi-file-earmark-pdf-fill fs-3"></i>
-                                    </a>` : ''}
+                            <li class="mb-2 border-bottom border-light pb-2">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <span>
+                                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                        <strong>${f.Nivel_Educativo}:</strong> ${f.Titulo_Obtenido}
+                                        <br>
+                                        <small class="text-muted ms-4">${f.Institucion_Educativa || 'Institución no registrada'}</small>
+                                    </span>
+                                    ${f.Documento_Formacion ? `
+                                        <a href="../uploads/formacion_academica/${f.Documento_Formacion}" 
+                                        target="_blank" 
+                                        class="btn btn-link text-danger p-0 ms-2">
+                                            <i class="bi bi-file-earmark-pdf-fill fs-3"></i>
+                                        </a>` : ''}
+                                </div>
                             </li>
                         `).join('') || '<li class="text-muted italic">No registrado</li>'}
                     </ul>
+                    
+
                     <label class="small fw-bold text-muted d-block">Capacitaciones:</label>
                     <ul class="list-unstyled small mb-0">
                         ${capacitaciones.map(c => `
                             <li class="mb-1 d-flex justify-content-between align-items-center">
                                 <span><i class="bi bi-patch-check-fill text-info me-2"></i>${c.Nombre_Curso}</span>
-                                ${c.Certificado_URL ? 
-                                    `<a href="${c.Certificado_URL}" target="_blank" rel="noopener noreferrer" class="btn btn-link text-info p-0 ms-2">
-                                        <i class="bi bi-file-earmark-pdf-fill fs-3"></i>
-                                    </a>` : ''}
+                              ${c.Certificado_URL ? 
+                                `<a href="../${c.Certificado_URL}" target="_blank" class="btn btn-link text-info p-0 ms-2">
+                                    <i class="bi bi-file-earmark-pdf-fill fs-3"></i>
+                                </a>` : ''}
                             </li>
                         `).join('') || '<li class="text-muted italic">No registrado</li>'}
                     </ul>
@@ -970,10 +947,10 @@ include_once '../includes/header.php';
                         <i class="bi bi-clock-history me-2"></i>5. Historial y Permisos
                     </h6>
                     <div class="timeline-small">
-                        ${asignaciones?.length > 0 ? asignaciones.map(asig => `
+                        ${nombramientos?.length > 0 ? nombramientos.map(nombr => `
                             <div class="mb-3 border-start border-danger border-3 ps-3">
-                                <div class="fw-bold text-dark small">${asig.Nombre_Cargo || asig.nombre_cargo}</div>
-                                <div class="text-muted" style="font-size: 0.8rem;">${asig.Nombre_Seccion || asig.nombre_seccion} | ${formatDate(asig.Fecha_nombramiento)}</div>
+                                <div class="fw-bold text-dark small">${nombr.Nombre_Cargo || nombr.nombre_cargo}</div>
+                                <div class="text-muted" style="font-size: 0.8rem;">${nombr.Nombre_Seccion || nombr.nombre_seccion} | ${formatDate(nombr.Fecha_nombramiento)}</div>
                             </div>
                         `).join('') : '<p class="small text-muted">Sin historial de cambios</p>'}
                         
@@ -983,7 +960,7 @@ include_once '../includes/header.php';
                                 <div class="d-flex justify-content-between align-items-center">
                                     <span class="fw-bold text-dark" style="font-size: 0.95rem;">${p.Tipo_Permiso}</span>
                                     ${p.Documento_Soporte_URL ? 
-                                        `<a href="${p.Documento_Soporte_URL}" target="_blank" rel="noopener noreferrer" class="btn btn-link text-danger p-0">
+                                        `<a href="../${p.Documento_Soporte_URL}" target="_blank" rel="noopener noreferrer" class="btn btn-link text-danger p-0">
                                             <i class="bi bi-file-earmark-pdf-fill fs-2"></i>
                                         </a>` : ''}
                                 </div>
@@ -1002,7 +979,7 @@ include_once '../includes/header.php';
 
 
 
-            lastVerificationDate.textContent = "Actualizado: " + new Date().toLocaleString();
+                lastVerificationDate.textContent = "Actualizado: " + new Date().toLocaleString();
 
             } catch (error) {
                 modalContentData.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
@@ -1403,7 +1380,6 @@ include_once '../includes/header.php';
 
     <!-- Modal de Cambiar el estado del funcionario sea una baja temporal o un cese definitivo -->
     <script>
-        // Función para inyectar mensajes en el div y cerrarlos automáticamente
         function mostrarMensajeFlash(mensaje, tipo = 'danger') {
             const contenedor = document.getElementById('mensajeFlashContenedor');
             if (!contenedor) return;
@@ -1415,13 +1391,11 @@ include_once '../includes/header.php';
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>`;
 
-            // Scroll al mensaje
             contenedor.scrollIntoView({
                 behavior: 'smooth',
                 block: 'start'
             });
 
-            // Autocierre después de 5 segundos
             setTimeout(() => {
                 const alertElement = document.getElementById(idUnico);
                 if (alertElement) {
@@ -1431,7 +1405,6 @@ include_once '../includes/header.php';
             }, 5000);
         }
 
-        // Al cargar la página, si hay un mensaje (puesto por PHP), también ponerle temporizador
         document.addEventListener('DOMContentLoaded', function() {
             const alertaExistente = document.querySelector('#mensajeFlashContenedor .alert');
             if (alertaExistente) {
@@ -1456,7 +1429,6 @@ include_once '../includes/header.php';
                 const btnSubmit = document.getElementById('btnSubmitEstado');
                 const select = document.getElementById('tipoAccionSelect');
 
-                // Mantener el switch en su estado original hasta que el modal confirme
                 const estadoDeseado = checkbox.checked;
                 checkbox.checked = !estadoDeseado;
 
@@ -1506,7 +1478,6 @@ include_once '../includes/header.php';
                 const result = await response.json();
 
                 if (result.success) {
-                    // PHP ya guardó el mensaje en $_SESSION['exito']
                     location.reload();
                 } else {
                     mostrarMensajeFlash(result.message, 'danger');

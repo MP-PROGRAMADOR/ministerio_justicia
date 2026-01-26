@@ -7,6 +7,9 @@ include_once '../includes/header.php';
     <?php
     include_once '../includes/silebar_admin.php';
     ?>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <div class="container-fluid p-0">
         <div class="row g-0">
 
@@ -37,26 +40,21 @@ include_once '../includes/header.php';
 
 
 
-                <?php
-
-                if (isset($_SESSION['error'])) {
-                    echo "<div id='mensajeFlash' class='alert alert-danger'>" . htmlspecialchars($_SESSION['error']) . "</div>";
-                    unset($_SESSION['error']);
-                }
-                if (isset($_SESSION['exito'])) {
-                    echo "<div id='mensajeFlash' class='alert alert-success'>" . htmlspecialchars($_SESSION['exito']) . "</div>";
-                    unset($_SESSION['exito']);
-                }
-                ?>
-
-
-
-
-
-
-
 
                 <div class="container-fluid px-4">
+                    <div>
+                        <?php
+
+                        if (isset($_SESSION['error'])) {
+                            echo "<div id='mensajeFlash' class='alert alert-danger'>" . htmlspecialchars($_SESSION['error']) . "</div>";
+                            unset($_SESSION['error']);
+                        }
+                        if (isset($_SESSION['exito'])) {
+                            echo "<div id='mensajeFlash' class='alert alert-success'>" . htmlspecialchars($_SESSION['exito']) . "</div>";
+                            unset($_SESSION['exito']);
+                        }
+                        ?>
+                    </div>
                     <div class="table-custom mb-4 p-4">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h5 class="mb-0 fw-semibold">Listado de Cursos del Ministerio</h5>
@@ -142,11 +140,6 @@ include_once '../includes/header.php';
                                                         <i class="bi bi-pencil-square me-1"></i>
                                                     </button>
 
-                                                    <button class="btn btn-sm btn-danger btn-eliminar-curso"
-                                                        onclick="confirmarEliminacionCurso(<?= $curso['ID_Curso'] ?>, '<?= htmlspecialchars($curso['Nombre_Curso']) ?>')"
-                                                        title="Eliminar Curso">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
 
                                                 <?php else: ?>
                                                     <!-- Botón Inscribir desactivado -->
@@ -163,13 +156,6 @@ include_once '../includes/header.php';
                                                         <i class="bi bi-pencil-square me-1"></i>
                                                     </button>
 
-                                                    <!-- Botón Eliminar desactivado -->
-                                                    <button class="btn btn-sm btn-secondary" disabled
-                                                        data-bs-toggle="tooltip" data-bs-placement="top"
-                                                        title="Curso finalizado — no se puede eliminar">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-
 
                                                 <?php endif; ?>
 
@@ -183,9 +169,6 @@ include_once '../includes/header.php';
                                                     data-bs-target="#modalInscritos">
                                                     <i class="bi bi-people-fill me-1"></i> Ver Inscritos
                                                 </button>
-
-
-
 
                                             </td>
                                         </tr>
@@ -229,7 +212,7 @@ include_once '../includes/header.php';
     <div class="modal fade" id="addCapacitacionModal" tabindex="-1" aria-labelledby="addCapacitacionModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
+                <div class="modal-header bg-success text-white">
                     <h5 class="modal-title" id="addCursoModalLabel">
                         <i class="bi bi-journal-text me-2"></i>Registrar Curso
                     </h5>
@@ -317,7 +300,7 @@ include_once '../includes/header.php';
                 </div>
 
                 <!-- Formulario -->
-                <form method="POST" action="../api/editar_curso.php">
+                <form method="POST" action="../api/actualizar_curso.php">
                     <div class="modal-body">
                         <input type="hidden" name="ID_Curso" id="edit_id_curso">
 
@@ -389,7 +372,7 @@ include_once '../includes/header.php';
     <div class="modal fade" id="inscribirModal" tabindex="-1" aria-labelledby="inscribirModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
+                <div class="modal-header bg-success text-white">
                     <h5 class="modal-title" id="inscribirModalLabel">Inscribir Funcionarios</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
@@ -399,7 +382,7 @@ include_once '../includes/header.php';
                     <input type="hidden" id="idCursoActual" name="ID_Curso">
 
                     <!-- Buscador -->
-                    <input type="text" id="buscarFuncionario" class="form-control mb-3" placeholder="Buscar funcionario...">
+                    <input type="text" id="buscarFuncionario" class="form-control mb-3 mt-3" placeholder="Buscar funcionario...">
 
                     <!-- Resultados -->
                     <div id="listaFuncionarios" style="max-height:200px; overflow-y:auto;"></div>
@@ -412,8 +395,7 @@ include_once '../includes/header.php';
 
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="button" id="btnGuardarInscripcion" class="btn btn-success">Guardar</button>
+                    <button type="button" id="btnGuardarInscripcion" class="btn btn-success"><i class="bi bi-person-plus me-2"></i> Inscribir Funcionario</button>
                 </div>
             </div>
         </div>
@@ -452,7 +434,6 @@ include_once '../includes/header.php';
                 </div>
                 <div class="modal-footer">
                     <button id="btnImprimirInscritos" class="btn btn-primary"><i class="bi bi-printer"></i> Imprimir</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                 </div>
             </div>
         </div>
@@ -461,13 +442,8 @@ include_once '../includes/header.php';
 
 
 
-
-    <!-- Incluye SweetAlert2 -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
     <script>
         // Para que los tooltips funcionen debes inicializarlos en tu JavaScript principal:
-
         document.addEventListener('DOMContentLoaded', function() {
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
             tooltipTriggerList.map(function(tooltipTriggerEl) {
@@ -486,8 +462,8 @@ include_once '../includes/header.php';
             button.addEventListener('click', function() {
                 const idCurso = this.dataset.id;
                 const nombreCurso = this.dataset.nombre;
-                const fechaInicio = this.dataset.inicio; // Asegúrate de pasarlo como data-inicio
-                const fechaFin = this.dataset.fin; // Asegúrate de pasarlo como data-fin
+                const fechaInicio = this.dataset.inicio;
+                const fechaFin = this.dataset.fin;
 
                 // Cambiar título del modal
                 document.getElementById('modalInscritosLabel').textContent = `Funcionarios inscritos en: ${nombreCurso}`;
@@ -534,27 +510,6 @@ include_once '../includes/header.php';
 
 
 
-        // document.getElementById('btnImprimirInscritos').addEventListener('click', function() {
-        //     const nombreCurso = this.dataset.nombreCurso;
-        //     const fechaInicio = this.dataset.fechaInicio;
-        //     const fechaFin = this.dataset.fechaFin;
-
-        //     const tabla = document.getElementById('tablaInscritos').cloneNode(true); // clonamos para no alterar el DOM
-        //     // Quitamos el buscador de la impresión
-        //     tabla.removeAttribute('id');
-
-        //     const ventana = window.open('', '', 'height=700,width=900');
-        //     ventana.document.write('<html><head><title>Funcionarios Inscritos</title>');
-        //     ventana.document.write('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">');
-        //     ventana.document.write('<style>table{border-collapse: collapse;} th, td{border:1px solid #000 !important;}</style>');
-        //     ventana.document.write('</head><body>');
-        //     ventana.document.write(`<div class="mb-3"><h3>Curso: ${nombreCurso}</h3>`);
-        //     ventana.document.write(`<p>Fecha de inicio: ${fechaInicio} | Fecha de fin: ${fechaFin}</p></div>`);
-        //     ventana.document.write(tabla.outerHTML);
-        //     ventana.document.write('</body></html>');
-        //     ventana.document.close();
-        //     ventana.print();
-        // });
 
 
         // Botón imprimir con información del curso
@@ -630,12 +585,26 @@ include_once '../includes/header.php';
 
         // Agregar funcionario a la lista seleccionada
         function agregarASeleccionados(func) {
-            if (!seleccionados.some(f => f.ID_Funcionario === func.ID_Funcionario)) {
-                seleccionados.push(func);
+            // Intentamos obtener el ID ya sea que venga como ID_Funcionario o Id_funcionario
+            const idReal = func.ID_Funcionario || func.Id_funcionario;
+
+            if (!idReal) {
+                console.error("El objeto funcionario no tiene un ID válido:", func);
+                return;
+            }
+
+            // Guardamos una versión normalizada del objeto
+            const funcionarioNormalizado = {
+                ID_Funcionario: idReal,
+                Nombre: func.Nombre,
+                Apellidos: func.Apellidos
+            };
+
+            if (!seleccionados.some(f => f.ID_Funcionario === idReal)) {
+                seleccionados.push(funcionarioNormalizado);
                 renderListaSeleccionados();
             }
         }
-
         // Renderizar lista seleccionada
         function renderListaSeleccionados() {
             const listaSel = document.getElementById('listaSeleccionados');
@@ -660,12 +629,26 @@ include_once '../includes/header.php';
 
         // Guardar inscripción
         document.getElementById('btnGuardarInscripcion').addEventListener('click', function() {
+            const modalBody = document.querySelector('#inscribirModal .modal-body');
+
+            // Función para mostrar mensajes dentro del modal sin SweetAlert
+            const mostrarMensaje = (mensaje, tipo = 'danger') => {
+                const alertaExistente = document.getElementById('alerta-inscripcion');
+                if (alertaExistente) alertaExistente.remove();
+
+                const div = document.createElement('div');
+                div.id = 'alerta-inscripcion';
+                div.className = `alert alert-${tipo} alert-dismissible fade show mt-2`;
+                div.role = 'alert';
+                div.innerHTML = `
+            ${mensaje}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+                modalBody.prepend(div); // Lo pone al principio del modal
+            };
+
             if (seleccionados.length === 0) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Atención',
-                    text: 'Debes seleccionar al menos un funcionario.'
-                });
+                mostrarMensaje('<strong>Atención:</strong> Debes seleccionar al menos un funcionario.', 'warning');
                 return;
             }
 
@@ -675,50 +658,67 @@ include_once '../includes/header.php';
             formData.append('funcionarios', JSON.stringify(seleccionados.map(f => f.ID_Funcionario)));
 
             fetch('../api/guardar_matricula.php', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(res => res.json())
-                .then(response => {
-                    if (response.success) {
-                        let htmlMsg = '';
+        method: 'POST',
+        body: formData
+    })
+    .then(res => res.json())
+    .then(response => {
+        // Seleccionamos el contenedor que está fuera del modal
+        const contenedorMensajes = document.getElementById('contenedor-mensajes-fijos');
+        let htmlMsg = '';
 
-                        if (response.inscritos.length > 0) {
-                            htmlMsg += `<p><b>✅ Inscritos correctamente:</b><br>${response.inscritos.join('<br>')}</p>`;
-                        }
-                        if (response.noInscritos.length > 0) {
-                            htmlMsg += `<p><b>⚠ No se inscribieron:</b><br>`;
-                            response.noInscritos.forEach(f => {
-                                htmlMsg += `- ${f.nombre}: ${f.motivo}<br>`;
-                            });
-                            htmlMsg += `</p>`;
-                        }
+        if (response.success) {
+            // Construir el mensaje de éxito
+            let inscritosText = response.inscritos.length > 0 ? `✅ Inscritos: ${response.inscritos.join(', ')}` : '';
+            let noInscritosText = '';
 
-                        Swal.fire({
-                            icon: 'info',
-                            title: 'Resultado de la inscripción',
-                            html: htmlMsg
-                        }).then(() => {
-                            const modal = bootstrap.Modal.getInstance(document.getElementById('inscribirModal'));
-                            modal.hide();
-                        });
-
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: response.message
-                        });
-                    }
-                })
-                .catch(err => {
-                    console.error(err);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Error en la petición.'
-                    });
+            if (response.noInscritos && response.noInscritos.length > 0) {
+                noInscritosText = `<div class="mt-2">⚠️ <b>No procesados:</b><ul class="mb-0">`;
+                response.noInscritos.forEach(f => {
+                    noInscritosText += `<li>${f.nombre}: ${f.motivo}</li>`;
                 });
+                noInscritosText += `</ul></div>`;
+            }
+
+            htmlMsg = `
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <strong>¡Proceso completado!</strong><br>
+                    ${inscritosText}
+                    ${noInscritosText}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>`;
+
+            // Limpiar la lista de seleccionados y cerrar el modal
+            seleccionados = [];
+            renderListaSeleccionados();
+            
+            const modalEl = document.getElementById('inscribirModal');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            modal.hide();
+
+        } else {
+            // Mensaje de error (rojo)
+            htmlMsg = `
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong>Error:</strong> ${response.message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>`;
+        }
+
+        // Inyectar el mensaje en el div fuera del modal
+        contenedorMensajes.innerHTML = htmlMsg;
+
+        // Opcional: Desplazar la pantalla hacia arriba para ver el mensaje
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    })
+    .catch(err => {
+        console.error(err);
+        document.getElementById('contenedor-mensajes-fijos').innerHTML = `
+            <div class="alert alert-danger alert-dismissible fade show">
+                <strong>Error crítico:</strong> No se pudo conectar con el servidor.
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>`;
+    });
         });
     </script>
 
@@ -1004,46 +1004,6 @@ include_once '../includes/header.php';
 
 
 
-
-
-    <!-- Modal de confirmacion para eliminar cursos del ministerio -->
-    <script>
-        function confirmarEliminacionCurso(idCurso, nombreCurso) {
-            Swal.fire({
-                title: '¿Estás seguro?',
-                html: `
-        ¡Vas a eliminar el curso:
-        <br>
-        <strong style="color: #007bff; font-size: 1.2em;">${nombreCurso}</strong>
-        <br><br>
-        <span style="color: red;">
-            Esta acción es irreversible.
-        </span>`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#5a5d5fff',
-                confirmButtonText: '<i class="bi bi-trash"></i> Sí, Eliminar',
-                cancelButtonText: '<i class="bi bi-x-circle"></i> Cancelar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Crear y enviar el formulario dinámico al script de eliminación
-                    const form = document.createElement('form');
-                    form.method = 'POST';
-                    form.action = '../api/eliminar_curso.php'; // Asegúrate de que esta ruta sea correcta
-
-                    const idField = document.createElement('input');
-                    idField.type = 'hidden';
-                    idField.name = 'id_curso';
-                    idField.value = idCurso;
-
-                    form.appendChild(idField);
-                    document.body.appendChild(form);
-                    form.submit();
-                }
-            });
-        }
-    </script>
 
     <?php
     include_once '../includes/footer.php';

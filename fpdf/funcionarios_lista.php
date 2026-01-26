@@ -1,35 +1,47 @@
 <?php
+error_reporting(0);
 ini_set('display_errors', 0);
-error_reporting(E_ALL);
 ob_start();
 
 require_once 'fpdf.php';
-require '../includes/conexion.php';
+require '../includes/conexion.php'; 
 
-function txt($texto, $default = 'No registrado')
-{
-    $val = ($texto !== null && trim($texto) !== '') ? $texto : $default;
-    return utf8_decode($val);
+function txt($texto) {
+    return utf8_decode($texto ?? '---');
 }
 
-class PDF extends FPDF
-{
-    protected $blueDark = [26, 64, 126];
-    protected $blueGold = [184, 134, 11];
-    protected $grayLight = [245, 245, 245];
+class PDF extends FPDF {
+    // Función auxiliar para celdas con texto largo
+    function AdaptableCell($w, $h, $txt, $border=1, $ln=0, $align='L', $fill=false) {
+        $currentX = $this->GetX();
+        $currentY = $this->GetY();
+        
+        // Verificamos el ancho del texto
+        $strWidth = $this->GetStringWidth($txt);
+        $contentW = $w - 2; // Margen interno
+        
+        if ($strWidth > $contentW) {
+            // Si el texto es muy largo, bajamos la fuente temporalmente
+            $this->SetFont('Arial', '', 6);
+            // Si aún así no cabe, usamos MultiCell para que se vea en dos líneas o se ajuste
+            // Pero para tablas horizontales, lo ideal es recortar o forzar una línea
+            $txt = substr($txt, 0, 35) . (strlen($txt) > 35 ? '..' : '');
+        }
+        
+        $this->Cell($w, $h, txt($txt), $border, $ln, $align, $fill);
+        
+        // Restauramos fuente original de la fila
+        $this->SetFont('Arial', '', 7);
+    }
 
-    function Header()
-    {
-        // Línea superior
+    function Header() {
         $this->SetFillColor(26, 64, 126);
         $this->Rect(0, 0, 297, 2, 'F');
 
-        // Logo
         if (file_exists('../img/logo.png')) {
             $this->Image('../img/logo.png', 10, 10, 22);
         }
 
-        // Encabezado institucional
         $this->SetFont('Arial', 'B', 12);
         $this->SetTextColor(26, 64, 126);
         $this->SetX(35);
@@ -45,138 +57,95 @@ class PDF extends FPDF
         $this->SetXY(35, 22);
         $this->Cell(0, 10, txt('SISTEMA THEMIS'), 0, 1, 'L');
 
-        // Línea divisoria
         $this->SetDrawColor(26, 64, 126);
         $this->SetLineWidth(0.8);
         $this->Line(35, 32, 285, 32);
-
-
-        // Caja derecha
-        $this->SetXY(140, 15);
-        $this->SetFont('Arial', 'B', 8);
-        $this->SetTextColor(255, 255, 255);
-        $this->SetFillColor(26, 64, 126);
-        $this->Cell(60, 6, txt('LISTADO GENERAL DE FUNCIONARIOS'), 0, 1, 'C', true);
-
-        $this->SetTextColor(100);
-        $this->SetFont('Arial', 'I', 7);
-        $this->SetX(140);
-        $this->Cell(60, 5, txt('Emisión: ') . date('d/m/Y H:i'), 0, 1, 'R');
-
         $this->Ln(15);
     }
 
-    function Footer()
-    {
-        $this->SetY(-20);
-        $this->SetDrawColor(200);
-        $this->Line(10, $this->GetY(), 287, $this->GetY());
-
-
+    function Footer() {
+        $this->SetY(-15);
         $this->SetFont('Arial', 'I', 8);
         $this->SetTextColor(120);
-        $this->Cell(0, 10, txt('Sistema THEMIS - Guinea Ecuatorial'), 0, 0, 'L');
         $this->Cell(0, 10, txt('Página ') . $this->PageNo() . '/{nb}', 0, 0, 'R');
     }
 
-    // Cabecera de tabla
-    function TableHeader()
-    {
-        $this->SetFont('Arial', 'B', 8);
+    function TableHeader() {
+        $this->SetFont('Arial', 'B', 7);
         $this->SetFillColor(245, 245, 245);
         $this->SetTextColor(26, 64, 126);
 
-        $this->Cell(10, 7, '#', 1, 0, 'C', true);
-        $this->Cell(45, 7, txt('NOMBRE COMPLETO'), 1, 0, 'L', true);
-        $this->Cell(25, 7, txt('DIP/PAS'), 1, 0, 'L', true);
-        $this->Cell(18, 7, txt('SEXO'), 1, 0, 'C', true);
-        $this->Cell(30, 7, txt('TELÉFONO'), 1, 0, 'L', true);
-        $this->Cell(38, 7, txt('CARGO'), 1, 0, 'L', true);
-        $this->Cell(38, 7, txt('SECCIÓN'), 1, 0, 'L', true);
-        $this->Cell(38, 7, txt('CATEGORÍA'), 1, 0, 'L', true);
-        $this->Cell(30, 7, txt('ESTADO'), 1, 1, 'C', true);
-    }
-
-    // Fila de tabla
-    function TableRow($i, $nombre, $doc, $sexo, $tel, $cargo,$seccion,$categoria, $estado)
-    {
-        $this->SetFont('Arial', '', 8);
-        $this->SetTextColor(0);
-
-        $this->Cell(10, 7, $i, 1, 0, 'C');
-        $this->Cell(45, 7, txt($nombre), 1, 0, 'L');
-        $this->Cell(25, 7, txt($doc), 1, 0, 'L');
-        $this->Cell(18, 7, txt($sexo), 1, 0, 'C');
-        $this->Cell(30, 7, txt($tel), 1, 0, 'L');
-        $this->Cell(38, 7, txt($cargo), 1, 0, 'L');
-        $this->Cell(38, 7, txt($seccion), 1, 0, 'L');
-        $this->Cell(38, 7, txt($categoria), 1, 0, 'L');
-        $this->Cell(30, 7, txt($estado), 1, 1, 'C');
+        $this->Cell(20, 8, txt('CÓDIGO'), 1, 0, 'C', true);
+        $this->Cell(50, 8, txt('NOMBRE Y APELLIDOS'), 1, 0, 'L', true);
+        $this->Cell(30, 8, txt('FUNCIÓN'), 1, 0, 'L', true);
+        $this->Cell(30, 8, txt('SECCIÓN'), 1, 0, 'L', true);
+        $this->Cell(35, 8, txt('DIRECCIÓN'), 1, 0, 'L', true);
+        $this->Cell(30, 8, txt('CATEGORÍA'), 1, 0, 'L', true);
+        $this->Cell(22, 8, txt('TELÉFONO'), 1, 0, 'C', true);
+        $this->Cell(35, 8, txt('DESTINO'), 1, 0, 'L', true);
+        $this->Cell(25, 8, txt('ESTADO'), 1, 1, 'C', true);
     }
 }
 
-$pdo = new PDO($dsn, $user, $pass, $options);
+try {
+    $pdo = new PDO($dsn, $user, $pass, $options);
+    $sql = "SELECT 
+        f.Id_funcionario, f.CODIGO, f.Nombre, f.Apellidos, f.Telefono, f.Estado_Laboral,
+        s.nombre AS nombre_seccion,
+        d.nombre AS nombre_direccion,
+        d.ubicacion AS ubicacion_direccion,
+        d.distrito AS distrito_direccion,
+        cat.nombre AS nombre_categoria,
+        (
+            SELECT car.Nombre
+            FROM nombramientos n
+            INNER JOIN cargos car ON n.Id_cargo = car.Id_cargo
+            WHERE n.Id_funcionario = f.Id_funcionario
+            ORDER BY n.Fecha_nombramiento DESC LIMIT 1
+        ) AS nombre_cargo
+    FROM funcionarios f
+    LEFT JOIN secciones s ON f.Id_seccion = s.Id_seccion
+    LEFT JOIN direcciones d ON s.Id_direccion = d.Id_direccion
+    LEFT JOIN categorias cat ON f.Id_categoria = cat.Id_categoria
+    ORDER BY f.Apellidos ASC, f.Nombre ASC";
 
-// CONSULTA DE FUNCIONARIOS
-$sql = "SELECT 
-    f.Id_funcionario,
-    f.Nombre,
-    f.Apellidos,
-    f.Dip_Pasaporte,
-    f.Sexo,
-    f.Telefono,
-    f.Estado_Laboral,
+    $stmt = $pdo->query($sql);
+    $funcionarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    if (ob_get_length()) ob_end_clean();
+    die("Error de base de datos: " . $e->getMessage());
+}
 
-    c.nombre  AS Cargo,
-    s.nombre  AS Seccion,
-    cat.nombre AS Categoria
-
-FROM funcionarios f
-LEFT JOIN cargos c 
-    ON f.Id_cargo = c.Id_cargo
-
-LEFT JOIN secciones s 
-    ON f.Id_seccion = s.Id_seccion
-
-LEFT JOIN categorias cat 
-    ON f.Id_categoria = cat.Id_categoria
-
-ORDER BY f.Apellidos ASC, f.Nombre ASC";
-
-$stmt = $pdo->query($sql);
-$funcionarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-// PDF
 $pdf = new PDF('L', 'mm', 'A4');
 $pdf->AliasNbPages();
 $pdf->AddPage();
 $pdf->SetAutoPageBreak(true, 25);
-
-// Cabecera tabla
 $pdf->TableHeader();
 
-$i = 1;
+$pdf->SetFont('Arial', '', 7);
+$pdf->SetTextColor(0);
+
 foreach ($funcionarios as $f) {
-
-    // Salto de página automático con cabecera repetida
-    if ($pdf->GetY() > 185) {
-
+    if ($pdf->GetY() > 180) {
         $pdf->AddPage();
         $pdf->TableHeader();
     }
 
-    $pdf->TableRow(
-        $i++,
-        $f['Nombre'] . ' ' . $f['Apellidos'],
-        $f['Dip_Pasaporte'],
-        $f['Sexo'],
-        $f['Telefono'],
-        $f['Cargo'],
-                $f['Seccion'],
-                $f['Categoria'],
-                $f['Estado_Laboral']
-    );
+    $nombre_completo = $f['Nombre'] . ' ' . $f['Apellidos'];
+    $destino = trim(($f['ubicacion_direccion'] ?? '') . " - " . ($f['distrito_direccion'] ?? ''), " - ");
+    if(empty($destino)) $destino = "No asignado";
+
+    // Usamos AdaptableCell para columnas que suelen tener nombres largos
+    $pdf->Cell(20, 7, txt($f['CODIGO']), 1, 0, 'C');
+    $pdf->AdaptableCell(50, 7, $nombre_completo, 1, 0, 'L');
+    $pdf->AdaptableCell(30, 7, $f['nombre_cargo'] ?? 'N/A', 1, 0, 'L');
+    $pdf->AdaptableCell(30, 7, $f['nombre_seccion'] ?? 'N/A', 1, 0, 'L');
+    $pdf->AdaptableCell(35, 7, $f['nombre_direccion'] ?? '---', 1, 0, 'L');
+    $pdf->AdaptableCell(30, 7, $f['nombre_categoria'] ?? 'N/A', 1, 0, 'L');
+    $pdf->Cell(22, 7, txt($f['Telefono'] ?? '---'), 1, 0, 'C');
+    $pdf->AdaptableCell(35, 7, $destino, 1, 0, 'L');
+    $pdf->Cell(25, 7, txt($f['Estado_Laboral'] ?? 'Activo'), 1, 1, 'C');
 }
 
-$pdf->Output('I', 'listado_funcionarios_themis.pdf');
-ob_end_flush();
+if (ob_get_length()) ob_end_clean();
+$pdf->Output('I', 'Listado_Themis.pdf');

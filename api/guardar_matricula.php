@@ -40,8 +40,8 @@ try {
     $sqlInsert = "INSERT INTO tbl_cursos_funcionarios (ID_Curso, ID_Funcionario) VALUES (:ID_Curso, :ID_Funcionario)";
     $stmtInsert = $pdo->prepare($sqlInsert);
 
-    // Consulta para obtener nombre del funcionario
-    $stmtNombre = $pdo->prepare("SELECT Nombre, Apellidos FROM funcionarios WHERE ID_Funcionario = :id");
+    // CORRECCIÓN AQUÍ: Se cambió ID_Funcionario por Id_funcionario según el error de SQL
+    $stmtNombre = $pdo->prepare("SELECT Nombre, Apellidos FROM funcionarios WHERE Id_funcionario = :id");
 
     $inscritos = [];
     $noInscritos = [];
@@ -49,10 +49,21 @@ try {
     foreach ($funcionarios as $idFuncionario) {
         $idFuncionario = intval($idFuncionario);
 
-        // Obtener nombre del funcionario
+        // Obtener nombre del funcionario y VERIFICAR EXISTENCIA
         $stmtNombre->execute([':id' => $idFuncionario]);
         $funcionarioData = $stmtNombre->fetch(PDO::FETCH_ASSOC);
-        $nombreCompleto = $funcionarioData ? $funcionarioData['Nombre'] . ' ' . $funcionarioData['Apellidos'] : "ID $idFuncionario";
+        
+        // Si el funcionario no existe en la tabla maestra, saltamos el registro
+        if (!$funcionarioData) {
+            $noInscritos[] = [
+                'ID_Funcionario' => $idFuncionario,
+                'nombre' => "ID $idFuncionario",
+                'motivo' => 'El funcionario no existe en la base de datos'
+            ];
+            continue; 
+        }
+
+        $nombreCompleto = $funcionarioData['Nombre'] . ' ' . $funcionarioData['Apellidos'];
 
         // Verificar duplicado
         $stmtVerificar = $pdo->prepare("SELECT 1 FROM tbl_cursos_funcionarios WHERE ID_Curso = :curso AND ID_Funcionario = :funcionario");
@@ -98,6 +109,8 @@ try {
     ]);
 
 } catch (PDOException $e) {
-    $pdo->rollBack();
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
     echo json_encode(['success' => false, 'message' => 'Error en la base de datos: ' . $e->getMessage()]);
 }

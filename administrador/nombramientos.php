@@ -53,23 +53,25 @@ include_once '../includes/silebar_admin.php';
 
                     <?php
                     $sql = "SELECT 
-                        n.*, 
-                        CONCAT(f.Nombre, ' ', f.Apellidos) AS Funcionario,
-                        c.Nombre AS Cargo,
-                        s.nombre AS Seccion,
-                        cat.nombre AS Categoria,
-                        d.nombre AS Direccion
-                    FROM nombramientos n
-                    INNER JOIN funcionarios f ON n.Id_funcionario = f.Id_funcionario
-                    INNER JOIN cargos c ON n.Id_cargo = c.Id_cargo
-                    LEFT JOIN secciones s ON n.Id_seccion = s.Id_seccion
-                    LEFT JOIN direcciones d ON s.Id_direccion = d.Id_direccion
-                    LEFT JOIN categorias cat ON n.Id_categoria = cat.Id_categoria
-                   ORDER BY n.Fecha_nombramiento DESC";
+                            n.*, 
+                            CONCAT(f.Nombre, ' ', f.Apellidos) AS Funcionario,
+                            c.Nombre AS Cargo,
+                            s.nombre AS Seccion,
+                            cat.nombre AS Categoria,
+                            d.nombre AS Direccion
+                        FROM nombramientos n
+                        INNER JOIN funcionarios f ON n.Id_funcionario = f.Id_funcionario
+                        INNER JOIN cargos c ON n.Id_cargo = c.Id_cargo
+                        LEFT JOIN secciones s ON n.Id_seccion = s.Id_seccion
+                        LEFT JOIN direcciones d ON s.Id_direccion = d.Id_direccion
+                        LEFT JOIN categorias cat ON n.Id_categoria = cat.Id_categoria
+                        ORDER BY 
+                            (n.Fecha_finalizacion_nombramiento IS NULL) DESC, 
+                            n.Fecha_nombramiento DESC";
 
                     $stmt = $pdo->prepare($sql);
                     $stmt->execute();
-                    $nombramientos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
                     $rows = $pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
@@ -272,7 +274,16 @@ include_once '../includes/silebar_admin.php';
                 paginationControls.innerHTML = '';
                 if (total <= 1) return;
 
-                // Botón Anterior
+                const maxButtons = 5; 
+                let startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+                let endPage = Math.min(total, startPage + maxButtons - 1);
+
+                
+                if (endPage - startPage + 1 < maxButtons) {
+                    startPage = Math.max(1, endPage - maxButtons + 1);
+                }
+
+                // --- Botón Anterior ---
                 const prev = document.createElement('li');
                 prev.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
                 prev.innerHTML = `<a class="page-link" href="#">Anterior</a>`;
@@ -286,22 +297,34 @@ include_once '../includes/silebar_admin.php';
                 };
                 paginationControls.appendChild(prev);
 
-                // Números de Página Dinámicos
-                for (let i = 1; i <= total; i++) {
-                    const li = document.createElement('li');
-                    // Si i es igual a la página actual, le ponemos la clase 'active' de Bootstrap
-                    li.className = `page-item ${i === currentPage ? 'active' : ''}`;
-                    li.innerHTML = `<a class="page-link" href="#">${i}</a>`;
-                    li.onclick = (e) => {
-                        e.preventDefault();
-                        currentPage = i;
-                        updateTable();
-                        window.scrollTo(0, 0); // Opcional: sube al inicio de la tabla
-                    };
-                    paginationControls.appendChild(li);
+                // --- Primera página y puntos suspensivos (si es necesario) ---
+                if (startPage > 1) {
+                    paginationControls.appendChild(createPageBtn(1));
+                    if (startPage > 2) {
+                        const dots = document.createElement('li');
+                        dots.className = "page-item disabled";
+                        dots.innerHTML = `<span class="page-link">...</span>`;
+                        paginationControls.appendChild(dots);
+                    }
                 }
 
-                // Botón Siguiente
+                // --- Números de Página Dinámicos ---
+                for (let i = startPage; i <= endPage; i++) {
+                    paginationControls.appendChild(createPageBtn(i));
+                }
+
+                // --- Última página y puntos suspensivos (si es necesario) ---
+                if (endPage < total) {
+                    if (endPage < total - 1) {
+                        const dots = document.createElement('li');
+                        dots.className = "page-item disabled";
+                        dots.innerHTML = `<span class="page-link">...</span>`;
+                        paginationControls.appendChild(dots);
+                    }
+                    paginationControls.appendChild(createPageBtn(total));
+                }
+
+                // --- Botón Siguiente ---
                 const next = document.createElement('li');
                 next.className = `page-item ${currentPage === total ? 'disabled' : ''}`;
                 next.innerHTML = `<a class="page-link" href="#">Siguiente</a>`;
@@ -314,6 +337,20 @@ include_once '../includes/silebar_admin.php';
                     }
                 };
                 paginationControls.appendChild(next);
+            }
+
+            // Función auxiliar para no repetir código de creación de botones
+            function createPageBtn(pageNumber) {
+                const li = document.createElement('li');
+                li.className = `page-item ${pageNumber === currentPage ? 'active' : ''}`;
+                li.innerHTML = `<a class="page-link" href="#">${pageNumber}</a>`;
+                li.onclick = (e) => {
+                    e.preventDefault();
+                    currentPage = pageNumber;
+                    updateTable();
+                    window.scrollTo(0, 0);
+                };
+                return li;
             }
 
             // Escuchar el buscador
@@ -395,11 +432,6 @@ include_once '../includes/silebar_admin.php';
                                 <label class="form-label fw-semibold">Fecha Toma Posesión</label>
                                 <input type="date" name="fecha_toma_posesion" class="form-control">
                             </div>
-
-
-
-
-
 
 
 
@@ -583,7 +615,6 @@ include_once '../includes/silebar_admin.php';
                 </div>
 
                 <!-- BODY -->
-                <!-- BODY DEL MODAL -->
                 <div class="modal-body">
                     <form id="editNombramientoForm" method="POST" action="../api/actualizar_nombramiento.php" enctype="multipart/form-data">
 
@@ -674,7 +705,6 @@ include_once '../includes/silebar_admin.php';
                         </div>
 
                         <div class="modal-footer mt-3">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                             <button type="submit" class="btn btn-warning">Actualizar Nombramiento</button>
                         </div>
                     </form>
@@ -697,7 +727,7 @@ include_once '../includes/silebar_admin.php';
                     const id_cargo = button.getAttribute('data-id_cargo');
                     const fecha_n = button.getAttribute('data-fecha_n');
                     const fecha_p = button.getAttribute('data-fecha_p');
-                    const fecha_f = button.getAttribute('data-fecha_f'); // NUEVO
+                    const fecha_f = button.getAttribute('data-fecha_f'); 
                     const id_sec = button.getAttribute('data-id_sec');
                     const id_cat = button.getAttribute('data-id_cat');
 
@@ -705,7 +735,7 @@ include_once '../includes/silebar_admin.php';
                     document.getElementById('edit_cargo').value = id_cargo;
                     document.getElementById('edit_fecha_n').value = fecha_n;
                     document.getElementById('edit_fecha_p').value = fecha_p;
-                    document.getElementById('edit_fecha_f').value = fecha_f; // NUEVO
+                    document.getElementById('edit_fecha_f').value = fecha_f; 
                     document.getElementById('edit_sec').value = id_sec;
                     document.getElementById('edit_cat').value = id_cat;
 
@@ -716,10 +746,6 @@ include_once '../includes/silebar_admin.php';
         });
     </script>
 
-
-
-
-    <!-- Script del buscador en tiempo Real Al lado del boton de Nuevo Nombramiento-->
 
 
 
