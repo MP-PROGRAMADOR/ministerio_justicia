@@ -10,7 +10,7 @@ if (!isset($_GET['ID_Curso'])) {
 $idCurso = intval($_GET['ID_Curso']);
 
 $stmt = $pdo->prepare("
-    SELECT f.ID_Funcionario, f.Nombres
+    SELECT f.ID_Funcionario, f.Nombre
     , f.Apellidos, f.CODIGO, f.Dip_Pasaporte
     FROM tbl_cursos_funcionarios cf
     JOIN funcionarios f ON cf.ID_Funcionario = f.ID_Funcionario

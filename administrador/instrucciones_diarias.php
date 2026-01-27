@@ -124,7 +124,7 @@ include_once '../includes/header.php';
                                         <th>Funcionario</th>
                                         <th>Título</th>
                                         <th>Mensaje</th>
-                                        
+
                                         <th>Estado</th>
                                         <th>Fecha Envío</th>
                                         <th>Leído</th>
@@ -917,114 +917,21 @@ include_once '../includes/header.php';
         }
 
         function imprimirReporte() {
-            const tablaOriginal = document.getElementById("asignacionesTable");
-            const tablaClonada = tablaOriginal.cloneNode(true);
+            // 1. Obtener los valores de los filtros actuales que tiene el usuario en pantalla
+            const funcionario = document.getElementById('filterFuncionario').value; // Asume que este es el ID
+            const estado = document.getElementById('filterEstado')?.value || ''; // Si tienes filtro de estado
 
-            // Quitar columna de acciones
-            const ths = tablaClonada.querySelectorAll('thead th');
-            ths[ths.length - 1].remove();
+            // 2. Verificar si hay filas visibles en la tabla antes de imprimir
+            const filasVisibles = document.querySelectorAll('#asignacionesTable tbody tr:not([style*="display: none"]):not(.no-results)');
 
-            const filasBody = tablaClonada.querySelectorAll('tbody tr:not(.no-results)');
-            let hayDatos = false;
-
-            filasBody.forEach(fila => {
-                const idOriginal = fila.cells[0].innerText;
-                const filaOriginal = Array.from(tablaOriginal.querySelectorAll('tbody tr'))
-                    .find(f => f.cells[0].innerText === idOriginal);
-
-                if (filaOriginal && filaOriginal.style.display === 'none') {
-                    fila.remove();
-                } else {
-                    fila.lastElementChild.remove();
-                    hayDatos = true;
-                }
-            });
-
-            if (!hayDatos) {
-                Swal.fire('Atención', 'No hay datos para mostrar en el reporte.', 'warning');
+            if (filasVisibles.length === 0) {
+                Swal.fire('Atención', 'No hay datos visibles para generar el reporte.', 'warning');
                 return;
             }
 
-            const ventanaPrint = window.open('', '', 'height=900,width=1100');
-
-            // Diseño mejorado del Reporte
-            ventanaPrint.document.write(`
-        <html>
-        <head>
-            <title>Vista Previa - Reporte de Instrucciones</title>
-            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-            <style>
-                body { padding: 50px; background-color: #f4f7f6; color: #333; }
-                .sheet { 
-                    background: white; 
-                    padding: 40px; 
-                    box-shadow: 0 0 10px rgba(0,0,0,0.1); 
-                    border-radius: 8px;
-                    min-height: 297mm;
-                }
-                .report-header { 
-                    border-bottom: 3px solid #0d6efd; 
-                    margin-bottom: 30px; 
-                    padding-bottom: 20px; 
-                }
-                .logo-placeholder {
-                    font-weight: 800;
-                    letter-spacing: -1px;
-                    color: #0d6efd;
-                    font-size: 2rem;
-                }
-                table { font-size: 0.9rem; }
-                thead { background-color: #f8f9fa; }
-                .no-print-btn {
-                    position: fixed;
-                    bottom: 20px;
-                    right: 20px;
-                    z-index: 9999;
-                }
-                @media print {
-                    body { background: white; padding: 0; }
-                    .sheet { box-shadow: none; border: none; padding: 0; }
-                    .no-print-btn { display: none; }
-                }
-            </style>
-        </head>
-        <body>
-            <button class="btn btn-primary btn-lg rounded-pill no-print-btn shadow" onclick="window.print()">
-                <i class="bi bi-printer"></i> Confirmar e Imprimir
-            </button>
-
-            <div class="sheet mx-auto">
-                <div class="report-header d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="logo-placeholder">THEMIS</div>
-                        <h5 class="text-uppercase fw-bold mb-0">Ministerio de Justicia</h5>
-                        <p class="text-muted mb-0">Sistema de Control de Instrucciones</p>
-                    </div>
-                    <div class="text-end">
-                        <h4 class="text-primary">REPORTE ADMINISTRATIVO</h4>
-                        <p class="small mb-0"><strong>Generado:</strong> ${new Date().toLocaleString()}</p>
-                        <p class="small mb-0"><strong>Funcionario:</strong> ${document.getElementById('filterFuncionario').value || 'Todos'}</p>
-                    </div>
-                </div>
-
-                <div class="table-responsive">
-                    ${tablaClonada.outerHTML}
-                </div>
-
-                <div class="mt-5 row">
-                    <div class="col-4 text-center">
-                        <div style="border-top: 1px solid #ccc; margin-top: 50px;" class="pt-2 small text-muted">Firma Responsable</div>
-                    </div>
-                    <div class="col-4 offset-4 text-center">
-                        <div style="border-top: 1px solid #ccc; margin-top: 50px;" class="pt-2 small text-muted">Sello de Recibido</div>
-                    </div>
-                </div>
-            </div>
-        </body>
-        </html>
-    `);
-
-            ventanaPrint.document.close();
+            // 3. Abrir el PDF en una nueva pestaña enviando los filtros por URL
+            const url = `../fpdf/instrucciones_diarias.php?funcionario=${funcionario}&estado=${estado}`;
+            window.open(url, '_blank');
         }
     </script>
 

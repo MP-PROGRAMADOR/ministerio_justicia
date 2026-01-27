@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $pdo = new PDO($dsn, $user, $pass, $options);
 
         // Carpeta de uploads
-        $ruta_uploads = "../uploads/";
+        $ruta_uploads = "../uploads/nombramientos/";
         if (!is_dir($ruta_uploads)) mkdir($ruta_uploads, 0777, true);
 
         // Validación de campos obligatorios

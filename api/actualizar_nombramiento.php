@@ -8,7 +8,7 @@ $redirectTo = "../administrador/nombramientos.php";
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $pdo = new PDO($dsn, $user, $pass, $options);
-        $ruta_uploads = "../uploads/";
+        $ruta_uploads = "../uploads/nombramientos/";
         if (!is_dir($ruta_uploads)) mkdir($ruta_uploads, 0777, true);
 
         // Validamos ID del nombramiento

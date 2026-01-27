@@ -84,19 +84,17 @@ include_once '../includes/header.php';
                             // Consulta para obtener datos de funcionarios con sección y categoría
                             $sql = "SELECT 
                                 f.Id_funcionario, f.CODIGO, f.Nombre, f.Apellidos, f.Estado_Laboral, f.Dip_Pasaporte, 
-                                f.Sexo, f.Fecha_nacimiento, f.Lugar_nacimiento, f.Nacionalidad,
-
-                              
-                                f.Tribu, f.Pueblo, f.Distrito, f.Provincia,
-
-                                f.Telefono, f.Correo, f.Domicilio, f.Num_carnet_fun, f.Fecha_nombramiento, f.Fecha_posesion,
-
-                                f.Id_seccion, s.nombre AS nombre_seccion, d.nombre AS nombre_direccion, d.ubicacion AS ubicacion_direccion, 
-                                d.distrito AS distrito_direccion,
-
+                                f.Sexo, f.Fecha_nacimiento, f.Lugar_nacimiento, f.Nacionalidad, f.Tribu, f.Pueblo, 
+                                f.Distrito, f.Provincia, f.Telefono, f.Correo, f.Domicilio, f.Num_carnet_fun, 
+                                f.Fecha_nombramiento, f.Fecha_posesion,f.Id_seccion, 
+                                
+                                s.nombre AS nombre_seccion, 
+                                d.nombre AS nombre_direccion, 
+                                d.nombre AS Direccion_Nombre, 
+                                d.ubicacion AS Direccion_Ubicacion, 
+                                d.distrito AS Direccion_Distrito,
                                 f.Id_cargo, f.Id_categoria, c.nombre AS nombre_categoria,
 
-                              
                                 (
                                     SELECT car.Nombre
                                     FROM nombramientos n
@@ -106,18 +104,15 @@ include_once '../includes/header.php';
                                     LIMIT 1
                                 ) AS nombre_cargo,
 
-                                f.Profesion, f.Maximo_nivel_estudios, f.Titulacion_academica, f.Universidad_centro_formacion, f.Fecha_graduacion, f.Foto,
-
-                                f.Dip_pass_copia, f.Copia_doc_nomb, f.Copia_carnet_func, f.Copia_doc_tom_posesion, f.Copia_doc_academicos,
-
+                                f.Profesion, f.Maximo_nivel_estudios, f.Titulacion_academica, f.Universidad_centro_formacion, f.Fecha_graduacion, 
+                                f.Foto,f.Dip_pass_copia, f.Copia_doc_nomb, f.Copia_carnet_func, f.Copia_doc_tom_posesion, f.Copia_doc_academicos,
                                 f.Usuario_creador, f.Fecha_registro
 
                                 FROM funcionarios f
                                 LEFT JOIN secciones s ON f.Id_seccion = s.Id_seccion
                                 LEFT JOIN direcciones d ON s.Id_direccion = d.Id_direccion
                                 LEFT JOIN categorias c ON f.Id_categoria = c.Id_categoria
-                                ORDER BY f.Id_funcionario ASC
-
+                                ORDER BY f.Id_funcionario DESC
                             ";
 
                             $stmt = $pdo->query($sql);
@@ -175,8 +170,8 @@ include_once '../includes/header.php';
                                                 <div class="small"><i class="bi bi-telephone text-muted"></i> <?= htmlspecialchars($f['Telefono'] ?? '---') ?></div>
                                                 <div class="small text-muted text-truncate" style="max-width: 150px;">
                                                     <i class="bi bi-geo-alt"></i>
-                                                    <?= (!empty($f['ubicacion_direccion']) || !empty($f['distrito_direccion']))
-                                                        ? htmlspecialchars(trim(($f['ubicacion_direccion'] ?? '') . "-" . ($f['distrito_direccion'] ?? ''), " — "))
+                                                    <?= (!empty($f['Direccion_Ubicacion']) || !empty($f['Direccion_Distrito']))
+                                                        ? htmlspecialchars(trim(($f['Direccion_Ubicacion'] ?? '') . "-" . ($f['Direccion_Distrito'] ?? ''), " — "))
                                                         : 'No asignado' ?>
                                                 </div>
                                             </td>
@@ -319,8 +314,6 @@ include_once '../includes/header.php';
             </div>
         </div>
     </div>
-
-
 
 
 
@@ -837,7 +830,8 @@ include_once '../includes/header.php';
                 const colorBadge = coloresEstado[funcionario.Estado_Laboral] || 'bg-secondary';
 
                 // Solo valores para el origen
-                const origenValores = `${funcionario.Pueblo || ''}-${funcionario.Tribu || ''} / ${funcionario.Distrito || ''}-${funcionario.Provincia || ''}`.replace(/^, |, $/g, '');
+                const origenValores = `${funcionario.Pueblo || ''}-${funcionario.Tribu || ''} 
+                / ${funcionario.Distrito || ''}-${funcionario.Provincia || ''}`.replace(/^, |, $/g, '');
 
                 modalContentData.innerHTML = `
             <div class="col-12 mb-4">
@@ -884,17 +878,14 @@ include_once '../includes/header.php';
                             ${renderRow('Dirección', funcionario.Nombre_Direccion)}
                         </div>
                         <div class="col-md-6 ps-md-4">
-                           ${renderRow('Destino Actual', `<i class="bi bi-geo-alt-fill text-danger small"></i> ${funcionario.ubicacion_direccion || 'No Asignado'} — ${funcionario.Distrito_Direccion || 'No Asignado'}`)}
+                           ${renderRow('Destino Actual', `<i class="bi bi-geo-alt-fill text-danger small"></i> ${funcionario.Direccion_Ubicacion || 'No Asignado'} 
+                           — ${funcionario.Distrito_Direccion || 'No Asignado'}`)}
                             ${renderRow('Fecha Nombramiento', formatDate(funcionario.Fecha_nombramiento))}
                             ${renderRow('Fecha Toma Posesión', formatDate(funcionario.Fecha_posesion))}
                         </div>
                     </div>
                 </div>
             </div>
-
-             
-
-
 
 
             <div class="col-md-6 mb-4">

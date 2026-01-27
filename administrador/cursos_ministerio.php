@@ -42,15 +42,14 @@ include_once '../includes/header.php';
 
 
                 <div class="container-fluid px-4">
-                    <div>
+                    <div id="contenedor-mensajes-fijos">
                         <?php
-
                         if (isset($_SESSION['error'])) {
-                            echo "<div id='mensajeFlash' class='alert alert-danger'>" . htmlspecialchars($_SESSION['error']) . "</div>";
+                            echo "<div class='alert alert-danger'>" . htmlspecialchars($_SESSION['error']) . "</div>";
                             unset($_SESSION['error']);
                         }
                         if (isset($_SESSION['exito'])) {
-                            echo "<div id='mensajeFlash' class='alert alert-success'>" . htmlspecialchars($_SESSION['exito']) . "</div>";
+                            echo "<div class='alert alert-success'>" . htmlspecialchars($_SESSION['exito']) . "</div>";
                             unset($_SESSION['exito']);
                         }
                         ?>
@@ -159,7 +158,7 @@ include_once '../includes/header.php';
 
                                                 <?php endif; ?>
 
-
+                                                <!-- Botón Ver Inscritos -->
                                                 <button class="btn btn-sm btn-info btn-ver-inscritos"
                                                     data-id="<?= $curso['ID_Curso'] ?>"
                                                     data-nombre="<?= htmlspecialchars($curso['Nombre_Curso']) ?>"
@@ -367,7 +366,6 @@ include_once '../includes/header.php';
 
     <!-- modal para matricula -->
 
-
     <!-- Modal de Inscribir Funcionarios a un curso -->
     <div class="modal fade" id="inscribirModal" tabindex="-1" aria-labelledby="inscribirModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
@@ -404,134 +402,7 @@ include_once '../includes/header.php';
 
 
 
-
-    <!-- Modal de Funcionarios Inscritos -->
-    <div class="modal fade" id="modalInscritos" tabindex="-1" aria-labelledby="modalInscritosLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalInscritosLabel">Funcionarios Inscritos</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-2">
-                        <input type="text" id="buscadorInscritos" class="form-control" placeholder="Buscar funcionario...">
-                    </div>
-                    <table class="table table-striped" id="tablaInscritos">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Nombre</th>
-                                <th>Apellidos</th>
-                                <th>Codigo del Funcionario</th>
-                                <th>D.I.P/Pasaporte</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Se llenará dinámicamente -->
-                        </tbody>
-                    </table>
-                </div>
-                <div class="modal-footer">
-                    <button id="btnImprimirInscritos" class="btn btn-primary"><i class="bi bi-printer"></i> Imprimir</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-
-
-    <script>
-        // Para que los tooltips funcionen debes inicializarlos en tu JavaScript principal:
-        document.addEventListener('DOMContentLoaded', function() {
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-            tooltipTriggerList.map(function(tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl)
-            });
-        });
-    </script>
-
-
-
-
-
-    <script>
-        //  JavaScript para cargar los funcionarios y buscador
-        document.querySelectorAll('.btn-ver-inscritos').forEach(button => {
-            button.addEventListener('click', function() {
-                const idCurso = this.dataset.id;
-                const nombreCurso = this.dataset.nombre;
-                const fechaInicio = this.dataset.inicio;
-                const fechaFin = this.dataset.fin;
-
-                // Cambiar título del modal
-                document.getElementById('modalInscritosLabel').textContent = `Funcionarios inscritos en: ${nombreCurso}`;
-
-                // Limpiar tabla
-                const tbody = document.querySelector('#tablaInscritos tbody');
-                tbody.innerHTML = '';
-
-                // Guardar info para imprimir
-                document.getElementById('btnImprimirInscritos').dataset.nombreCurso = nombreCurso;
-                document.getElementById('btnImprimirInscritos').dataset.fechaInicio = fechaInicio;
-                document.getElementById('btnImprimirInscritos').dataset.fechaFin = fechaFin;
-
-                // Fetch a tu API para obtener los funcionarios inscritos
-                fetch(`../api/funcionarios_inscritos.php?ID_Curso=${idCurso}`)
-                    .then(res => res.json())
-                    .then(data => {
-                        data.forEach(func => {
-                            const tr = document.createElement('tr');
-                            tr.innerHTML = `<td>${func.ID_Funcionario}</td>
-                                    <td>${func.Nombre}</td>
-                                    <td>${func.Apellidos}</td>
-                                    <td>${func.CODIGO}</td>
-                                    <td>${func.Dip_Pasaporte}</td>`;
-                            tbody.appendChild(tr);
-                        });
-                    });
-            });
-        });
-
-
-
-
-
-        // Buscador dinámico
-        document.getElementById('buscadorInscritos').addEventListener('input', function() {
-            const filter = this.value.toLowerCase();
-            document.querySelectorAll('#tablaInscritos tbody tr').forEach(row => {
-                const nombre = row.cells[1].textContent.toLowerCase();
-                const apellidos = row.cells[2].textContent.toLowerCase();
-                row.style.display = (nombre.includes(filter) || apellidos.includes(filter)) ? '' : 'none';
-            });
-        });
-
-
-
-
-
-        // Botón imprimir con información del curso
-        document.getElementById('btnImprimirInscritos').addEventListener('click', function() {
-            const tabla = document.getElementById('tablaInscritos').outerHTML;
-            const nombreCurso = this.dataset.nombreCurso;
-            const fechaInicio = this.dataset.fechaInicio;
-            const fechaFin = this.dataset.fechaFin;
-
-            const ventana = window.open('', '', 'height=600,width=800');
-            ventana.document.write('<html><head><title>Funcionarios Inscritos</title>');
-            ventana.document.write('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">');
-            ventana.document.write('</head><body>');
-            ventana.document.write(`<h3>Curso: ${nombreCurso}</h3>`);
-            ventana.document.write(`<p>Fecha de inicio: ${fechaInicio} | Fecha de fin: ${fechaFin}</p>`);
-            ventana.document.write(tabla);
-            ventana.document.write('</body></html>');
-            ventana.document.close();
-            ventana.print();
-        });
-    </script>
-
+    <!-- Script de Inscribir Funcionarios a un curso -->
     <script>
         let seleccionados = [];
 
@@ -627,100 +498,237 @@ include_once '../includes/header.php';
             });
         }
 
-        // Guardar inscripción
+        // Script de Inscribir Funcionarios
         document.getElementById('btnGuardarInscripcion').addEventListener('click', function() {
-            const modalBody = document.querySelector('#inscribirModal .modal-body');
+            const contenedorMensajes = document.getElementById('contenedor-mensajes-fijos');
+            const idCurso = document.getElementById('idCursoActual').value;
 
-            // Función para mostrar mensajes dentro del modal sin SweetAlert
-            const mostrarMensaje = (mensaje, tipo = 'danger') => {
-                const alertaExistente = document.getElementById('alerta-inscripcion');
-                if (alertaExistente) alertaExistente.remove();
-
-                const div = document.createElement('div');
-                div.id = 'alerta-inscripcion';
-                div.className = `alert alert-${tipo} alert-dismissible fade show mt-2`;
-                div.role = 'alert';
-                div.innerHTML = `
-            ${mensaje}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        `;
-                modalBody.prepend(div); // Lo pone al principio del modal
+            const lanzarAlertaFija = (contenido, tipo) => {
+                const contenedorMensajes = document.getElementById('contenedor-mensajes-fijos');
+                contenedorMensajes.innerHTML = `
+                    <div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
+                        ${contenido}
+                    </div>`;
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+                programarCierreAlerta(contenedorMensajes);
             };
 
             if (seleccionados.length === 0) {
-                mostrarMensaje('<strong>Atención:</strong> Debes seleccionar al menos un funcionario.', 'warning');
+                lanzarAlertaFija('<strong>Atención:</strong> Debes seleccionar al menos un funcionario antes de guardar.', 'warning');
                 return;
             }
 
-            const idCurso = document.getElementById('idCursoActual').value;
             const formData = new FormData();
             formData.append('ID_Curso', idCurso);
             formData.append('funcionarios', JSON.stringify(seleccionados.map(f => f.ID_Funcionario)));
 
             fetch('../api/guardar_matricula.php', {
-        method: 'POST',
-        body: formData
-    })
-    .then(res => res.json())
-    .then(response => {
-        // Seleccionamos el contenedor que está fuera del modal
-        const contenedorMensajes = document.getElementById('contenedor-mensajes-fijos');
-        let htmlMsg = '';
+                    method: 'POST',
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(response => {
+                    if (response.success) {
+                        let inscritosText = response.inscritos.length > 0 ?
+                            `Inscritos correctamente: ${response.inscritos.join(', ')}` :
+                            'No se realizaron nuevas inscripciones.';
 
-        if (response.success) {
-            // Construir el mensaje de éxito
-            let inscritosText = response.inscritos.length > 0 ? `✅ Inscritos: ${response.inscritos.join(', ')}` : '';
-            let noInscritosText = '';
+                        let noInscritosText = '';
+                        if (response.noInscritos && response.noInscritos.length > 0) {
+                            noInscritosText = `<div class="mt-2 small">⚠️ <strong>No procesados:</strong><ul>`;
+                            response.noInscritos.forEach(f => {
+                                noInscritosText += `<li>${f.nombre}: ${f.motivo}</li>`;
+                            });
+                            noInscritosText += `</ul></div>`;
+                        }
 
-            if (response.noInscritos && response.noInscritos.length > 0) {
-                noInscritosText = `<div class="mt-2">⚠️ <b>No procesados:</b><ul class="mb-0">`;
-                response.noInscritos.forEach(f => {
-                    noInscritosText += `<li>${f.nombre}: ${f.motivo}</li>`;
+                        lanzarAlertaFija(`${inscritosText}${noInscritosText}`, 'success');
+                        seleccionados = [];
+                        renderListaSeleccionados();
+                        const modalEl = document.getElementById('inscribirModal');
+                        const modal = bootstrap.Modal.getInstance(modalEl);
+                        modal.hide();
+
+                    } else {
+                        lanzarAlertaFija(`<strong>Error:</strong> ${response.message}`, 'danger');
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    lanzarAlertaFija('<strong>Error crítico:</strong> No se pudo conectar con el servidor.', 'danger');
                 });
-                noInscritosText += `</ul></div>`;
-            }
-
-            htmlMsg = `
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <strong>¡Proceso completado!</strong><br>
-                    ${inscritosText}
-                    ${noInscritosText}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>`;
-
-            // Limpiar la lista de seleccionados y cerrar el modal
-            seleccionados = [];
-            renderListaSeleccionados();
-            
-            const modalEl = document.getElementById('inscribirModal');
-            const modal = bootstrap.Modal.getInstance(modalEl);
-            modal.hide();
-
-        } else {
-            // Mensaje de error (rojo)
-            htmlMsg = `
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <strong>Error:</strong> ${response.message}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>`;
-        }
-
-        // Inyectar el mensaje en el div fuera del modal
-        contenedorMensajes.innerHTML = htmlMsg;
-
-        // Opcional: Desplazar la pantalla hacia arriba para ver el mensaje
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    })
-    .catch(err => {
-        console.error(err);
-        document.getElementById('contenedor-mensajes-fijos').innerHTML = `
-            <div class="alert alert-danger alert-dismissible fade show">
-                <strong>Error crítico:</strong> No se pudo conectar con el servidor.
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>`;
-    });
         });
     </script>
+
+
+
+
+
+
+    <!-- Función Universal para cerrar alertas con desvanecimiento -->
+    <script>
+        const programarCierreAlerta = (contenedor) => {
+            setTimeout(() => {
+                const alerta = contenedor.querySelector('.alert');
+                if (alerta) {
+                    alerta.classList.remove('show');
+                    setTimeout(() => {
+                        contenedor.innerHTML = '';
+                    }, 150);
+                }
+            }, 3000);
+        };
+        document.addEventListener('DOMContentLoaded', function() {
+            const contenedorFijo = document.getElementById('contenedor-mensajes-fijos');
+            if (contenedorFijo && contenedorFijo.querySelector('.alert')) {
+                contenedorFijo.querySelector('.alert').classList.add('fade', 'show');
+                programarCierreAlerta(contenedorFijo);
+            }
+        });
+    </script>
+
+
+
+
+
+
+
+
+
+    <!-- Modal de Funcionarios Inscritos -->
+    <div class="modal fade" id="modalInscritos" tabindex="-1" aria-labelledby="modalInscritosLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalInscritosLabel">Funcionarios Inscritos</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-2">
+                        <input type="text" id="buscadorInscritos" class="form-control" placeholder="Buscar funcionario...">
+                    </div>
+                    <table class="table table-striped" id="tablaInscritos">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Apellidos</th>
+                                <th>Codigo del Funcionario</th>
+                                <th>D.I.P/Pasaporte</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Se llenará dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button id="btnImprimirInscritos" class="btn btn-primary"><i class="bi bi-printer"></i> Imprimir</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <script>
+        // Para que los tooltips funcionen debes inicializarlos en tu JavaScript principal:
+        document.addEventListener('DOMContentLoaded', function() {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            tooltipTriggerList.map(function(tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            });
+        });
+    </script>
+
+
+
+
+    <!-- Script del modal de funcionarios inscritos -->
+    <script>
+    document.addEventListener('click', function(event) {
+        const button = event.target.closest('.btn-ver-inscritos');
+
+        if (button) {
+            const idCurso = button.dataset.id;
+            const nombreCurso = button.dataset.nombre;
+            const fechaInicio = button.dataset.inicio;
+            const fechaFin = button.dataset.fin;
+
+            // 2. Configurar el Modal (Título y Datos para imprimir)
+            document.getElementById('modalInscritosLabel').textContent = `Funcionarios inscritos en: ${nombreCurso}`;
+            
+            // IMPORTANTE: Aquí asignamos el ID al botón de imprimir para que el otro evento lo lea
+            const btnImp = document.getElementById('btnImprimirInscritos');
+            btnImp.dataset.idCurso = idCurso; 
+            btnImp.dataset.nombreCurso = nombreCurso;
+            btnImp.dataset.fechaInicio = fechaInicio;
+            btnImp.dataset.fechaFin = fechaFin;
+
+            // 3. Limpiar tabla y mostrar estado de carga
+            const tbody = document.querySelector('#tablaInscritos tbody');
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center"><div class="spinner-border spinner-border-sm text-primary"></div> Cargando...</td></tr>';
+
+            // 4. Fetch a la API para obtener los datos de la tabla
+            fetch(`../api/funcionarios_inscritos.php?ID_Curso=${idCurso}`)
+                .then(res => {
+                    if (!res.ok) throw new Error("Error en la respuesta del servidor");
+                    return res.json();
+                })
+                .then(data => {
+                    tbody.innerHTML = ''; // Limpiar el "Cargando..."
+                    
+                    if (data.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No hay funcionarios inscritos en este curso.</td></tr>';
+                        return;
+                    }
+
+                    data.forEach(func => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${func.ID_Funcionario || '---'}</td>
+                            <td>${func.Nombre}</td>
+                            <td>${func.Apellidos}</td>
+                            <td>${func.CODIGO || '---'}</td>
+                            <td>${func.Dip_Pasaporte || '---'}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Error al cargar los datos de los inscritos.</td></tr>';
+                });
+        }
+    });
+
+    // Buscador dinámico dentro del modal
+    document.getElementById('buscadorInscritos').addEventListener('input', function() {
+        const filter = this.value.toLowerCase();
+        document.querySelectorAll('#tablaInscritos tbody tr').forEach(row => {
+            const texto = row.innerText.toLowerCase();
+            row.style.display = texto.includes(filter) ? '' : 'none';
+        });
+    });
+
+    // Acción del botón Imprimir (Llama al PDF de FPDF)
+    document.getElementById('btnImprimirInscritos').addEventListener('click', function() {
+        const idCurso = this.dataset.idCurso;
+
+        if (!idCurso) {
+            alert("Error: No se encontró el ID del curso para generar el reporte.");
+            return;
+        }
+
+        // Abrir el archivo PHP que creamos anteriormente en una nueva pestaña
+        window.open(`../fpdf/imprimir_inscritos.php?ID_Curso=${idCurso}`, '_blank');
+    });
+</script>
+
 
 
 
@@ -810,11 +818,7 @@ include_once '../includes/header.php';
 
 
 
-
-
-
-
-
+    <!-- Script para paginacion -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Sidebar toggle for mobile

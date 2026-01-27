@@ -150,14 +150,14 @@ include_once '../includes/silebar_admin.php';
                                                 <td>
                                                     <div class="d-flex gap-1">
                                                         <?php if ($row['Copia_doc_nomb']): ?>
-                                                            <a href="../uploads/<?= $row['Copia_doc_nomb'] ?>" target="_blank"
+                                                            <a href="../uploads/nombramientos/<?= $row['Copia_doc_nomb'] ?>" target="_blank"
                                                                 class="btn btn-sm btn-outline-danger">
                                                                 <i class="bi bi-file-pdf"></i>
                                                             </a>
                                                         <?php endif; ?>
 
                                                         <?php if ($row['Copia_doc_tom_posesion']): ?>
-                                                            <a href="../uploads/<?= $row['Copia_doc_tom_posesion'] ?>"
+                                                            <a href="../uploads/nombramientos/<?= $row['Copia_doc_tom_posesion'] ?>"
                                                                 target="_blank" class="btn btn-sm btn-outline-primary">
                                                                 <i class="bi bi-file-pdf"></i>
                                                             </a>

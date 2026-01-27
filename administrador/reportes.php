@@ -30,12 +30,13 @@ include_once '../includes/header.php';
                         </div>
                         <div class="col-md-4 text-md-end">
                             <div class="d-flex justify-content-md-end align-items-center gap-2 flex-wrap justify-content-center">
-                                <select class="form-select" style="width: auto;">
+                                <select id="filtroTiempo" name="periodo" class="form-select" style="width: auto;">
+                                    <option value="todo">Histórico</option>
                                     <option value="mes">Este mes</option>
                                     <option value="trimestre">Trimestre</option>
                                     <option value="año">Este año</option>
                                 </select>
-                                <button class="btn btn-primary">
+                                <button id="btnExportarPrincipal" class="btn btn-primary" onclick="exportarPDFActual()">
                                     <i class="bi bi-download me-1"></i> Exportar
                                 </button>
                             </div>
@@ -46,21 +47,19 @@ include_once '../includes/header.php';
 
 
 
-
                 <div class="container-fluid px-4">
 
-                    <form id="filtroForm">
-                        <div class="container my-4">
-                            <div class="row g-4">
-
-                                <div class="col-md-4">
-                                    <div class="card shadow-sm border-start border-4 border-primary">
-                                        <div class="card-body">
-                                            <h6 class="card-title text-primary fw-bold d-flex align-items-center">
-                                                <i class="bi bi-person-check me-2"></i> Estado Laboral
-                                            </h6>
-                                            <select class="form-select" name="estado_laboral">
-                                                <option value="">-- Seleccionar --</option>
+                    <form id="filtroForm" class="mb-3">
+                        <div class="container-fluid px-0">
+                            <div class="card shadow-sm border-0 bg-light">
+                                <div class="card-body p-4">
+                                    <div class="row g-3">
+                                        <div class="col-md-3">
+                                            <label class="form-label fw-bold text-dark small">
+                                                <i class="bi bi-person-check text-primary me-1"></i> ESTADO LABORAL
+                                            </label>
+                                            <select class="form-select border-primary-subtle shadow-sm" name="estado_laboral">
+                                                <option value="">Todos los estados</option>
                                                 <option value="Activo">Activo</option>
                                                 <option value="Baja Temporal">Baja Temporal</option>
                                                 <option value="Jubilado">Jubilado</option>
@@ -69,137 +68,107 @@ include_once '../includes/header.php';
                                                 <option value="Vacaciones">Vacaciones</option>
                                             </select>
                                         </div>
-                                    </div>
-                                </div>
 
-                                <div class="col-md-4">
-                                    <div class="card shadow-sm border-start border-4 border-success">
-                                        <div class="card-body">
-                                            <h6 class="card-title text-success fw-bold d-flex align-items-center">
-                                                <i class="bi bi-building me-2"></i> Dirección
-                                            </h6>
-                                            <select class="form-select" name="id_direccion">
-                                                <option value="">-- Seleccionar --</option>
+                                        <div class="col-md-3">
+                                            <label class="form-label fw-bold text-dark small">
+                                                <i class="bi bi-building text-success me-1"></i> DIRECCIÓN
+                                            </label>
+                                            <select class="form-select border-success-subtle shadow-sm" name="id_direccion">
+                                                <option value="">Todas las direcciones</option>
                                             </select>
                                         </div>
-                                    </div>
-                                </div>
 
-                                <div class="col-md-4">
-                                    <div class="card shadow-sm border-start border-4 border-danger">
-                                        <div class="card-body">
-                                            <h6 class="card-title text-danger fw-bold d-flex align-items-center">
-                                                <i class="bi bi-geo-alt-fill me-2"></i> Sección
-                                            </h6>
-                                            <select class="form-select" name="id_seccion">
-                                                <option value="">-- Seleccionar --</option>
+                                        <div class="col-md-3">
+                                            <label class="form-label fw-bold text-dark small">
+                                                <i class="bi bi-geo-alt-fill text-danger me-1"></i> SECCIÓN
+                                            </label>
+                                            <select class="form-select border-danger-subtle shadow-sm" name="id_seccion">
+                                                <option value="">Todas las secciones</option>
                                             </select>
                                         </div>
-                                    </div>
-                                </div>
 
-                                <div class="col-md-4">
-                                    <div class="card shadow-sm border-start border-4 border-warning">
-                                        <div class="card-body">
-                                            <h6 class="card-title text-warning fw-bold d-flex align-items-center">
-                                                <i class="bi bi-briefcase-fill me-2"></i> Cargo
-                                            </h6>
-                                            <select class="form-select" name="id_cargo">
-                                                <option value="">-- Seleccionar --</option>
+                                        <div class="col-md-3">
+                                            <label class="form-label fw-bold text-dark small">
+                                                <i class="bi bi-briefcase-fill text-warning me-1"></i> CARGO
+                                            </label>
+                                            <select class="form-select border-warning-subtle shadow-sm" name="id_cargo">
+                                                <option value="">Todos los cargos</option>
                                             </select>
                                         </div>
-                                    </div>
-                                </div>
 
-                                <div class="col-md-4">
-                                    <div class="card shadow-sm border-start border-4 border-info">
-                                        <div class="card-body">
-                                            <h6 class="card-title text-info fw-bold d-flex align-items-center">
-                                                <i class="bi bi-calendar-range me-2"></i> Fecha de Nombramiento
-                                            </h6>
-                                            <div class="d-flex gap-2">
-                                                <input type="date" class="form-control" name="fecha_inicio" title="Desde" />
-                                                <input type="date" class="form-control" name="fecha_fin" title="Hasta" />
-                                            </div>
-                                        </div>
                                     </div>
-                                </div>
-
-                                <div class="col-md-4">
-                                    <div class="card shadow-sm border-start border-4 border-secondary">
-                                        <div class="card-body">
-                                            <h6 class="card-title text-secondary fw-bold d-flex align-items-center">
-                                                <i class="bi bi-list-check me-2"></i> Reporte General
-                                            </h6>
-                                            <div class="form-check mt-2">
-                                                <input
-                                                    class="form-check-input"
-                                                    type="checkbox"
-                                                    name="reporte_general"
-                                                    value="1"
-                                                    id="reporteGeneral" />
-                                                <label class="form-check-label" for="reporteGeneral">Mostrar todos los registros</label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="col-12 d-flex justify-content-end gap-2">
-                                    <button type="submit" class="btn btn-primary rounded-pill px-4">
-                                        <i class="bi bi-funnel-fill me-1"></i> Filtrar Resultados
-                                    </button>
-                                    <button type="button" id="btnLimpiar" class="btn btn-outline-secondary rounded-pill px-4">
-                                        <i class="bi bi-arrow-counterclockwise me-1"></i> Limpiar
-                                    </button>
                                 </div>
                             </div>
                         </div>
                     </form>
 
+                    <div class="mb-4 bg-transparent">
+                        <div class="p-0">
+                            <div class="row g-3 align-items-center">
+                                <div class="col-md-4">
+                                    <small class="text-uppercase fw-bold text-muted letter-spacing-1">
+                                        <i class="bi bi-sliders2-vertical me-2"></i>Acciones de Reporte
+                                    </small>
+                                </div>
 
+                                <div class="col-md-8 d-flex flex-wrap justify-content-md-end gap-2">
 
+                                    <div class="d-flex shadow-sm rounded overflow-hidden" style="border: 1px solid #dee2e6;">
+                                        <button type="button" onclick="aplicarFiltros()" class="btn btn-primary border-0 px-4 rounded-0">
+                                            <i class="bi bi-funnel-fill small me-1"></i> Filtrar
+                                        </button>
+                                        <button type="button" id="btnLimpiar" class="btn btn-white border-0 px-3 rounded-0 bg-white" title="Limpiar Filtros">
+                                            <i class="bi bi-arrow-counterclockwise text-secondary"></i>
+                                        </button>
+                                    </div>
 
-                    <!-- Exportar botones -->
-                    <div class="container my-3 d-flex justify-content-end gap-2">
-                        <button id="btnExportExcel" class="btn btn-success rounded-pill px-4" disabled>
-                            <i class="bi bi-file-earmark-spreadsheet-fill me-1"></i> Exportar Excel
-                        </button>
-                        <button id="btnExportPDF" class="btn btn-danger rounded-pill px-4" disabled>
-                            <i class="bi bi-file-earmark-pdf-fill me-1"></i> Exportar PDF
-                        </button>
+                                    <div style="width: 1px; height: 30px; background-color: #e0e0e0; margin: 0 10px;" class="d-none d-md-block align-self-center"></div>
+
+                                    <div class="d-flex gap-2">
+                                        <button id="btnExportExcel" class="btn btn-light border-success-subtle text-success px-3 shadow-sm hover-elevate" disabled>
+                                            <i class="bi bi-file-earmark-spreadsheet-fill"></i>
+                                            <span class="d-none d-lg-inline ms-1 fw-semibold small">Excel</span>
+                                        </button>
+                                        <button id="btnExportPDF" class="btn btn-light border-danger-subtle text-danger px-3 shadow-sm hover-elevate" disabled>
+                                            <i class="bi bi-file-earmark-pdf-fill"></i>
+                                            <span class="d-none d-lg-inline ms-1 fw-semibold small">PDF</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
+
+
                     <!-- Tabla resultados -->
-
-
-
-
-
                     <div class="container my-4">
                         <div class="table-responsive">
                             <table class="table table-bordered table-striped align-middle" id="tablaResultados">
                                 <thead class="table-responsive table-secondary">
-                                    <tr>
-                                        <th style="width: 50px;">#</th>
-                                        <th>Nombre y Apellidos</th>
-                                        <th>Código</th>
-                                        <th>Estado Laboral</th>
-                                        <th>Ubicacion Act.</th>
-                                        <th>Categoria/Cargo</th>
-                                        <th>Sección</th>
-                                        <th>Fecha Nombramiento</th>
-                                        <th>F. Toma Posesión</th>
-                                    </tr>
+                                    <thead>
+                                        <tr class="text-nowrap bg-light">
+                                            <th style="width: 50px;" class="ps-3">ID</th>
+                                            <th>Funcionario</th>
+                                            <th>Código</th>
+                                            <th>Cargo / Categoría</th>
+                                            <th>Direccion</th>
+                                            <th>Sección</th>
+                                            <th>Destino</th>
+                                            <th>F. Nombramiento</th>
+                                            <th>F. Toma Posesión</th>
+                                            <th class="pe-3">Estado</th>
+                                        </tr>
+                                    </thead>
                                 </thead>
                                 <tbody id="tbodyResultados">
                                     <tr>
                                         <td colspan="9" class="text-center text-muted py-4">
-                                            <i class="bi bi-funnel me-2"></i> Seleccione filtros y pulse "Filtrar Resultados".
+                                            <i class="bi bi-funnel me-2"></i> Seleccione filtros y pulse "Filtrar"
                                         </td>
                                     </tr>
                                 </tbody>
                             </table>
-                            <!-- Aquí debajo pon el contenedor -->
                             <div id="paginacion" class="d-flex justify-content-center mt-3"></div>
                         </div>
                     </div>
@@ -211,6 +180,30 @@ include_once '../includes/header.php';
 
                         const tbody = document.querySelector('#tablaResultados tbody');
                         const paginationDiv = document.getElementById('paginacion');
+
+                        // --- 2. LA FUNCIÓN QUE TE FALTA (AQUÍ ESTÁ EL ARREGLO) ---
+                        document.getElementById('filtroTiempo').addEventListener('change', function() {
+                            aplicarFiltros();
+                        });
+
+                        function aplicarFiltros() {
+                            const form = document.getElementById('filtroForm');
+                            const periodo = document.getElementById('filtroTiempo').value;
+                            const formData = new FormData(form);
+                            formData.append('periodo', periodo);
+                            fetch('../api/buscar_funcionarios23.php', {
+                                    method: 'POST',
+                                    body: formData
+                                })
+                                .then(res => res.json())
+                                .then(data => {
+                                    if (data.success) {
+                                        currentFilterData = data.data;
+                                        currentPage = 1;
+                                        renderPagina(1);
+                                    }
+                                });
+                        }
 
                         function renderPagina(page) {
                             tbody.innerHTML = '';
@@ -227,23 +220,35 @@ include_once '../includes/header.php';
 
                             paginatedData.forEach((f, i) => {
                                 const row = `
-                                <tr class="text-nowrap">
+                                <tr style="font-size: 0.85rem; vertical-align: middle;">
                                     <td class="text-muted ps-3">${start + i + 1}</td>
-                                    <td class="fw-bold"><i class="bi bi-person-badge me-2 text-primary"></i>${f.Nombre} ${f.Apellidos} </td>
-                                    <td> <i class="bi bi-hash me-1 text-secondary"></i><span class="badge bg-light text-dark border">${f.CODIGO}</span></td>
-                                    <td><span class="badge ${getEstadoBadge(f.Estado_Laboral)}">${f.Estado_Laboral}</span></td>
-                                    <td><i class="bi bi-geo-alt me-2 text-success"></i>${f.nombre_direccion || 'Sin Asignar'}</td>
-                                    <td><i class="bi bi-tags me-2 text-dark"></i>${f.nombre_categoria || 'Sin Asignar'} --
-                                    <i class="bi bi-briefcase me-2 text-warning"></i>${f.nombre_cargo || 'Sin Asignar'} </td>
-                                    <td><i class="bi bi-building me-2 text-danger"></i>${f.nombre_seccion || 'Sin Asignar'}</td>
-                                    <td><i class="bi bi-calendar-check me-2 text-info"></i>${f.Fecha_nombramiento || '-'}</td>
-                                    <td class="pe-3"><i class="bi bi-calendar-event me-2 text-primary"></i>${f.Fecha_toma_posesion || '-'}</td>
+                                    <td class="fw-bold text-nowrap">${f.Nombre} ${f.Apellidos}</td>
+                                    <td><span class="badge bg-light text-dark border">${f.CODIGO}</span></td>
+                                    <td>
+                                        <div class="text-truncate-custom" title="${f.nombre_cargo} - ${f.nombre_categoria}">
+                                           ${f.nombre_cargo || '-'} <span class="text-muted">|</span> 
+                                            <small>${f.nombre_categoria || '-'}</small>
+                                        </div>
+                                    </td>
+                                    <td> <div class="text-truncate-custom" title="${f.nombre_direccion}"> ${f.nombre_direccion || 'Sin Asignar'}</div> </td>
+                                    <td> <div class="text-truncate-custom" title="${f.nombre_seccion}">${f.nombre_seccion || 'Sin Asignar'}</div> </td>
+
+                                    <td>
+                                        <div class="text-truncate-custom" title="Ubicación: ${f.ubicacion || '-'} -- Distrito: ${f.distrito || '-'}">
+                                            ${f.ubicacion || 'N/A'} <span class="text-muted mx-1">--</span> <small class="text-primary">${f.distrito || 'N/A'}</small>
+                                        </div>
+                                    </td>
+                                    
+                                    <td class="text-nowrap"> ${f.Fecha_nombramiento || '-'}</td>
+                                    <td class="text-nowrap">${f.Fecha_toma_posesion || '-'}</td>
+                                    <td class="pe-3"><span class="badge ${getEstadoBadge(f.Estado_Laboral)}">${f.Estado_Laboral}</span></td>
                                 </tr>`;
                                 tbody.insertAdjacentHTML('beforeend', row);
                             });
 
                             renderControles();
                         }
+
                         // Función auxiliar para colores de estado
                         function getEstadoBadge(estado) {
                             const colors = {
@@ -318,7 +323,6 @@ include_once '../includes/header.php';
                                     body: formData,
                                 })
                                 .then(async response => {
-                                    // Verificamos si la respuesta es exitosa (código 200)
                                     if (!response.ok) {
                                         const errorText = await response.text();
                                         throw new Error(`Error de servidor (${response.status}): ${errorText}`);
@@ -355,14 +359,56 @@ include_once '../includes/header.php';
                             document.getElementById('btnExportPDF').disabled = true;
                         });
 
-                        // Asegúrate de que el botón se habilite cuando haya datos
-                        // Si currentFilterData tiene datos, quitar el atributo 'disabled'
                         if (currentFilterData.length > 0) {
                             document.getElementById('btnExportPDF').removeAttribute('disabled');
                         }
 
+
+                        function exportarPDFActual() {
+                            if (currentFilterData.length === 0) {
+                                alert("No hay datos en la tabla para exportar. Por favor, realice una búsqueda primero.");
+                                return;
+                            }
+
+                            // 2. Obtener el formulario y el dato del periodo de tiempo
+                            const form = document.getElementById('filtroForm');
+                            const periodo = document.getElementById('filtroTiempo').value;
+
+                            // 3. Empaquetar todos los datos
+                            const formData = new FormData(form);
+                            formData.append('periodo', periodo);
+                            formData.append('export', 'pdf');
+
+                            fetch('../fpdf/buscar_funcionarios.php', {
+                                    method: 'POST',
+                                    body: formData
+                                })
+                                .then(res => {
+                                    if (!res.ok) throw new Error('Error en la generación del reporte');
+                                    return res.blob();
+                                })
+                                .then(blob => {
+                                    const url = window.URL.createObjectURL(blob);
+                                    const a = document.createElement('a');
+                                    a.href = url;
+                                    a.download = `Reporte_Themis_${periodo}_${new Date().toLocaleDateString()}.pdf`;
+                                    document.body.appendChild(a);
+                                    a.click();
+                                    window.URL.revokeObjectURL(url);
+                                    a.remove();
+                                })
+                                .catch(err => {
+                                    console.error(err);
+                                    alert("Error al exportar: " + err.message);
+                                });
+                        }
+
+
+
+
+
                         document.getElementById('btnExportPDF').addEventListener('click', function() {
-                            const form = document.getElementById('filtroForm'); // Verifica que este ID sea el de tu <form>
+                            const form = document.getElementById('filtroForm');
                             const formData = new FormData(form);
                             formData.append('export', 'pdf');
 
@@ -375,7 +421,6 @@ include_once '../includes/header.php';
                                     return res.blob();
                                 })
                                 .then(blob => {
-                                    // Verificar si el blob es realmente un PDF y no un error de PHP
                                     if (blob.type !== 'application/pdf') {
                                         console.error('El servidor no devolvió un PDF. Posible error de PHP.');
                                         return;
@@ -397,7 +442,6 @@ include_once '../includes/header.php';
                             let table = document.getElementById("tablaResultados");
                             let html = table.outerHTML;
 
-                            // Crear un blob con el contenido HTML y tipo Excel
                             let url = 'data:application/vnd.ms-excel;charset=utf-8,' + encodeURIComponent(html);
                             let link = document.createElement("a");
                             link.download = "reporte_funcionarios.xls";
@@ -408,27 +452,21 @@ include_once '../includes/header.php';
 
 
                     <script>
-                        // Ejecutar al cargar la página
                         document.addEventListener('DOMContentLoaded', () => {
-                            // 1. Cargar los filtros al iniciar
                             fetch('../api/cargar_filtros.php')
                                 .then(res => res.json())
                                 .then(data => {
                                     if (!data.success) throw new Error(data.message);
-
-                                    // Poblar Direcciones
                                     const dirSelect = document.querySelector('select[name="id_direccion"]');
                                     data.direcciones.forEach(dir => {
                                         dirSelect.add(new Option(dir.nombre, dir.Id_direccion));
                                     });
 
-                                    // Poblar Secciones
                                     const secSelect = document.querySelector('select[name="id_seccion"]');
                                     data.secciones.forEach(sec => {
                                         secSelect.add(new Option(sec.nombre, sec.Id_seccion));
                                     });
 
-                                    // Poblar Categorías (Cargos)
                                     const catSelect = document.querySelector('select[name="id_cargo"]');
                                     data.categorias.forEach(cat => {
                                         catSelect.add(new Option(cat.nombre, cat.Id_categoria));
@@ -439,7 +477,6 @@ include_once '../includes/header.php';
                                 .catch(err => console.error('Error cargando filtros:', err));
                         });
                     </script>
-
 
 
 
@@ -458,7 +495,6 @@ include_once '../includes/header.php';
 
 
     <script>
-        // Variable global para la instancia del gráfico
         let funcionariosChart;
 
         async function fetchData() {
@@ -467,8 +503,6 @@ include_once '../includes/header.php';
 
             try {
                 const response = await fetch('../api/data.php');
-
-                // Verificamos si la respuesta es JSON válido
                 const contentType = response.headers.get("content-type");
                 if (!contentType || !contentType.includes("application/json")) {
                     const text = await response.text();
@@ -482,9 +516,7 @@ include_once '../includes/header.php';
                     throw new Error(json.message);
                 }
 
-                const d = json.data; // Alias para simplificar
-
-                // --- 1. Actualizar Tarjetas con Operador Optional Chaining (?.) ---
+                const d = json.data;
                 const setTxt = (id, val) => {
                     const el = document.getElementById(id);
                     if (el) el.textContent = val ?? 0;
